@@ -4,17 +4,23 @@
   "description": "",
   "type": "module",
   "scripts": {
+    "format": "prettier src --write",
     "test": "vitest"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
+    "dotenv": "^16.5.0",
     "esbuild": "^0.25.5",
+    "prettier": "^3.5.3",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "@node-rs/argon2": "^2.0.2",
+    "jsonwebtoken": "^9.0.2",
     "zod": "^3.25.67"
   }
 }

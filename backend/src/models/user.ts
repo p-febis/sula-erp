@@ -6,4 +6,17 @@ export const CreateUserDtoSchema = z.object({
 });
 
 export type CreateUserDto = z.infer<typeof CreateUserDtoSchema>;
-export type TUser = {};
+
+export const LoginUserDtoSchema = z.object({
+  password: z.string(),
+  username: z.string(),
+});
+
+export type LoginUserDto = z.infer<typeof CreateUserDtoSchema>;
+
+export type TUser = {
+  id: number;
+  refresh_token_version: number;
+  username: string;
+  password: string;
+};
