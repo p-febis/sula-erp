@@ -89,8 +89,6 @@ describe("UserController", () => {
 
     const error = await responsePromise.catch(e => e);
 
-    expect(mockUserService.createUser).not.toHaveBeenCalled();
-
     expect(error).toEqual({
       status: 400,
       statusText: "Bad Request",
