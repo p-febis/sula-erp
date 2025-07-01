@@ -86,6 +86,17 @@ describe("UserService", () => {
     await expect(loginDataPromise).rejects.toThrowError();
   });
 
+  it("Should not login an non existant user", async () => {
+    mockUserRepository.findByName.mockResolvedValueOnce(null);
+
+    const loginDataPromise = userService.loginUser({
+      username: "Admin",
+      password: "9af4202f-b7bd-4549-b672-b261585e84ee",
+    });
+
+    await expect(loginDataPromise).rejects.toThrowError("No user!");
+  });
+
   it("Should return a valid access token on login", async () => {
     mockUserRepository.findByName.mockResolvedValueOnce({
       id: 1,

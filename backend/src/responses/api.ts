@@ -1,14 +1,14 @@
-export class ApiResponse<T = unknown> {
-  status: number;
-  statusText: string;
-  message: string;
-  data: T;
+import { HTTPError } from "h3";
 
+export class ApiResponse<T = unknown> extends HTTPError {
   constructor(status: number, statusText: string, message: string, data: T) {
-    this.status = status;
-    this.statusText = statusText;
-    this.message = message;
-    this.data = data;
+
+    super({
+      status,
+      statusText,
+      message,
+      data
+    });
   }
 }
 

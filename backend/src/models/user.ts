@@ -1,3 +1,4 @@
+import { User } from "generated/prisma";
 import { z } from "zod/v4";
 
 export const CreateUserDtoSchema = z.object({
@@ -14,9 +15,4 @@ export const LoginUserDtoSchema = z.object({
 
 export type LoginUserDto = z.infer<typeof CreateUserDtoSchema>;
 
-export type TUser = {
-  id: number;
-  refresh_token_version: number;
-  username: string;
-  password: string;
-};
+export type TUser = User;

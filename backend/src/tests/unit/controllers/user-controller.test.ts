@@ -7,6 +7,12 @@ const mockUserService = {
   createUser: vi.fn(),
 };
 
+vi.mock("@/utils/body-parser", () => ({
+  parseBodyAsync: async (event: H3Event) => {
+    return event.req.body
+  },
+}));
+
 describe("UserController", () => {
   let userController: IUserController;
 
@@ -60,7 +66,7 @@ describe("UserController", () => {
     const event = new H3Event(request);
     const response = await userController.postCreate(event);
 
-    expect(response).toEqual({
+    expect(response.cause).toEqual({
       status: 200,
       statusText: "OK",
       message: "Successfully created user",
@@ -87,9 +93,9 @@ describe("UserController", () => {
     const event = new H3Event(request);
     const responsePromise = userController.postCreate(event);
 
-    const error = await responsePromise.catch(e => e);
+    const error = await responsePromise.catch((e) => e);
 
-    expect(error).toEqual({
+    expect(error.cause).toEqual({
       status: 400,
       statusText: "Bad Request",
       message: "Bad Request",

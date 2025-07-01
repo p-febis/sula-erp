@@ -32,6 +32,10 @@ export class UserService implements IUserService {
     password,
   }: LoginUserDto): Promise<{ accessToken: string; refreshToken: string }> {
     const user = await this.m_userRepository.findByName(username);
+    if (!user) {
+      throw "No user!";
+    }
+
     const passwordsMatch = await verify(user.password, password);
 
     if (!passwordsMatch) {

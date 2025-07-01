@@ -1,6 +1,7 @@
 import { CreateUserDtoSchema } from "@/models/user";
 import { ErrorResponse, SuccessResponse } from "@/responses/api";
 import { IUserService } from "@/services/UserService";
+import { parseBodyAsync } from "@/utils/body-parser";
 import { H3Event } from "h3";
 
 export interface IUserController {
@@ -18,10 +19,12 @@ export class UserController implements IUserController {
     let creationData = null;
 
     try {
-      creationData = CreateUserDtoSchema.parse(event.req.body);
+      const body = await parseBodyAsync(event);
+      creationData = CreateUserDtoSchema.parse(body);
     } catch (error) {
       throw new ErrorResponse("Bad Request", null);
     }
+
 
     const { id, username } = await this.m_userService.createUser(creationData);
 
