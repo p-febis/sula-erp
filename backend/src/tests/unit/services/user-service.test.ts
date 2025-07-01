@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { UserService, IUserService } from "@/services/UserService";
 import jwt from "jsonwebtoken";
+import { verify } from  "@node-rs/argon2";
 
 const mockUserRepository = {
   create: vi.fn(),
@@ -16,11 +17,16 @@ describe("UserService", () => {
   });
 
   it("Should create and return user", async () => {
-    mockUserRepository.create.mockResolvedValueOnce({
-      id: 1,
-      username: "Admin",
-      password:
-        "$argon2id$v=19$m=16,t=2,p=1$cmFuZG9tLXNhbHQ$th+l03f/sP8YVAFse/EOuQ",
+
+    let capturedPassword: string = "";
+
+    mockUserRepository.create.mockImplementationOnce(async (data) => {
+      capturedPassword = data.password;
+      return {
+        id: 1,
+        username: data.username,
+        password: capturedPassword,
+      };
     });
 
     const user = await userService.createUser({
@@ -28,17 +34,23 @@ describe("UserService", () => {
       password: "eee914af-0b6b-4b43-a2da-dcdc125ff18b",
     });
 
-    expect(mockUserRepository.create).toHaveBeenCalledExactlyOnceWith({
-      username: "Admin",
-      password: "eee914af-0b6b-4b43-a2da-dcdc125ff18b",
-    });
+    expect(mockUserRepository.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        username: "Admin",
+        password: expect.any(String),
+      })
+    );
 
-    expect(user).toEqual({
-      id: 1,
-      username: "Admin",
-      password:
-        "$argon2id$v=19$m=16,t=2,p=1$cmFuZG9tLXNhbHQ$th+l03f/sP8YVAFse/EOuQ",
-    });
+    const isValid = await verify(capturedPassword, "eee914af-0b6b-4b43-a2da-dcdc125ff18b");
+    expect(isValid).toBe(true);
+
+    expect(user).toEqual(
+      expect.objectContaining({
+        username: "Admin",
+        id: 1,
+        password: expect.any(String),
+      })
+    );
   });
 
   it("Should throw if a user already exists", async () => {

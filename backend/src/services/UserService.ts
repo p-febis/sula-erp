@@ -1,6 +1,7 @@
 import { CreateUserDto, LoginUserDto, TUser } from "@/models/user";
 import { IUserRepository } from "@/repositories/UserRepository";
-import { verify } from "@node-rs/argon2";
+import { hashingOptions } from "@/utils/argon-options";
+import { hash, verify } from "@node-rs/argon2";
 import jwt from "jsonwebtoken";
 
 export interface IUserService {
@@ -18,7 +19,10 @@ export class UserService implements IUserService {
   }
 
   async createUser(userCreationData: CreateUserDto): Promise<TUser> {
-    const user = await this.m_userRepository.create(userCreationData);
+    const user = await this.m_userRepository.create({
+      ...userCreationData,
+      password: await hash(userCreationData.password, hashingOptions)
+    });
 
     if (!user) {
       throw "This user already exists!";

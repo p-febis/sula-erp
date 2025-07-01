@@ -66,7 +66,7 @@ describe("UserController", () => {
     const event = new H3Event(request);
     const response = await userController.postCreate(event);
 
-    expect(response.cause).toEqual({
+    expect(response).toEqual({
       status: 200,
       statusText: "OK",
       message: "Successfully created user",
