@@ -5,7 +5,7 @@ export class ApiResponse<T = unknown> {
     public status: number,
     public statusText: string,
     public message: string,
-    public data: T
+    public data: T,
   ) {}
 }
 export class SuccessResponse<T = unknown> {
@@ -13,7 +13,7 @@ export class SuccessResponse<T = unknown> {
     public message: string,
     public data: T,
     public status = 200,
-    public statusText = "OK"
+    public statusText = "OK",
   ) {}
 
   toJSON() {
@@ -33,13 +33,13 @@ export class ErrorResponse<T = unknown> extends HTTPError {
     message: string,
     data: T,
     status = 400,
-    statusText = "Bad Request"
+    statusText = "Bad Request",
   ) {
     super({
       status,
       statusText,
       message,
-      data
+      data,
     });
     this.data = data;
   }

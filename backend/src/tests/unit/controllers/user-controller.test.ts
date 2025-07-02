@@ -9,7 +9,7 @@ const mockUserService = {
 
 vi.mock("@/utils/body-parser", () => ({
   parseBodyAsync: async (event: H3Event) => {
-    return event.req.body
+    return event.req.body;
   },
 }));
 

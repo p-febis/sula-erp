@@ -25,11 +25,11 @@ export class UserRepository implements IUserRepository {
   async findByName(name: string) {
     const user = await this.client.user.findUnique({
       where: {
-        username: name
-      }
-    }) 
+        username: name,
+      },
+    });
 
-    if(!user) {
+    if (!user) {
       throw "No user!";
     }
 

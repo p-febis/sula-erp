@@ -8,22 +8,22 @@ export function createH3Event({
   body = {},
   headers = { "content-type": "application/json" },
 }: {
-  method: "POST" | "GET" | "PATCH" | "PUT",
-  url?: string,
-  body?: Record<string, any>,
-  headers?: Record<string, string>,
+  method: "POST" | "GET" | "PATCH" | "PUT";
+  url?: string;
+  body?: Record<string, any>;
+  headers?: Record<string, string>;
 }) {
   const req = new Readable({
     read() {
       this.push(JSON.stringify(body));
       this.push(null);
-    }
+    },
   }) as IncomingMessage;
 
   req.headers = headers;
   req.method = method;
   req.url = url;
-  req.text = async() => JSON.stringify(body);
+  req.text = async () => JSON.stringify(body);
 
   const res = {
     setHeader: () => {},

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { UserService, IUserService } from "@/services/UserService";
 import jwt from "jsonwebtoken";
-import { verify } from  "@node-rs/argon2";
+import { verify } from "@node-rs/argon2";
 
 const mockUserRepository = {
   create: vi.fn(),
@@ -17,7 +17,6 @@ describe("UserService", () => {
   });
 
   it("Should create and return user", async () => {
-
     let capturedPassword: string = "";
 
     mockUserRepository.create.mockImplementationOnce(async (data) => {
@@ -38,10 +37,13 @@ describe("UserService", () => {
       expect.objectContaining({
         username: "Admin",
         password: expect.any(String),
-      })
+      }),
     );
 
-    const isValid = await verify(capturedPassword, "eee914af-0b6b-4b43-a2da-dcdc125ff18b");
+    const isValid = await verify(
+      capturedPassword,
+      "eee914af-0b6b-4b43-a2da-dcdc125ff18b",
+    );
     expect(isValid).toBe(true);
 
     expect(user).toEqual(
@@ -49,7 +51,7 @@ describe("UserService", () => {
         username: "Admin",
         id: 1,
         password: expect.any(String),
-      })
+      }),
     );
   });
 

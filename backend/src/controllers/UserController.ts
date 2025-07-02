@@ -25,7 +25,6 @@ export class UserController implements IUserController {
       throw new ErrorResponse("Bad Request", null);
     }
 
-
     const { id, username } = await this.m_userService.createUser(creationData);
 
     return new SuccessResponse("Successfully created user", {
