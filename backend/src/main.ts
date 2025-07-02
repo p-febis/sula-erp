@@ -14,6 +14,8 @@ async function main() {
   const app = new H3();
 
   app.post("/users", userController.postCreate.bind(userController));
+  app.post("/auth/login", userController.postLogin.bind(userController));
+
   serve(app);
 }
 
