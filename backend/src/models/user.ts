@@ -9,8 +9,8 @@ export const CreateUserDtoSchema = z.object({
 export type CreateUserDto = z.infer<typeof CreateUserDtoSchema>;
 
 export const LoginUserDtoSchema = z.object({
-  password: z.string(),
-  username: z.string(),
+  password: z.string().min(8),
+  username: z.string().min(4),
 });
 
 export type LoginUserDto = z.infer<typeof CreateUserDtoSchema>;

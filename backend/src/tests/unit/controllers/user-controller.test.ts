@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { IUserController, UserController } from "@/controllers/UserController";
 import { createRequest } from "node-mocks-http";
-import { H3Event } from "h3";
+import { getCookie, H3Event } from "h3";
 
 const mockUserService = {
   createUser: vi.fn(),
+  loginUser: vi.fn(),
 };
 
 vi.mock("@/utils/body-parser", () => ({
@@ -18,7 +19,6 @@ describe("UserController", () => {
 
   beforeEach(() => {
     vi.resetAllMocks();
-    // @ts-ignore
     userController = new UserController(mockUserService);
   });
 
@@ -80,7 +80,7 @@ describe("UserController", () => {
   it.each([
     { field: "username", value: "sho" },
     { field: "password", value: "short" },
-  ])("Should throw error on invalid $field", async ({ field, value }) => {
+  ])("Should throw error on invalid $field creation", async ({ field, value }) => {
     const request = createRequest({
       method: "POST",
       body: {
@@ -102,4 +102,62 @@ describe("UserController", () => {
       data: null,
     });
   });
+
+  it.each([
+    { field: "username", value: "sho" },
+    { field: "password", value: "short" },
+  ])("Should throw error on invalid $field login", async ({ field, value }) => {
+    const request = createRequest({
+      method: "POST",
+      body: {
+        username: "admin",
+        password: "06740fbb-fb11-44d8-a6f5-bcf9ad7734c0",
+        ...{ [field]: value },
+      },
+    });
+
+    const event = new H3Event(request);
+    const responsePromise = userController.postLogin(event);
+
+    const error = await responsePromise.catch((e) => e);
+
+    expect(error.cause).toEqual({
+      status: 400,
+      statusText: "Bad Request",
+      message: "Bad Request",
+      data: null,
+    });
+  });
+
+  it("Should login user", async () => {
+    
+    mockUserService.loginUser.mockImplementation(() => {
+      return {
+        accessToken: "accessToken",
+        refreshToken: "refreshToken",
+      }      
+    })
+
+    const request = createRequest({
+      method: "POST",
+      body: {
+        username: "admin",
+        password: "06740fbb-fb11-44d8-a6f5-bcf9ad7734c0",
+      },
+    });
+
+    const event = new H3Event(request);
+    const response = await userController.postLogin(event);
+
+    expect(response.message).toBe("Successfully logged in user")
+    expect(response.data).toEqual(expect.objectContaining({
+        accessToken: "accessToken",
+    }))
+
+
+    const cookieString = event._res!.headers.get("set-cookie")
+
+    expect(cookieString).toMatch(/refreshToken=refreshToken/);
+    expect(cookieString).toMatch(/Max-Age=315360000000/);
+  })
 });
