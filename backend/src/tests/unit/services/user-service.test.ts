@@ -6,6 +6,7 @@ import { verify } from "@node-rs/argon2";
 const mockUserRepository = {
   create: vi.fn(),
   findByName: vi.fn(),
+  refreshUser: vi.fn(),
 };
 
 describe("UserService", () => {
@@ -164,4 +165,52 @@ describe("UserService", () => {
     expect(parsedTokenData?.payload.refresh_token_version).toBe(1);
     expect(parsedTokenData?.payload.exp).toBeGreaterThan(Date.now() / 1000);
   });
+
+  it("Should refresh the access token", async () => {
+    mockUserRepository.findByName.mockResolvedValue({
+      id: 1,
+      refresh_token_version: 1,
+      username: "Admin",
+      password:
+        "$argon2id$v=19$m=16,t=2,p=1$cmFuZG9tLXNhbHQ$th+l03f/sP8YVAFse/EOuQ",
+    });
+
+    mockUserRepository.refreshUser.mockResolvedValue({
+      id: 1,
+      refresh_token_version: 2,
+      username: "Admin",
+      password:
+        "$argon2id$v=19$m=16,t=2,p=1$cmFuZG9tLXNhbHQ$th+l03f/sP8YVAFse/EOuQ",
+    });
+
+    const loginData = await userService.loginUser({
+      username: "Admin",
+      password: "eee914af-0b6b-4b43-a2da-dcdc125ff18b",
+    });
+
+    const { accessToken, refreshToken } = await userService.refreshUser(loginData.refreshToken);
+
+    const accessTokenData = jwt.verify(
+      accessToken,
+      process.env.ACCESS_TOKEN_SECRET!,
+      { complete: true },
+    ) as unknown as { payload: { sub: number; exp: number } };
+
+    expect(accessTokenData?.payload.sub).toBe(1);
+    expect(accessTokenData?.payload.exp).toBeGreaterThan(Date.now() / 1000);
+
+    const parsedTokenData = jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET!,
+      { complete: true },
+    ) as unknown as {
+      payload: { sub: number; exp: number; refresh_token_version: number };
+    };
+
+    expect(parsedTokenData?.payload.sub).toBe(1);
+    expect(parsedTokenData?.payload.refresh_token_version).toBe(2);
+    expect(parsedTokenData?.payload.exp).toBeGreaterThan(Date.now() / 1000);
+
+  });
+
 });

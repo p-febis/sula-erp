@@ -4,6 +4,7 @@ import { PrismaClient } from "@/../generated/prisma";
 export interface IUserRepository {
   create(userCreationData: CreateUserDto): Promise<TUser | null>;
   findByName(name: string): Promise<TUser | null>;
+  refreshUser(id: number): Promise<TUser | null>;
 }
 
 export class UserRepository implements IUserRepository {
@@ -29,9 +30,18 @@ export class UserRepository implements IUserRepository {
       },
     });
 
-    if (!user) {
-      throw "No user!";
-    }
+    return user;
+  }
+
+  async refreshUser(id: number) {
+    const user = await this.client.user.update({
+	where: { id },
+	data: {
+	    refresh_token_version: {
+		increment: 1,
+	    }
+	}
+    });
 
     return user;
   }
