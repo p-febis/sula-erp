@@ -9,7 +9,9 @@ export interface IUserService {
   loginUser(
     loginData: LoginUserDto,
   ): Promise<{ accessToken: string; refreshToken: string }>;
-  refreshUser(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }>; 
+  refreshUser(
+    refreshToken: string,
+  ): Promise<{ accessToken: string; refreshToken: string }>;
 }
 
 export class UserService implements IUserService {
@@ -82,15 +84,15 @@ export class UserService implements IUserService {
 
   async refreshUser(oldRefreshToken: string) {
     const { payload } = jwt.verify(
-	oldRefreshToken,
-	process.env.REFRESH_TOKEN_SECRET!,
+      oldRefreshToken,
+      process.env.REFRESH_TOKEN_SECRET!,
       { complete: true },
-    ) as unknown as { payload: { sub: number; } };
+    ) as unknown as { payload: { sub: number } };
 
     const user = await this.m_userRepository.refreshUser(payload.sub);
 
-    if(!user) {
-	throw "User does not exist!";
+    if (!user) {
+      throw "User does not exist!";
     }
 
     const { accessToken, refreshToken } = this.createTokens(user);

@@ -80,28 +80,31 @@ describe("UserController", () => {
   it.each([
     { field: "username", value: "sho" },
     { field: "password", value: "short" },
-  ])("Should throw error on invalid $field creation", async ({ field, value }) => {
-    const request = createRequest({
-      method: "POST",
-      body: {
-        username: "admin",
-        password: "06740fbb-fb11-44d8-a6f5-bcf9ad7734c0",
-        ...{ [field]: value },
-      },
-    });
+  ])(
+    "Should throw error on invalid $field creation",
+    async ({ field, value }) => {
+      const request = createRequest({
+        method: "POST",
+        body: {
+          username: "admin",
+          password: "06740fbb-fb11-44d8-a6f5-bcf9ad7734c0",
+          ...{ [field]: value },
+        },
+      });
 
-    const event = new H3Event(request);
-    const responsePromise = userController.postCreate(event);
+      const event = new H3Event(request);
+      const responsePromise = userController.postCreate(event);
 
-    const error = await responsePromise.catch((e) => e);
+      const error = await responsePromise.catch((e) => e);
 
-    expect(error.cause).toEqual({
-      status: 400,
-      statusText: "Bad Request",
-      message: "Bad Request",
-      data: null,
-    });
-  });
+      expect(error.cause).toEqual({
+        status: 400,
+        statusText: "Bad Request",
+        message: "Bad Request",
+        data: null,
+      });
+    },
+  );
 
   it.each([
     { field: "username", value: "sho" },
@@ -130,13 +133,12 @@ describe("UserController", () => {
   });
 
   it("Should login user", async () => {
-    
     mockUserService.loginUser.mockImplementation(() => {
       return {
         accessToken: "accessToken",
         refreshToken: "refreshToken",
-      }      
-    })
+      };
+    });
 
     const request = createRequest({
       method: "POST",
@@ -149,15 +151,16 @@ describe("UserController", () => {
     const event = new H3Event(request);
     const response = await userController.postLogin(event);
 
-    expect(response.message).toBe("Successfully logged in user")
-    expect(response.data).toEqual(expect.objectContaining({
+    expect(response.message).toBe("Successfully logged in user");
+    expect(response.data).toEqual(
+      expect.objectContaining({
         accessToken: "accessToken",
-    }))
+      }),
+    );
 
-
-    const cookieString = event._res!.headers.get("set-cookie")
+    const cookieString = event._res!.headers.get("set-cookie");
 
     expect(cookieString).toMatch(/refreshToken=refreshToken/);
     expect(cookieString).toMatch(/Max-Age=315360000000/);
-  })
+  });
 });

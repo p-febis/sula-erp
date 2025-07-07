@@ -37,28 +37,27 @@ export class UserController implements IUserController {
   }
 
   async postLogin(event: H3Event) {
-      let loginData = null;
+    let loginData = null;
 
-      try {
-        const body = await parseBodyAsync(event);
-        loginData = LoginUserDtoSchema.parse(body);
-      } catch (error) {
-        throw new ErrorResponse("Bad Request", null);
-      }
+    try {
+      const body = await parseBodyAsync(event);
+      loginData = LoginUserDtoSchema.parse(body);
+    } catch (error) {
+      throw new ErrorResponse("Bad Request", null);
+    }
 
-
-    const { accessToken, refreshToken } = await this.m_userService.loginUser(loginData );
-
+    const { accessToken, refreshToken } =
+      await this.m_userService.loginUser(loginData);
 
     setCookie(event, "refreshToken", refreshToken, {
       maxAge: TEN_YEARS,
       httpOnly: true,
       sameSite: "lax",
-      path: "/"
-    })
+      path: "/",
+    });
 
     return new SuccessResponse("Successfully logged in user", {
-      accessToken
-    })
+      accessToken,
+    });
   }
 }

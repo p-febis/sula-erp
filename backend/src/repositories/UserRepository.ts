@@ -35,12 +35,12 @@ export class UserRepository implements IUserRepository {
 
   async refreshUser(id: number) {
     const user = await this.client.user.update({
-	where: { id },
-	data: {
-	    refresh_token_version: {
-		increment: 1,
-	    }
-	}
+      where: { id },
+      data: {
+        refresh_token_version: {
+          increment: 1,
+        },
+      },
     });
 
     return user;

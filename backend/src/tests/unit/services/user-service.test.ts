@@ -188,7 +188,9 @@ describe("UserService", () => {
       password: "eee914af-0b6b-4b43-a2da-dcdc125ff18b",
     });
 
-    const { accessToken, refreshToken } = await userService.refreshUser(loginData.refreshToken);
+    const { accessToken, refreshToken } = await userService.refreshUser(
+      loginData.refreshToken,
+    );
 
     const accessTokenData = jwt.verify(
       accessToken,
@@ -210,7 +212,5 @@ describe("UserService", () => {
     expect(parsedTokenData?.payload.sub).toBe(1);
     expect(parsedTokenData?.payload.refresh_token_version).toBe(2);
     expect(parsedTokenData?.payload.exp).toBeGreaterThan(Date.now() / 1000);
-
   });
-
 });
