@@ -15,6 +15,7 @@ vi.mock("@/utils/body-parser", () => ({
 describe("CustomerController", () => {
   const mockCustomerSerivce = {
     createCustomer: vi.fn(),
+    allCustomers: vi.fn(),
   };
 
   let customerController: ICustomerController;
@@ -53,6 +54,12 @@ describe("CustomerController", () => {
 
     expect(response.status).toBe(200);
     expect(response.message).toBe("Created customer!");
+    expect(response.data).toEqual({
+      id: 1,
+      name: "John Doe & Co",
+      email: "doe@example.com",
+      phone: "+1 (206) 342-8631",
+    });
   });
 
   it("Should throw error when no customer name is given", async () => {
@@ -73,5 +80,47 @@ describe("CustomerController", () => {
       message: "Bad Request",
       data: null,
     });
+  });
+
+  it("Should return the customers succesfully", async () => {
+    mockCustomerSerivce.allCustomers.mockResolvedValueOnce([
+      {
+        id: 1,
+        name: "John Doe & Co",
+        email: "doe@example.com",
+        phone: "+1 (206) 342-8631",
+      },
+      {
+        id: 2,
+        name: "Jane Doe & Parnets",
+        email: "jane.doe@example.com",
+        phone: "+1 (206) 343-8888",
+      },
+    ]);
+
+    const request = createRequest({
+      method: "GET",
+    });
+
+    const event = new H3Event(request);
+    const response = await customerController.getAll(event);
+
+    expect(mockCustomerSerivce.allCustomers).toHaveBeenCalledOnce();
+    expect(response.status).toBe(200);
+    expect(response.message).toBe("Success");
+    expect(response.data).toEqual([
+      {
+        id: 1,
+        name: "John Doe & Co",
+        email: "doe@example.com",
+        phone: "+1 (206) 342-8631",
+      },
+      {
+        id: 2,
+        name: "Jane Doe & Parnets",
+        email: "jane.doe@example.com",
+        phone: "+1 (206) 343-8888",
+      },
+    ]);
   });
 });

@@ -6,6 +6,8 @@ export interface ICustomerService {
   createCustomer(
     customerCreationData: CreateCustomerDto,
   ): Promise<Customer | null>;
+
+  allCustomers(): Promise<Customer[] | null>;
 }
 
 export class CustomerService implements ICustomerService {
@@ -19,5 +21,11 @@ export class CustomerService implements ICustomerService {
     const customer =
       await this.m_customerRepository.create(customerCreationData);
     return customer;
+  }
+
+  async allCustomers() {
+    const customers = await this.m_customerRepository.getAll();
+
+    return customers;
   }
 }
