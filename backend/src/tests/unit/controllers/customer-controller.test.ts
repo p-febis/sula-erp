@@ -62,6 +62,38 @@ describe("CustomerController", () => {
     });
   });
 
+  it("Should call createCustomer with only required info", async () => {
+    mockCustomerSerivce.createCustomer.mockResolvedValueOnce({
+      id: 1,
+      name: "Jane Doe & Co",
+      email: null,
+      phone: null,
+    });
+
+    const request = createRequest({
+      method: "POST",
+      body: {
+        name: "Jane Doe & Co",
+      },
+    });
+
+    const event = new H3Event(request);
+    const response = await customerController.postCreate(event);
+
+    expect(mockCustomerSerivce.createCustomer).toHaveBeenCalledExactlyOnceWith({
+      name: "Jane Doe & Co",
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.message).toBe("Created customer!");
+    expect(response.data).toEqual({
+      id: 1,
+      name: "Jane Doe & Co",
+      email: null,
+      phone: null,
+    });
+  });
+
   it("Should throw error when no customer name is given", async () => {
     const request = createRequest({
       method: "POST",
