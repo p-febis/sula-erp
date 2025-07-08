@@ -17,3 +17,10 @@ model User {
   username             String @unique
   password             String
 }
+
+model Customer {
+  id                   Int    @id @default(autoincrement())
+  name	String
+  email	String?
+  phone String?
+}
