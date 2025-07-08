@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { IUserController, UserController } from "@/controllers/UserController";
 import { createRequest } from "node-mocks-http";
-import { getCookie, H3Event } from "h3";
+import { H3Event } from "h3";
 
 const mockUserService = {
   createUser: vi.fn(),
