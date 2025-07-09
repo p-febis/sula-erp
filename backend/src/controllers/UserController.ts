@@ -68,9 +68,15 @@ export class UserController implements IUserController {
     const { accessToken, refreshToken } =
       await this.m_userService.refreshUser(refreshTokenData);
 
+    setCookie(event, "refreshToken", refreshToken, {
+      maxAge: TEN_YEARS,
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+    });
+
     return new SuccessResponse("Successfully refreshed user", {
       accessToken,
-      refreshToken,
     });
   }
 }

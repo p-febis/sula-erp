@@ -197,8 +197,12 @@ describe("UserController", () => {
       message: "Successfully refreshed user",
       data: {
         accessToken: "accessToken",
-        refreshToken: "refreshToken",
       },
     });
+
+    const cookieString = event._res!.headers.get("set-cookie");
+
+    expect(cookieString).toMatch(/refreshToken=refreshToken/);
+    expect(cookieString).toMatch(/Max-Age=315360000000/);
   });
 });
