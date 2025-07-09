@@ -5,7 +5,8 @@ describe("CustomerService", () => {
   let customerService: ICustomerService;
   let mockCustomerRepository = {
     create: vi.fn(),
-    getAll: vi.fn(),
+    findAll: vi.fn(),
+    findById: vi.fn(),
   };
 
   beforeEach(() => {
@@ -40,7 +41,7 @@ describe("CustomerService", () => {
   });
 
   it("Should return all customers", async () => {
-    mockCustomerRepository.getAll.mockResolvedValueOnce([
+    mockCustomerRepository.findAll.mockResolvedValueOnce([
       {
         id: 1,
         name: "John Doe & Co",
@@ -72,6 +73,26 @@ describe("CustomerService", () => {
       },
     ]);
 
-    expect(mockCustomerRepository.getAll).toHaveBeenCalledOnce();
+    expect(mockCustomerRepository.findAll).toHaveBeenCalledOnce();
+  });
+
+  it("Should return one customer", async () => {
+    mockCustomerRepository.findById.mockResolvedValueOnce({
+      id: 1,
+      name: "John Doe & Co",
+      email: "doe@example.com",
+      phone: "+1 (206) 342-8631",
+    });
+
+    const customer = await customerService.getCustomer(1);
+
+    expect(customer).toEqual({
+      id: 1,
+      name: "John Doe & Co",
+      email: "doe@example.com",
+      phone: "+1 (206) 342-8631",
+    });
+
+    expect(mockCustomerRepository.findById).toHaveBeenCalledOnce();
   });
 });

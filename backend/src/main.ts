@@ -25,8 +25,9 @@ async function main() {
   app.post("/users", userController.postCreate.bind(userController));
   app.post("/auth/login", userController.postLogin.bind(userController));
 
-  // TODO: Add an authentication middlware 
+  // TODO: Add an authentication middlware
   app.get("/customers", customerController.getAll.bind(customerController));
+  app.get("/customers/:id", customerController.getOne.bind(customerController));
   app.post(
     "/customers",
     customerController.postCreate.bind(customerController),

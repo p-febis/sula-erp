@@ -3,7 +3,8 @@ import { CreateCustomerDto } from "@/models/customer";
 
 export interface ICustomerRepository {
   create(customerCreationData: CreateCustomerDto): Promise<Customer | null>;
-  getAll(): Promise<Customer[] | null>;
+  findAll(): Promise<Customer[] | null>;
+  findById(id: number): Promise<Customer | null>;
 }
 
 export class CustomerRepository implements ICustomerRepository {
@@ -20,8 +21,17 @@ export class CustomerRepository implements ICustomerRepository {
     return customer;
   }
 
-  async getAll() {
+  async findAll() {
     const customers = await this.client.customer.findMany();
     return customers;
+  }
+  async findById(id: number) {
+    const customer = await this.client.customer.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    return customer;
   }
 }

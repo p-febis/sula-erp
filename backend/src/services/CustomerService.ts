@@ -8,6 +8,7 @@ export interface ICustomerService {
   ): Promise<Customer | null>;
 
   allCustomers(): Promise<Customer[] | null>;
+  getCustomer(id: number): Promise<Customer | null>;
 }
 
 export class CustomerService implements ICustomerService {
@@ -24,8 +25,13 @@ export class CustomerService implements ICustomerService {
   }
 
   async allCustomers() {
-    const customers = await this.m_customerRepository.getAll();
+    const customers = await this.m_customerRepository.findAll();
 
     return customers;
+  }
+
+  async getCustomer(id: number) {
+    const customer = await this.m_customerRepository.findById(id);
+    return customer;
   }
 }

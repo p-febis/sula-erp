@@ -7,6 +7,7 @@ import { H3Event } from "h3";
 export interface ICustomerController {
   postCreate(event: H3Event): Promise<SuccessResponse>;
   getAll(event: H3Event): Promise<SuccessResponse>;
+  getOne(event: H3Event): Promise<SuccessResponse>;
 }
 
 export class CustomerController implements ICustomerController {
@@ -32,5 +33,12 @@ export class CustomerController implements ICustomerController {
   async getAll(event: H3Event) {
     const customers = await this.m_customerService.allCustomers();
     return new SuccessResponse("Success", customers);
+  }
+
+  async getOne(event: H3Event) {
+    const { id } = event.context.params!;
+    const customer = await this.m_customerService.getCustomer(Number(id));
+
+    return new SuccessResponse("Success", customer);
   }
 }

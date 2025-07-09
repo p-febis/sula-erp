@@ -13,9 +13,10 @@ vi.mock("@/utils/body-parser", () => ({
 }));
 
 describe("CustomerController", () => {
-  const mockCustomerSerivce = {
+  const mockCustomerService = {
     createCustomer: vi.fn(),
     allCustomers: vi.fn(),
+    getCustomer: vi.fn(),
   };
 
   let customerController: ICustomerController;
@@ -23,11 +24,11 @@ describe("CustomerController", () => {
   beforeEach(() => {
     vi.resetAllMocks();
 
-    customerController = new CustomerController(mockCustomerSerivce);
+    customerController = new CustomerController(mockCustomerService);
   });
 
   it("Should call createCustomer with correct data", async () => {
-    mockCustomerSerivce.createCustomer.mockResolvedValueOnce({
+    mockCustomerService.createCustomer.mockResolvedValueOnce({
       id: 1,
       name: "John Doe & Co",
       email: "doe@example.com",
@@ -46,7 +47,7 @@ describe("CustomerController", () => {
     const event = new H3Event(request);
     const response = await customerController.postCreate(event);
 
-    expect(mockCustomerSerivce.createCustomer).toHaveBeenCalledExactlyOnceWith({
+    expect(mockCustomerService.createCustomer).toHaveBeenCalledExactlyOnceWith({
       name: "John Doe & Co",
       email: "doe@example.com",
       phone: "+1 (206) 342-8631",
@@ -63,7 +64,7 @@ describe("CustomerController", () => {
   });
 
   it("Should call createCustomer with only required info", async () => {
-    mockCustomerSerivce.createCustomer.mockResolvedValueOnce({
+    mockCustomerService.createCustomer.mockResolvedValueOnce({
       id: 1,
       name: "Jane Doe & Co",
       email: null,
@@ -80,7 +81,7 @@ describe("CustomerController", () => {
     const event = new H3Event(request);
     const response = await customerController.postCreate(event);
 
-    expect(mockCustomerSerivce.createCustomer).toHaveBeenCalledExactlyOnceWith({
+    expect(mockCustomerService.createCustomer).toHaveBeenCalledExactlyOnceWith({
       name: "Jane Doe & Co",
     });
 
@@ -115,7 +116,7 @@ describe("CustomerController", () => {
   });
 
   it("Should return the customers succesfully", async () => {
-    mockCustomerSerivce.allCustomers.mockResolvedValueOnce([
+    mockCustomerService.allCustomers.mockResolvedValueOnce([
       {
         id: 1,
         name: "John Doe & Co",
@@ -137,7 +138,7 @@ describe("CustomerController", () => {
     const event = new H3Event(request);
     const response = await customerController.getAll(event);
 
-    expect(mockCustomerSerivce.allCustomers).toHaveBeenCalledOnce();
+    expect(mockCustomerService.allCustomers).toHaveBeenCalledOnce();
     expect(response.status).toBe(200);
     expect(response.message).toBe("Success");
     expect(response.data).toEqual([
@@ -154,5 +155,31 @@ describe("CustomerController", () => {
         phone: "+1 (206) 343-8888",
       },
     ]);
+  });
+
+  it("Should get a single customer", async () => {
+    mockCustomerService.getCustomer.mockResolvedValueOnce({
+      id: 1,
+      name: "John Doe & Co",
+      email: "doe@example.com",
+      phone: "+1 (206) 342-8631",
+    });
+
+    const request = createRequest({
+      method: "GET",
+    });
+
+    const event = new H3Event(request);
+    event.context.params = { id: "1" };
+
+    const response = await customerController.getOne(event);
+    expect(response.status).toBe(200);
+    expect(response.message).toBe("Success");
+    expect(response.data).toEqual({
+      id: 1,
+      name: "John Doe & Co",
+      email: "doe@example.com",
+      phone: "+1 (206) 342-8631",
+    });
   });
 });
