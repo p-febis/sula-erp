@@ -7,3 +7,6 @@ export const CreateCustomerDtoSchema = z.object({
 });
 
 export type CreateCustomerDto = z.infer<typeof CreateCustomerDtoSchema>;
+
+export const UpdateCustomerDtoSchema = CreateCustomerDtoSchema;
+export type UpdateCustomerDto = z.infer<typeof UpdateCustomerDtoSchema>;

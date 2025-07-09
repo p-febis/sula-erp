@@ -17,6 +17,7 @@ describe("CustomerController", () => {
     createCustomer: vi.fn(),
     allCustomers: vi.fn(),
     getCustomer: vi.fn(),
+    updateCustomer: vi.fn(),
   };
 
   let customerController: ICustomerController;
@@ -53,7 +54,7 @@ describe("CustomerController", () => {
       phone: "+1 (206) 342-8631",
     });
 
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(201);
     expect(response.message).toBe("Created customer!");
     expect(response.data).toEqual({
       id: 1,
@@ -85,7 +86,7 @@ describe("CustomerController", () => {
       name: "Jane Doe & Co",
     });
 
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(201);
     expect(response.message).toBe("Created customer!");
     expect(response.data).toEqual({
       id: 1,
@@ -173,6 +174,46 @@ describe("CustomerController", () => {
     event.context.params = { id: "1" };
 
     const response = await customerController.getOne(event);
+    expect(mockCustomerService.getCustomer).toHaveBeenCalledOnce();
+    expect(response.status).toBe(200);
+    expect(response.message).toBe("Success");
+    expect(response.data).toEqual({
+      id: 1,
+      name: "John Doe & Co",
+      email: "doe@example.com",
+      phone: "+1 (206) 342-8631",
+    });
+  });
+
+  it("Should update a customer", async () => {
+    mockCustomerService.updateCustomer.mockResolvedValueOnce({
+      id: 1,
+      name: "John Doe & Co",
+      email: "doe@example.com",
+      phone: "+1 (206) 342-8631",
+    });
+
+    const request = createRequest({
+      method: "PATCH",
+      body: {
+        name: "John Doe & Co",
+        email: "doe@example.com",
+        phone: "+1 (206) 342-8631",
+      },
+    });
+
+    const event = new H3Event(request);
+    event.context.params = { id: "1" };
+
+    const response = await customerController.updateOne(event);
+    expect(mockCustomerService.updateCustomer).toHaveBeenCalledExactlyOnceWith(
+      1,
+      {
+        name: "John Doe & Co",
+        email: "doe@example.com",
+        phone: "+1 (206) 342-8631",
+      },
+    );
     expect(response.status).toBe(200);
     expect(response.message).toBe("Success");
     expect(response.data).toEqual({

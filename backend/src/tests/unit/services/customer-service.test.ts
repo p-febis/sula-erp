@@ -7,6 +7,7 @@ describe("CustomerService", () => {
     create: vi.fn(),
     findAll: vi.fn(),
     findById: vi.fn(),
+    updateById: vi.fn(),
   };
 
   beforeEach(() => {
@@ -94,5 +95,36 @@ describe("CustomerService", () => {
     });
 
     expect(mockCustomerRepository.findById).toHaveBeenCalledOnce();
+  });
+
+  it("Should update a customer", async () => {
+    mockCustomerRepository.updateById.mockResolvedValueOnce({
+      id: 1,
+      name: "Doe, Jannsen & Partners",
+      email: "doe@jannsen.com",
+      phone: "+1 (206) 342-8631",
+    });
+
+    const customer = await customerService.updateCustomer(1, {
+      name: "Doe, Jannsen & Partners",
+      email: "doe@example.com",
+      phone: "+1 (206) 342-8631",
+    });
+
+    expect(mockCustomerRepository.updateById).toHaveBeenCalledExactlyOnceWith(
+      1,
+      {
+        name: "Doe, Jannsen & Partners",
+        email: "doe@example.com",
+        phone: "+1 (206) 342-8631",
+      },
+    );
+
+    expect(customer).toEqual({
+      id: 1,
+      name: "Doe, Jannsen & Partners",
+      email: "doe@jannsen.com",
+      phone: "+1 (206) 342-8631",
+    });
   });
 });

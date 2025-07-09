@@ -1,4 +1,4 @@
-import { CreateCustomerDto } from "@/models/customer";
+import { CreateCustomerDto, UpdateCustomerDto } from "@/models/customer";
 import { ICustomerRepository } from "@/repositories/CustomerRepository";
 import { Customer } from "generated/prisma";
 
@@ -9,6 +9,10 @@ export interface ICustomerService {
 
   allCustomers(): Promise<Customer[] | null>;
   getCustomer(id: number): Promise<Customer | null>;
+  updateCustomer(
+    id: number,
+    customerUpdateData: UpdateCustomerDto,
+  ): Promise<Customer | null>;
 }
 
 export class CustomerService implements ICustomerService {
@@ -33,5 +37,13 @@ export class CustomerService implements ICustomerService {
   async getCustomer(id: number) {
     const customer = await this.m_customerRepository.findById(id);
     return customer;
+  }
+
+  async updateCustomer(id: number, customerUpdateData: UpdateCustomerDto) {
+    const updatedCustomer = await this.m_customerRepository.updateById(
+      id,
+      customerUpdateData,
+    );
+    return updatedCustomer;
   }
 }

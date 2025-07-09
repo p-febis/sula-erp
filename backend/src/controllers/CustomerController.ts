@@ -1,4 +1,7 @@
-import { CreateCustomerDtoSchema } from "@/models/customer";
+import {
+  CreateCustomerDtoSchema,
+  UpdateCustomerDtoSchema,
+} from "@/models/customer";
 import { ErrorResponse, SuccessResponse } from "@/responses/api";
 import { ICustomerService } from "@/services/CustomerService";
 import { parseBodyAsync } from "@/utils/body-parser";
@@ -8,6 +11,7 @@ export interface ICustomerController {
   postCreate(event: H3Event): Promise<SuccessResponse>;
   getAll(event: H3Event): Promise<SuccessResponse>;
   getOne(event: H3Event): Promise<SuccessResponse>;
+  updateOne(event: H3Event): Promise<SuccessResponse>;
 }
 
 export class CustomerController implements ICustomerController {
@@ -27,7 +31,7 @@ export class CustomerController implements ICustomerController {
       throw new ErrorResponse("Bad Request", null);
     }
     const customer = await this.m_customerService.createCustomer(creationData);
-    return new SuccessResponse("Created customer!", customer);
+    return new SuccessResponse("Created customer!", customer, 201);
   }
 
   async getAll(event: H3Event) {
@@ -38,6 +42,24 @@ export class CustomerController implements ICustomerController {
   async getOne(event: H3Event) {
     const { id } = event.context.params!;
     const customer = await this.m_customerService.getCustomer(Number(id));
+
+    return new SuccessResponse("Success", customer);
+  }
+
+  async updateOne(event: H3Event) {
+    const { id } = event.context.params!;
+    let creationData = null;
+
+    try {
+      const body = await parseBodyAsync(event);
+      creationData = UpdateCustomerDtoSchema.parse(body);
+    } catch (error) {
+      throw new ErrorResponse("Bad Request", null);
+    }
+    const customer = await this.m_customerService.updateCustomer(
+      Number(id),
+      creationData,
+    );
 
     return new SuccessResponse("Success", customer);
   }

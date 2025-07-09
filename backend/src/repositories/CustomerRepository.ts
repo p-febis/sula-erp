@@ -1,10 +1,14 @@
 import { Customer, PrismaClient } from "@/../generated/prisma";
-import { CreateCustomerDto } from "@/models/customer";
+import { CreateCustomerDto, UpdateCustomerDto } from "@/models/customer";
 
 export interface ICustomerRepository {
   create(customerCreationData: CreateCustomerDto): Promise<Customer | null>;
   findAll(): Promise<Customer[] | null>;
   findById(id: number): Promise<Customer | null>;
+  updateById(
+    id: number,
+    updateData: UpdateCustomerDto,
+  ): Promise<Customer | null>;
 }
 
 export class CustomerRepository implements ICustomerRepository {
@@ -30,6 +34,16 @@ export class CustomerRepository implements ICustomerRepository {
       where: {
         id,
       },
+    });
+
+    return customer;
+  }
+  async updateById(id: number, updateData: UpdateCustomerDto) {
+    const customer = await this.client.customer.update({
+      where: {
+        id,
+      },
+      data: updateData,
     });
 
     return customer;
