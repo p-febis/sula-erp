@@ -46,7 +46,15 @@ export const dataProvider: DataProvider = {
     return json;
   },
   updateMany: async () => Promise.reject("Not implemented"),
-  delete: async () => Promise.reject("Not implemented"),
+  delete: async (resource, { id }) => {
+    const response = await fetch(`/api/${resource}/${id}`, {
+      method: "DELETE",
+    });
+
+    const json = await response.json();
+
+    return json;
+  },
   deleteMany: async () => Promise.reject("Not implemented"),
   getMany: async () => Promise.reject("Not implemented"),
   getManyReference: async () => Promise.reject("Not implemented"),
