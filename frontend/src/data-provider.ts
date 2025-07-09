@@ -32,7 +32,19 @@ export const dataProvider: DataProvider = {
     return json;
   },
 
-  update: async () => Promise.reject("Not implemented"),
+  update: async (resource, { id, data }) => {
+    const response = await fetch(`/api/${resource}/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    const json = await response.json();
+
+    return json;
+  },
   updateMany: async () => Promise.reject("Not implemented"),
   delete: async () => Promise.reject("Not implemented"),
   deleteMany: async () => Promise.reject("Not implemented"),
