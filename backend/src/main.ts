@@ -31,6 +31,7 @@ async function main() {
     .post("/auth/refresh", userController.postRefresh.bind(userController));
 
   app
+    .get("/customers", customerController.getAll.bind(customerController))
     .get("/customers/:id", customerController.getOne.bind(customerController))
     .patch(
       "/customers/:id",
