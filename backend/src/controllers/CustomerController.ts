@@ -12,6 +12,7 @@ export interface ICustomerController {
   getAll(event: H3Event): Promise<SuccessResponse>;
   getOne(event: H3Event): Promise<SuccessResponse>;
   updateOne(event: H3Event): Promise<SuccessResponse>;
+  deleteOne(event: H3Event): Promise<SuccessResponse>;
 }
 
 export class CustomerController implements ICustomerController {
@@ -62,5 +63,13 @@ export class CustomerController implements ICustomerController {
     );
 
     return new SuccessResponse("Success", customer);
+  }
+
+  async deleteOne(event: H3Event) {
+    const { id } = event.context.params!;
+    const deletedCustomer = await this.m_customerService.deleteCustomer(
+      Number(id),
+    );
+    return new SuccessResponse("Success", deletedCustomer);
   }
 }

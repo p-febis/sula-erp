@@ -8,6 +8,7 @@ describe("CustomerService", () => {
     findAll: vi.fn(),
     findById: vi.fn(),
     updateById: vi.fn(),
+    deleteById: vi.fn(),
   };
 
   beforeEach(() => {
@@ -121,6 +122,27 @@ describe("CustomerService", () => {
     );
 
     expect(customer).toEqual({
+      id: 1,
+      name: "Doe, Jannsen & Partners",
+      email: "doe@jannsen.com",
+      phone: "+1 (206) 342-8631",
+    });
+  });
+
+  it("Should delete a customer", async () => {
+    mockCustomerRepository.deleteById.mockResolvedValueOnce({
+      id: 1,
+      name: "Doe, Jannsen & Partners",
+      email: "doe@jannsen.com",
+      phone: "+1 (206) 342-8631",
+    });
+
+    const deletedCustomer = await customerService.deleteCustomer(1);
+
+    expect(mockCustomerRepository.deleteById).toHaveBeenCalledExactlyOnceWith(
+      1,
+    );
+    expect(deletedCustomer).toEqual({
       id: 1,
       name: "Doe, Jannsen & Partners",
       email: "doe@jannsen.com",

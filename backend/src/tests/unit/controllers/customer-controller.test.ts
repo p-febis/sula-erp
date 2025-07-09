@@ -18,6 +18,7 @@ describe("CustomerController", () => {
     allCustomers: vi.fn(),
     getCustomer: vi.fn(),
     updateCustomer: vi.fn(),
+    deleteCustomer: vi.fn(),
   };
 
   let customerController: ICustomerController;
@@ -185,7 +186,7 @@ describe("CustomerController", () => {
     });
   });
 
-  it("Should update a customer", async () => {
+  it("Should call update", async () => {
     mockCustomerService.updateCustomer.mockResolvedValueOnce({
       id: 1,
       name: "John Doe & Co",
@@ -214,6 +215,33 @@ describe("CustomerController", () => {
         phone: "+1 (206) 342-8631",
       },
     );
+    expect(response.status).toBe(200);
+    expect(response.message).toBe("Success");
+    expect(response.data).toEqual({
+      id: 1,
+      name: "John Doe & Co",
+      email: "doe@example.com",
+      phone: "+1 (206) 342-8631",
+    });
+  });
+
+  it("Should delete a single customer", async () => {
+    mockCustomerService.deleteCustomer.mockResolvedValueOnce({
+      id: 1,
+      name: "John Doe & Co",
+      email: "doe@example.com",
+      phone: "+1 (206) 342-8631",
+    });
+
+    const request = createRequest({
+      method: "DELETE",
+    });
+
+    const event = new H3Event(request);
+    event.context.params = { id: "1" };
+
+    const response = await customerController.deleteOne(event);
+    expect(mockCustomerService.deleteCustomer).toHaveBeenCalledOnce();
     expect(response.status).toBe(200);
     expect(response.message).toBe("Success");
     expect(response.data).toEqual({

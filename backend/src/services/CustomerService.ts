@@ -13,6 +13,7 @@ export interface ICustomerService {
     id: number,
     customerUpdateData: UpdateCustomerDto,
   ): Promise<Customer | null>;
+  deleteCustomer(id: number): Promise<Customer | null>;
 }
 
 export class CustomerService implements ICustomerService {
@@ -45,5 +46,10 @@ export class CustomerService implements ICustomerService {
       customerUpdateData,
     );
     return updatedCustomer;
+  }
+
+  async deleteCustomer(id: number) {
+    const deletedCustomer = await this.m_customerRepository.deleteById(id);
+    return deletedCustomer;
   }
 }

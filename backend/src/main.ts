@@ -28,7 +28,14 @@ async function main() {
   // TODO: Add an authentication middlware
   app.get("/customers", customerController.getAll.bind(customerController));
   app.get("/customers/:id", customerController.getOne.bind(customerController));
-  app.patch("/customers/:id", customerController.updateOne.bind(customerController));
+  app.patch(
+    "/customers/:id",
+    customerController.updateOne.bind(customerController),
+  );
+  app.delete(
+    "/customers/:id",
+    customerController.deleteOne.bind(customerController),
+  );
   app.post(
     "/customers",
     customerController.postCreate.bind(customerController),

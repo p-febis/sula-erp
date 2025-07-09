@@ -5,6 +5,7 @@ export interface ICustomerRepository {
   create(customerCreationData: CreateCustomerDto): Promise<Customer | null>;
   findAll(): Promise<Customer[] | null>;
   findById(id: number): Promise<Customer | null>;
+  deleteById(id: number): Promise<Customer | null>;
   updateById(
     id: number,
     updateData: UpdateCustomerDto,
@@ -44,6 +45,16 @@ export class CustomerRepository implements ICustomerRepository {
         id,
       },
       data: updateData,
+    });
+
+    return customer;
+  }
+
+  async deleteById(id: number) {
+    const customer = await this.client.customer.delete({
+      where: {
+        id,
+      },
     });
 
     return customer;
