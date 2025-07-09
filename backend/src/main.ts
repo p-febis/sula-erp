@@ -20,14 +20,15 @@ async function main() {
   const customerController = new CustomerController(customerService);
 
   const app = new H3({
-    onError: console.log
+    onError: console.log,
   });
 
   app.use(authMiddleware("/auth/"));
 
   app
-    .post("/users", userController.postCreate.bind(userController))
-    .post("/auth/login", userController.postLogin.bind(userController));
+    .post("/auth/create", userController.postCreate.bind(userController))
+    .post("/auth/login", userController.postLogin.bind(userController))
+    .post("/auth/refresh", userController.postRefresh.bind(userController));
 
   app
     .get("/customers/:id", customerController.getOne.bind(customerController))

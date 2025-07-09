@@ -1,17 +1,23 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
 import { IUserController, UserController } from "@/controllers/UserController";
 import { createRequest } from "node-mocks-http";
 import { H3Event } from "h3";
+import { parseCookie } from "@/utils/cookie-parser";
 
 const mockUserService = {
   createUser: vi.fn(),
   loginUser: vi.fn(),
+  refreshUser: vi.fn(),
 };
 
 vi.mock("@/utils/body-parser", () => ({
   parseBodyAsync: async (event: H3Event) => {
     return event.req.body;
   },
+}));
+
+vi.mock("@/utils/cookie-parser", () => ({
+  parseCookie: vi.fn(),
 }));
 
 describe("UserController", () => {
@@ -133,11 +139,9 @@ describe("UserController", () => {
   });
 
   it("Should login user", async () => {
-    mockUserService.loginUser.mockImplementation(() => {
-      return {
-        accessToken: "accessToken",
-        refreshToken: "refreshToken",
-      };
+    mockUserService.loginUser.mockResolvedValueOnce({
+      accessToken: "accessToken",
+      refreshToken: "refreshToken",
     });
 
     const request = createRequest({
@@ -162,5 +166,39 @@ describe("UserController", () => {
 
     expect(cookieString).toMatch(/refreshToken=refreshToken/);
     expect(cookieString).toMatch(/Max-Age=315360000000/);
+  });
+
+  it("Should refresh a user", async () => {
+    mockUserService.refreshUser.mockResolvedValueOnce({
+      accessToken: "accessToken",
+      refreshToken: "refreshToken",
+    });
+
+    const request = createRequest({
+      method: "POST",
+      cookies: {
+        refreshtoken: "0a4abb8e-f8d8-4705-ba8c-dc9968a7848a",
+      },
+    });
+
+    (parseCookie as any).mockReturnValueOnce(
+      "0a4abb8e-f8d8-4705-ba8c-dc9968a7848a",
+    );
+
+    const event = new H3Event(request);
+    const response = await userController.postRefresh(event);
+
+    expect(mockUserService.refreshUser).toHaveBeenCalledExactlyOnceWith(
+      "0a4abb8e-f8d8-4705-ba8c-dc9968a7848a",
+    );
+    expect(response).toEqual({
+      status: 200,
+      statusText: "OK",
+      message: "Successfully refreshed user",
+      data: {
+        accessToken: "accessToken",
+        refreshToken: "refreshToken",
+      },
+    });
   });
 });

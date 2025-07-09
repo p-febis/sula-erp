@@ -5,6 +5,10 @@ export const dataProvider: DataProvider = {
     const response = await fetch(`/api/${resource}`);
     const json = await response.json();
 
+    if(!response.ok) {
+      throw json;
+    }
+
     return {
       data: json.data,
       total: Array.isArray(json.data) ? json.data.length : 0,
@@ -14,6 +18,10 @@ export const dataProvider: DataProvider = {
   getOne: async (resource, params) => {
     const response = await fetch(`/api/${resource}/${params.id}`);
     const json = await response.json();
+
+    if(!response.ok) {
+      throw json;
+    }
 
     return json;
   },
@@ -52,6 +60,10 @@ export const dataProvider: DataProvider = {
     });
 
     const json = await response.json();
+
+    if(!response.ok) {
+      throw json;
+    }
 
     return json;
   },
