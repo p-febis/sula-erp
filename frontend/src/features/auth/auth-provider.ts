@@ -6,16 +6,15 @@ async function tryRefresh(): Promise<boolean> {
     method: "POST",
   });
 
-  if(!response.ok) return false;
+  if (!response.ok) return false;
 
   const json = await response.json();
-  const accessToken = json["data"];
+  const { accessToken } = json["data"];
 
   localStorage.setItem("accessToken", accessToken);
 
-
   return true;
-};
+}
 
 export const authProvider: AuthProvider = {
   login: async (parameters) => {
@@ -34,11 +33,11 @@ export const authProvider: AuthProvider = {
     localStorage.removeItem("accessToken");
   },
   checkError: async ({ status }) => {
-    if(status === 401) {
-
+    if (status === 401) {
       const success = await tryRefresh();
-      if(success) return Promise.resolve();
+      if (success) return Promise.resolve();
 
+      localStorage.removeItem("accessToken");
       return Promise.reject();
     }
 
@@ -47,7 +46,9 @@ export const authProvider: AuthProvider = {
   checkAuth: async () => {
     const accessToken = localStorage.getItem("accessToken");
     if (!accessToken) {
-      throw "No user!";
+      return Promise.reject();
     }
+
+    return Promise.resolve();
   },
 };

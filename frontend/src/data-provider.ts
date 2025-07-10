@@ -2,10 +2,14 @@ import { DataProvider } from "react-admin";
 
 export const dataProvider: DataProvider = {
   getList: async (resource, _params) => {
-    const response = await fetch(`/api/${resource}`);
+    const response = await fetch(`/api/${resource}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
     const json = await response.json();
 
-    if(!response.ok) {
+    if (!response.ok) {
       throw json;
     }
 
@@ -16,10 +20,14 @@ export const dataProvider: DataProvider = {
   },
 
   getOne: async (resource, params) => {
-    const response = await fetch(`/api/${resource}/${params.id}`);
+    const response = await fetch(`/api/${resource}/${params.id}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
     const json = await response.json();
 
-    if(!response.ok) {
+    if (!response.ok) {
       throw json;
     }
 
@@ -31,6 +39,7 @@ export const dataProvider: DataProvider = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
       body: JSON.stringify(data),
     });
@@ -45,6 +54,7 @@ export const dataProvider: DataProvider = {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
       body: JSON.stringify(data),
     });
@@ -57,11 +67,14 @@ export const dataProvider: DataProvider = {
   delete: async (resource, { id }) => {
     const response = await fetch(`/api/${resource}/${id}`, {
       method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
     });
 
     const json = await response.json();
 
-    if(!response.ok) {
+    if (!response.ok) {
       throw json;
     }
 
