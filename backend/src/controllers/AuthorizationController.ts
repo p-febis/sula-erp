@@ -31,6 +31,14 @@ export class AuthorizationController implements IAuthorizationController {
   }
 
   async getAllRoles(event: H3Event) {
+    const canDo = this.m_authorizationService.userCanDo(event.context.claims, [
+      "read:role",
+    ]);
+
+    if(!canDo) {
+      throw new ErrorResponse("Forbidden", null, 403);
+    }
+
     const roles = await this.m_authorizationService.allRoles();
     return new SuccessResponse("Success", roles);
   }
