@@ -5,6 +5,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CustomersPage } from "./features/customers/page/CustomersPage";
 import { CustomerPage } from "./features/customers/page/CustomerPage";
 import { CustomerCreatePage } from "./features/customers/page/CustomerCreatePage";
+import { LoginPage } from "./features/authentication/pages/LoginPage";
+import { RolesPage } from "./features/authentication/pages/RolesPage";
+import { RoleCreatePage } from "./features/authentication/pages/RoleCreatePage";
 
 const queryClient = new QueryClient();
 
@@ -31,7 +34,24 @@ function App() {
             },
           ],
         },
+	{
+	  path: "roles",
+	  children: [
+	    {
+	      index: true,
+	      Component: RolesPage
+	    },
+            {
+              path: "create",
+              Component: RoleCreatePage,
+            },
+	  ]
+	}
       ],
+    },
+    {
+      path: "/login",
+      Component: LoginPage,
     },
   ]);
 

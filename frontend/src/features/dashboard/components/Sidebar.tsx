@@ -9,7 +9,7 @@ import {
   SidebarMenuItem,
   SidebarProvider,
 } from "@/components/ui/sidebar";
-import { BuildingIcon } from "lucide-react";
+import { BuildingIcon, LockIcon } from "lucide-react";
 import type { ElementType } from "react";
 import { Link } from "react-router";
 
@@ -24,6 +24,11 @@ const items: SidebarItem[] = [
     title: "Customers",
     path: "customers",
     icon: BuildingIcon,
+  },
+  {
+    title: "Roles",
+    path: "roles",
+    icon: LockIcon,
   },
 ];
 

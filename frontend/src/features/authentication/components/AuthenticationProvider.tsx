@@ -7,6 +7,7 @@ import {
   type PropsWithChildren,
   type SetStateAction,
 } from "react";
+import { Navigate } from "react-router";
 
 type TAuthenticationContext = {
   isLoggedIn: boolean;
@@ -48,6 +49,10 @@ export const AuthenticationProvider = ({ children }: PropsWithChildren) => {
   }, [data, isLoading]);
 
   if (isLoading) return <>Loading...</>;
+
+  if (!data) {
+    return <Navigate to="/login" />;
+  }
 
   return (
     <AuthenticationContext value={{ isLoggedIn, setIsLoggedIn }}>

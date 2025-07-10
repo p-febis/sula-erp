@@ -2,29 +2,23 @@ import { Input } from "@/components/ui/input";
 import type { Customer } from "../types/customer";
 import { useForm, useStore } from "@tanstack/react-form";
 import { Button } from "@/components/ui/button";
-import { useMutation } from "@tanstack/react-query";
-import { fetchWithAuth } from "@/features/authentication/lib/fetchWithAuth";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
+import { useCreateCustomer } from "../hooks/use-create-customer";
 
 export const CustomerCreate = () => {
   const navigate = useNavigate();
 
-  const { mutate } = useMutation({
-    mutationFn: async (body: Omit<Customer, "id">) => {
-      fetchWithAuth(`/api/customers`, {
-        method: "POST",
-        body: JSON.stringify(body),
-      });
-    },
-    onSuccess: () => {
+  const { create } = useCreateCustomer((data, error) => {
+    if(data) {
       toast.success("Succesfully created customer");
       navigate(-1);
-    },
-    onError: (error) => {
+    }
+
+    if(error) {
       toast.error(JSON.stringify(error));
-    },
-  });
+    }
+  })
 
   const form = useForm({
     defaultValues: {
@@ -33,7 +27,7 @@ export const CustomerCreate = () => {
       email: "",
     },
     onSubmit: async ({ value }) => {
-      mutate(value);
+      create(value);
     },
   });
 

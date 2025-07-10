@@ -38,7 +38,7 @@ export const CustomerEdit = ({ customer }: { customer: Customer }) => {
     <div className="p-4 flex items-center justify-center h-full">
       <Card>
         <CardHeader>
-          <CardTitle>Create a customer</CardTitle>
+          <CardTitle>Edit customer '{customer.name}'</CardTitle>
         </CardHeader>
         <CardContent>
           <form
