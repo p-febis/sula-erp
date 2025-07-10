@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router";
-import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -10,9 +9,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { fetchWithAuth } from "@/features/authentication/lib/fetchWithAuth";
 import { Button } from "./ui/button";
 import { DialogClose } from "@radix-ui/react-dialog";
+import { useDeleteResource } from "@/hooks/use-delete-resource";
 
 export const DeleteButton = ({
   resource,
@@ -23,23 +22,19 @@ export const DeleteButton = ({
 }) => {
   const navigate = useNavigate();
 
-  const { mutate } = useMutation({
-    mutationFn: async () => {
-      fetchWithAuth(`/api/${resource}/${id}`, {
-        method: "DELETE",
-      });
-    },
-    onSuccess: () => {
+  const { delete$ } = useDeleteResource(resource, id, (data, error) => {
+    if (data) {
       toast.success("Succesfully deleted customer");
       navigate(-1);
-    },
-    onError: (error) => {
+    }
+
+    if (error) {
       toast.error(JSON.stringify(error));
-    },
+    }
   });
 
   const handleSubmit = () => {
-    mutate();
+    delete$();
   };
 
   return (
