@@ -1,24 +1,40 @@
-import { Admin, Resource } from "react-admin";
-import { Layout } from "./Layout";
-import { authProvider } from "./features/auth/auth-provider";
-import { dataProvider } from "./data-provider";
-import { CustomerList } from "./features/customers/views/list";
-import { CustomerCreate } from "./features/customers/views/create";
-import PersonIcon from "@mui/icons-material/Person";
-import { CustomerEdit } from "./features/customers/views/edit";
+import { RouterProvider } from "react-router";
+import { createBrowserRouter } from "react-router";
+import { DashBoardLayout } from "./features/dashboard/components/DashBoardLayout";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { CustomersPage } from "./features/customers/page/CustomersPage";
+import { CustomerPage } from "./features/customers/page/CustomerPage";
+import { CustomerCreatePage } from "./features/customers/page/CustomerCreatePage";
 
-export const App = () => (
-  <Admin
-    layout={Layout}
-    authProvider={authProvider}
-    dataProvider={dataProvider}
-  >
-    <Resource
-      icon={PersonIcon}
-      name="customers"
-      list={CustomerList}
-      create={CustomerCreate}
-      edit={CustomerEdit}
-    />
-  </Admin>
-);
+const queryClient = new QueryClient();
+
+function App() {
+  const router = createBrowserRouter([
+    {
+      path: "/dashboard",
+      Component: DashBoardLayout,
+      children: [
+        {
+          path: "customers",
+          Component: CustomersPage,
+        },
+        {
+          path: "customers/create",
+          Component: CustomerCreatePage,
+        },
+        {
+          path: "customers/:customerId",
+          Component: CustomerPage,
+        },
+      ],
+    },
+  ]);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
+  );
+}
+
+export default App;
