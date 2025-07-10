@@ -34,19 +34,19 @@ function App() {
             },
           ],
         },
-	{
-	  path: "roles",
-	  children: [
-	    {
-	      index: true,
-	      Component: RolesPage
-	    },
+        {
+          path: "roles",
+          children: [
+            {
+              index: true,
+              Component: RolesPage,
+            },
             {
               path: "create",
               Component: RoleCreatePage,
             },
-	  ]
-	}
+          ],
+        },
       ],
     },
     {

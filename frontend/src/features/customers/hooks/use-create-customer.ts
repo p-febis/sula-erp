@@ -24,4 +24,4 @@ export const useCreateCustomer = (onSettled: SettledFunction) => {
     createAsync: mutateAsync,
     ...restMutation,
   };
-}
+};

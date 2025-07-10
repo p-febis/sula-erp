@@ -1,10 +1,9 @@
-import { useSuspenseQuery } from "@tanstack/react-query"
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { fetchWithAuth } from "@/features/authentication/lib/fetchWithAuth";
 import { DataTable } from "@/components/data-table";
 import { roleListColumns } from "../types/roles-columns";
 
 export const RolesPage = () => {
-
   const { data } = useSuspenseQuery({
     queryKey: ["roles"],
     queryFn: async () => {
@@ -16,5 +15,5 @@ export const RolesPage = () => {
     },
   });
 
-  return <DataTable data={data} columns={roleListColumns} />
-}
+  return <DataTable data={data} columns={roleListColumns} />;
+};

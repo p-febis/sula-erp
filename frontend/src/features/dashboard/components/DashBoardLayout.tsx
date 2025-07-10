@@ -5,6 +5,7 @@ import {
 } from "@/features/dashboard/components/Sidebar";
 import { AuthenticationProvider } from "@/features/authentication/components/AuthenticationProvider";
 import { Suspense } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 import { Toaster } from "@/components/ui/sonner";
 
 export const DashBoardLayout = () => {
@@ -13,9 +14,11 @@ export const DashBoardLayout = () => {
       <SidebarProvider>
         <Sidebar />
         <div className="w-full">
-          <Suspense fallback={<>Loading...</>}>
-            <Outlet />
-          </Suspense>
+          <ErrorBoundary fallback={<>An error has occured</>}>
+            <Suspense fallback={<>Loading...</>}>
+              <Outlet />
+            </Suspense>
+          </ErrorBoundary>
         </div>
         <Toaster richColors />
       </SidebarProvider>

@@ -10,15 +10,15 @@ export const CustomerCreate = () => {
   const navigate = useNavigate();
 
   const { create } = useCreateCustomer((data, error) => {
-    if(data) {
+    if (data) {
       toast.success("Succesfully created customer");
       navigate(-1);
     }
 
-    if(error) {
+    if (error) {
       toast.error(JSON.stringify(error));
     }
-  })
+  });
 
   const form = useForm({
     defaultValues: {

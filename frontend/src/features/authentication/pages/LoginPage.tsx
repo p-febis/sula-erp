@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router";
 
 export const LoginPage = () => {
-
   const navigate = useNavigate();
 
   const { login } = useLogin((data, error) => {

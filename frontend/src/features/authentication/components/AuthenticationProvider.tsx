@@ -50,7 +50,7 @@ export const AuthenticationProvider = ({ children }: PropsWithChildren) => {
 
   if (isLoading) return <>Loading...</>;
 
-  if (!data) {
+  if (!data && !sessionStorage.getItem("accessToken")) {
     return <Navigate to="/login" />;
   }
 
