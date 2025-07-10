@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { UserService, IUserService } from "@/services/UserService";
+import { UserService, type IUserService } from "@/services/UserService";
 import jwt from "jsonwebtoken";
 import { verify } from "@node-rs/argon2";
 
@@ -12,205 +12,164 @@ const mockUserRepository = {
 describe("UserService", () => {
   let userService: IUserService;
 
+  const testPassword = "eee914af-0b6b-4b43-a2da-dcdc125ff18b";
+  const testHash =
+    "$argon2id$v=19$m=16,t=2,p=1$cmFuZG9tLXNhbHQ$th+l03f/sP8YVAFse/EOuQ";
+
   beforeEach(() => {
     vi.resetAllMocks();
     userService = new UserService(mockUserRepository);
   });
 
-  it("Should create and return user", async () => {
+  it("should create and return user with hashed password", async () => {
     let capturedPassword: string = "";
 
     mockUserRepository.create.mockImplementationOnce(async (data) => {
       capturedPassword = data.password;
-      return {
-        id: 1,
-        username: data.username,
-        password: capturedPassword,
-      };
+      return { id: 1, username: data.username, password: capturedPassword };
     });
 
     const user = await userService.createUser({
       username: "Admin",
-      password: "eee914af-0b6b-4b43-a2da-dcdc125ff18b",
+      password: testPassword,
     });
 
     expect(mockUserRepository.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        username: "Admin",
-        password: expect.any(String),
-      }),
+      expect.objectContaining({ username: "Admin", password: expect.any(String) }),
     );
 
-    const isValid = await verify(
-      capturedPassword,
-      "eee914af-0b6b-4b43-a2da-dcdc125ff18b",
-    );
+    const isValid = await verify(capturedPassword, testPassword);
     expect(isValid).toBe(true);
-
-    expect(user).toEqual(
-      expect.objectContaining({
-        username: "Admin",
-        id: 1,
-        password: expect.any(String),
-      }),
-    );
+    expect(user).toEqual(expect.objectContaining({ id: 1, username: "Admin" }));
   });
 
-  it("Should throw if a user already exists", async () => {
+  it("should throw if user already exists", async () => {
     mockUserRepository.create.mockResolvedValueOnce(null);
 
-    const userPromise = userService.createUser({
-      username: "Admin",
-      password: "eee914af-0b6b-4b43-a2da-dcdc125ff18b",
-    });
-
-    await expect(userPromise).rejects.toThrowError();
+    await expect(
+      userService.createUser({ username: "Admin", password: testPassword })
+    ).rejects.toThrow();
   });
 
-  it("Should login a valid user", async () => {
+  it("should login a valid user", async () => {
     mockUserRepository.findByName.mockResolvedValueOnce({
       id: 1,
       username: "Admin",
-      password:
-        "$argon2id$v=19$m=16,t=2,p=1$cmFuZG9tLXNhbHQ$th+l03f/sP8YVAFse/EOuQ",
+      password: testHash,
     });
 
-    const loginData = await userService.loginUser({
-      username: "Admin",
-      password: "eee914af-0b6b-4b43-a2da-dcdc125ff18b",
-    });
+    const result = await userService.loginUser({ username: "Admin", password: testPassword });
 
     expect(mockUserRepository.findByName).toHaveBeenCalledOnce();
-
-    expect(loginData).toBeTruthy();
+    expect(result).toHaveProperty("accessToken");
+    expect(result).toHaveProperty("refreshToken");
   });
 
-  it("Should not login an invalid user", async () => {
+  it("should not login with incorrect password", async () => {
     mockUserRepository.findByName.mockResolvedValueOnce({
       id: 1,
       username: "Admin",
-      password:
-        "$argon2id$v=19$m=16,t=2,p=1$cmFuZG9tLXNhbHQ$th+l03f/sP8YVAFse/EOuQ",
+      password: testHash,
     });
 
-    const loginDataPromise = userService.loginUser({
-      username: "Admin",
-      password: "9af4202f-b7bd-4549-b672-b261585e84ee",
-    });
-
-    await expect(loginDataPromise).rejects.toThrowError();
+    await expect(
+      userService.loginUser({ username: "Admin", password: "wrong-password" })
+    ).rejects.toThrow();
   });
 
-  it("Should not login an non existant user", async () => {
+  it("should not login non-existent user", async () => {
     mockUserRepository.findByName.mockResolvedValueOnce(null);
 
-    const loginDataPromise = userService.loginUser({
-      username: "Admin",
-      password: "9af4202f-b7bd-4549-b672-b261585e84ee",
-    });
-
-    await expect(loginDataPromise).rejects.toThrowError("No user!");
+    await expect(
+      userService.loginUser({ username: "Admin", password: testPassword })
+    ).rejects.toThrow("No user!");
   });
 
-  it("Should return a valid access token on login", async () => {
+  it("should return valid access token", async () => {
     mockUserRepository.findByName.mockResolvedValueOnce({
       id: 1,
       username: "Admin",
-      password:
-        "$argon2id$v=19$m=16,t=2,p=1$cmFuZG9tLXNhbHQ$th+l03f/sP8YVAFse/EOuQ",
+      password: testHash,
     });
 
-    const loginData = await userService.loginUser({
+    const { accessToken } = await userService.loginUser({
       username: "Admin",
-      password: "eee914af-0b6b-4b43-a2da-dcdc125ff18b",
+      password: testPassword,
     });
 
-    expect(mockUserRepository.findByName).toHaveBeenCalledOnce();
-
-    const parsedTokenData = jwt.verify(
-      loginData.accessToken,
+    const { payload } = jwt.verify(
+      accessToken,
       process.env.ACCESS_TOKEN_SECRET!,
-      { complete: true },
-    ) as unknown as { payload: { sub: number; exp: number } };
+      { complete: true }
+    ) as  unknown as { payload: { sub: number; exp: number } };
 
-    expect(parsedTokenData?.payload.sub).toBe(1);
-    expect(parsedTokenData?.payload.exp).toBeGreaterThan(Date.now() / 1000);
+    expect(payload.sub).toBe(1);
+    expect(payload.exp).toBeGreaterThan(Date.now() / 1000);
   });
 
-  it("Should return a valid refresh token on login", async () => {
+  it("should return valid refresh token", async () => {
     mockUserRepository.findByName.mockResolvedValueOnce({
       id: 1,
+      username: "Admin",
       refresh_token_version: 1,
-      username: "Admin",
-      password:
-        "$argon2id$v=19$m=16,t=2,p=1$cmFuZG9tLXNhbHQ$th+l03f/sP8YVAFse/EOuQ",
+      password: testHash,
     });
 
-    const loginData = await userService.loginUser({
+    const { refreshToken } = await userService.loginUser({
       username: "Admin",
-      password: "eee914af-0b6b-4b43-a2da-dcdc125ff18b",
+      password: testPassword,
     });
 
-    expect(mockUserRepository.findByName).toHaveBeenCalledOnce();
-
-    const parsedTokenData = jwt.verify(
-      loginData.refreshToken,
+    const { payload } = jwt.verify(
+      refreshToken,
       process.env.REFRESH_TOKEN_SECRET!,
-      { complete: true },
-    ) as unknown as {
-      payload: { sub: number; exp: number; refresh_token_version: number };
-    };
+      { complete: true }
+    ) as  unknown as { payload: { sub: number; exp: number; refresh_token_version: number } };
 
-    expect(parsedTokenData?.payload.sub).toBe(1);
-    expect(parsedTokenData?.payload.refresh_token_version).toBe(1);
-    expect(parsedTokenData?.payload.exp).toBeGreaterThan(Date.now() / 1000);
+    expect(payload.sub).toBe(1);
+    expect(payload.refresh_token_version).toBe(1);
+    expect(payload.exp).toBeGreaterThan(Date.now() / 1000);
   });
 
-  it("Should refresh the access token", async () => {
+  it("should refresh access and refresh tokens", async () => {
     mockUserRepository.findByName.mockResolvedValue({
       id: 1,
-      refresh_token_version: 1,
       username: "Admin",
-      password:
-        "$argon2id$v=19$m=16,t=2,p=1$cmFuZG9tLXNhbHQ$th+l03f/sP8YVAFse/EOuQ",
+      refresh_token_version: 1,
+      password: testHash,
     });
 
     mockUserRepository.refreshUser.mockResolvedValue({
       id: 1,
+      username: "Admin",
       refresh_token_version: 2,
-      username: "Admin",
-      password:
-        "$argon2id$v=19$m=16,t=2,p=1$cmFuZG9tLXNhbHQ$th+l03f/sP8YVAFse/EOuQ",
+      password: testHash,
     });
 
-    const loginData = await userService.loginUser({
+    const { refreshToken } = await userService.loginUser({
       username: "Admin",
-      password: "eee914af-0b6b-4b43-a2da-dcdc125ff18b",
+      password: testPassword,
     });
 
-    const { accessToken, refreshToken } = await userService.refreshUser(
-      loginData.refreshToken,
-    );
+    const { accessToken, refreshToken: newRefreshToken } = await userService.refreshUser(refreshToken);
 
-    const accessTokenData = jwt.verify(
+    const accessPayload = jwt.verify(
       accessToken,
       process.env.ACCESS_TOKEN_SECRET!,
-      { complete: true },
+      { complete: true }
     ) as unknown as { payload: { sub: number; exp: number } };
 
-    expect(accessTokenData?.payload.sub).toBe(1);
-    expect(accessTokenData?.payload.exp).toBeGreaterThan(Date.now() / 1000);
+    expect(accessPayload.payload.sub).toBe(1);
+    expect(accessPayload.payload.exp).toBeGreaterThan(Date.now() / 1000);
 
-    const parsedTokenData = jwt.verify(
-      refreshToken,
+    const refreshPayload = jwt.verify(
+      newRefreshToken,
       process.env.REFRESH_TOKEN_SECRET!,
-      { complete: true },
-    ) as unknown as {
-      payload: { sub: number; exp: number; refresh_token_version: number };
-    };
+      { complete: true }
+    ) as unknown  as { payload: { sub: number; exp: number; refresh_token_version: number } };
 
-    expect(parsedTokenData?.payload.sub).toBe(1);
-    expect(parsedTokenData?.payload.refresh_token_version).toBe(2);
-    expect(parsedTokenData?.payload.exp).toBeGreaterThan(Date.now() / 1000);
+    expect(refreshPayload.payload.sub).toBe(1);
+    expect(refreshPayload.payload.refresh_token_version).toBe(2);
+    expect(refreshPayload.payload.exp).toBeGreaterThan(Date.now() / 1000);
   });
 });

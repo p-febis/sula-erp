@@ -7,9 +7,7 @@ import { createRequest } from "node-mocks-http";
 import { H3Event } from "h3";
 
 vi.mock("@/utils/body-parser", () => ({
-  parseBodyAsync: async (event: H3Event) => {
-    return event.req.body;
-  },
+  parseBodyAsync: async (event: H3Event) => event.req.body,
 }));
 
 describe("CustomerController", () => {
@@ -21,93 +19,66 @@ describe("CustomerController", () => {
     deleteCustomer: vi.fn(),
   };
 
-  let customerController: ICustomerController;
+  let controller: ICustomerController;
+
+  const sampleCustomer = {
+    id: 1,
+    name: "John Doe & Co",
+    email: "doe@example.com",
+    phone: "+1 (206) 342-8631",
+  };
+
+  const sampleCreateBody = {
+    name: "John Doe & Co",
+    email: "doe@example.com",
+    phone: "+1 (206) 342-8631",
+  };
 
   beforeEach(() => {
     vi.resetAllMocks();
-
-    customerController = new CustomerController(mockCustomerService);
+    controller = new CustomerController(mockCustomerService);
   });
 
-  it("Should call createCustomer with correct data", async () => {
-    mockCustomerService.createCustomer.mockResolvedValueOnce({
-      id: 1,
-      name: "John Doe & Co",
-      email: "doe@example.com",
-      phone: "+1 (206) 342-8631",
-    });
+  it("should create a customer with full data", async () => {
+    mockCustomerService.createCustomer.mockResolvedValueOnce(sampleCustomer);
 
-    const request = createRequest({
-      method: "POST",
-      body: {
-        name: "John Doe & Co",
-        email: "doe@example.com",
-        phone: "+1 (206) 342-8631",
-      },
-    });
+    const event = new H3Event(
+      createRequest({ method: "POST", body: sampleCreateBody }),
+    );
+    const response = await controller.postCreate(event);
 
-    const event = new H3Event(request);
-    const response = await customerController.postCreate(event);
-
-    expect(mockCustomerService.createCustomer).toHaveBeenCalledExactlyOnceWith({
-      name: "John Doe & Co",
-      email: "doe@example.com",
-      phone: "+1 (206) 342-8631",
-    });
-
-    expect(response.status).toBe(201);
-    expect(response.message).toBe("Created customer!");
-    expect(response.data).toEqual({
-      id: 1,
-      name: "John Doe & Co",
-      email: "doe@example.com",
-      phone: "+1 (206) 342-8631",
+    expect(mockCustomerService.createCustomer).toHaveBeenCalledExactlyOnceWith(sampleCreateBody);
+    expect(response).toEqual({
+      status: 201,
+      statusText: "OK",
+      message: "Created customer!",
+      data: sampleCustomer,
     });
   });
 
-  it("Should call createCustomer with only required info", async () => {
-    mockCustomerService.createCustomer.mockResolvedValueOnce({
-      id: 1,
-      name: "Jane Doe & Co",
-      email: null,
-      phone: null,
-    });
+  it("should create a customer with only name", async () => {
+    const body = { name: "Jane Doe & Co" };
+    const created = { id: 1, name: body.name, email: null, phone: null };
+    mockCustomerService.createCustomer.mockResolvedValueOnce(created);
 
-    const request = createRequest({
-      method: "POST",
-      body: {
-        name: "Jane Doe & Co",
-      },
-    });
+    const event = new H3Event(createRequest({ method: "POST", body }));
+    const response = await controller.postCreate(event);
 
-    const event = new H3Event(request);
-    const response = await customerController.postCreate(event);
-
-    expect(mockCustomerService.createCustomer).toHaveBeenCalledExactlyOnceWith({
-      name: "Jane Doe & Co",
-    });
-
-    expect(response.status).toBe(201);
-    expect(response.message).toBe("Created customer!");
-    expect(response.data).toEqual({
-      id: 1,
-      name: "Jane Doe & Co",
-      email: null,
-      phone: null,
+    expect(mockCustomerService.createCustomer).toHaveBeenCalledExactlyOnceWith(body);
+    expect(response).toEqual({
+      status: 201,
+      statusText: "OK",
+      message: "Created customer!",
+      data: created,
     });
   });
 
-  it("Should throw error when no customer name is given", async () => {
-    const request = createRequest({
-      method: "POST",
-      body: {
-        email: "doe@example.com",
-        phone: "+1 (206) 342-8631",
-      },
-    });
+  it("should throw when no name is provided", async () => {
+    const event = new H3Event(
+      createRequest({ method: "POST", body: { email: "a@b.com", phone: "123" } }),
+    );
 
-    const event = new H3Event(request);
-    const error = await customerController.postCreate(event).catch((e) => e);
+    const error = await controller.postCreate(event).catch((e) => e);
 
     expect(error.cause).toEqual({
       status: 400,
@@ -117,138 +88,80 @@ describe("CustomerController", () => {
     });
   });
 
-  it("Should return the customers succesfully", async () => {
-    mockCustomerService.allCustomers.mockResolvedValueOnce([
-      {
-        id: 1,
-        name: "John Doe & Co",
-        email: "doe@example.com",
-        phone: "+1 (206) 342-8631",
-      },
+  it("should return all customers", async () => {
+    const all = [
+      sampleCustomer,
       {
         id: 2,
-        name: "Jane Doe & Parnets",
-        email: "jane.doe@example.com",
+        name: "Jane Doe & Parents",
+        email: "jane@example.com",
         phone: "+1 (206) 343-8888",
       },
-    ]);
+    ];
 
-    const request = createRequest({
-      method: "GET",
-    });
+    mockCustomerService.allCustomers.mockResolvedValueOnce(all);
 
-    const event = new H3Event(request);
-    const response = await customerController.getAll(event);
+    const event = new H3Event(createRequest({ method: "GET" }));
+    const response = await controller.getAll(event);
 
     expect(mockCustomerService.allCustomers).toHaveBeenCalledOnce();
-    expect(response.status).toBe(200);
-    expect(response.message).toBe("Success");
-    expect(response.data).toEqual([
-      {
-        id: 1,
-        name: "John Doe & Co",
-        email: "doe@example.com",
-        phone: "+1 (206) 342-8631",
-      },
-      {
-        id: 2,
-        name: "Jane Doe & Parnets",
-        email: "jane.doe@example.com",
-        phone: "+1 (206) 343-8888",
-      },
-    ]);
+    expect(response).toEqual({
+      status: 200,
+      statusText: "OK",
+      message: "Success",
+      data: all,
+    });
   });
 
-  it("Should get a single customer", async () => {
-    mockCustomerService.getCustomer.mockResolvedValueOnce({
-      id: 1,
-      name: "John Doe & Co",
-      email: "doe@example.com",
-      phone: "+1 (206) 342-8631",
-    });
+  it("should get a customer by ID", async () => {
+    mockCustomerService.getCustomer.mockResolvedValueOnce(sampleCustomer);
 
-    const request = createRequest({
-      method: "GET",
-    });
-
-    const event = new H3Event(request);
+    const event = new H3Event(createRequest({ method: "GET" }));
     event.context.params = { id: "1" };
 
-    const response = await customerController.getOne(event);
+    const response = await controller.getOne(event);
+
     expect(mockCustomerService.getCustomer).toHaveBeenCalledOnce();
-    expect(response.status).toBe(200);
-    expect(response.message).toBe("Success");
-    expect(response.data).toEqual({
-      id: 1,
-      name: "John Doe & Co",
-      email: "doe@example.com",
-      phone: "+1 (206) 342-8631",
+    expect(response).toEqual({
+      status: 200,
+      statusText: "OK",
+      message: "Success",
+      data: sampleCustomer,
     });
   });
 
-  it("Should call update", async () => {
-    mockCustomerService.updateCustomer.mockResolvedValueOnce({
-      id: 1,
-      name: "John Doe & Co",
-      email: "doe@example.com",
-      phone: "+1 (206) 342-8631",
-    });
+  it("should update a customer", async () => {
+    mockCustomerService.updateCustomer.mockResolvedValueOnce(sampleCustomer);
 
-    const request = createRequest({
-      method: "PATCH",
-      body: {
-        name: "John Doe & Co",
-        email: "doe@example.com",
-        phone: "+1 (206) 342-8631",
-      },
-    });
-
-    const event = new H3Event(request);
+    const body = sampleCreateBody;
+    const event = new H3Event(createRequest({ method: "PATCH", body }));
     event.context.params = { id: "1" };
 
-    const response = await customerController.updateOne(event);
-    expect(mockCustomerService.updateCustomer).toHaveBeenCalledExactlyOnceWith(
-      1,
-      {
-        name: "John Doe & Co",
-        email: "doe@example.com",
-        phone: "+1 (206) 342-8631",
-      },
-    );
-    expect(response.status).toBe(200);
-    expect(response.message).toBe("Success");
-    expect(response.data).toEqual({
-      id: 1,
-      name: "John Doe & Co",
-      email: "doe@example.com",
-      phone: "+1 (206) 342-8631",
+    const response = await controller.updateOne(event);
+
+    expect(mockCustomerService.updateCustomer).toHaveBeenCalledExactlyOnceWith(1, body);
+    expect(response).toEqual({
+      status: 200,
+      statusText: "OK",
+      message: "Success",
+      data: sampleCustomer,
     });
   });
 
-  it("Should delete a single customer", async () => {
-    mockCustomerService.deleteCustomer.mockResolvedValueOnce({
-      id: 1,
-      name: "John Doe & Co",
-      email: "doe@example.com",
-      phone: "+1 (206) 342-8631",
-    });
+  it("should delete a customer", async () => {
+    mockCustomerService.deleteCustomer.mockResolvedValueOnce(sampleCustomer);
 
-    const request = createRequest({
-      method: "DELETE",
-    });
-
-    const event = new H3Event(request);
+    const event = new H3Event(createRequest({ method: "DELETE" }));
     event.context.params = { id: "1" };
 
-    const response = await customerController.deleteOne(event);
+    const response = await controller.deleteOne(event);
+
     expect(mockCustomerService.deleteCustomer).toHaveBeenCalledOnce();
-    expect(response.status).toBe(200);
-    expect(response.message).toBe("Success");
-    expect(response.data).toEqual({
-      id: 1,
-      name: "John Doe & Co",
-      email: "doe@example.com",
-      phone: "+1 (206) 342-8631",
+    expect(response).toEqual({
+      status: 200,
+      statusText: "OK",
+      message: "Success",
+      data: sampleCustomer,
     });
   });
 });
