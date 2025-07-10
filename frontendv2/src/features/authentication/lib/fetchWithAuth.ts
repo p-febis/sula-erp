@@ -1,4 +1,8 @@
-export async function fetchWithAuth(input: RequestInfo, init: RequestInit = {}, retry = true): Promise<Response> {
+export async function fetchWithAuth(
+  input: RequestInfo,
+  init: RequestInit = {},
+  retry = true,
+): Promise<Response> {
   const token = sessionStorage.getItem("accessToken");
 
   const authHeaders = token

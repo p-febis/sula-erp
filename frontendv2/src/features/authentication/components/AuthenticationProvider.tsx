@@ -1,52 +1,57 @@
 import { useQuery } from "@tanstack/react-query";
-import { createContext, useEffect, useState, type Dispatch, type PropsWithChildren, type SetStateAction } from "react"
+import {
+  createContext,
+  useEffect,
+  useState,
+  type Dispatch,
+  type PropsWithChildren,
+  type SetStateAction,
+} from "react";
 
 type TAuthenticationContext = {
-  isLoggedIn: boolean,
-  setIsLoggedIn: Dispatch<SetStateAction<boolean>> | null
-}
+  isLoggedIn: boolean;
+  setIsLoggedIn: Dispatch<SetStateAction<boolean>> | null;
+};
 const AuthenticationContext = createContext<TAuthenticationContext>({
   isLoggedIn: false,
   setIsLoggedIn: null,
 });
 
-
 export async function refreshAuth(): Promise<{ accessToken: string } | null> {
   const response = await fetch("/api/auth/refresh", {
     method: "POST",
     credentials: "same-origin",
-  })
+  });
 
   if (!response.ok) return null;
 
-  const { data } = await response.json()
+  const { data } = await response.json();
   return data;
 }
 
 const FIFTEEN_MINUTES = 900000;
 const TEN_SECONDS = 10000;
 
-export const AuthenticationProvider = ({ children } : PropsWithChildren) => {
+export const AuthenticationProvider = ({ children }: PropsWithChildren) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { data, isLoading } = useQuery({
     queryKey: ["auth"],
     staleTime: FIFTEEN_MINUTES - TEN_SECONDS,
-    queryFn: refreshAuth
+    queryFn: refreshAuth,
   });
 
-
   useEffect(() => {
-    if(!isLoading && data) {
+    if (!isLoading && data) {
       sessionStorage.setItem("accessToken", data.accessToken);
       setIsLoggedIn(true);
     }
-  }, [data, isLoading])
+  }, [data, isLoading]);
 
-  if(isLoading) return <>Loading...</>;
+  if (isLoading) return <>Loading...</>;
 
   return (
     <AuthenticationContext value={{ isLoggedIn, setIsLoggedIn }}>
       {children}
     </AuthenticationContext>
-  )
-}
+  );
+};

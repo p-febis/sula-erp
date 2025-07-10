@@ -6,22 +6,19 @@ import { useMutation } from "@tanstack/react-query";
 import { fetchWithAuth } from "@/features/authentication/lib/fetchWithAuth";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
-import { DeleteButton } from "@/components/DeleteButton";
 
-export const CustomerEdit = ({ customer }: { customer: Customer }) => {
-  const { id, ...restCustomer } = customer;
-
+export const CustomerCreate = () => {
   const navigate = useNavigate();
 
   const { mutate } = useMutation({
     mutationFn: async (body: Omit<Customer, "id">) => {
-      fetchWithAuth(`/api/customers/${id}`, {
-        method: "PATCH",
+      fetchWithAuth(`/api/customers`, {
+        method: "POST",
         body: JSON.stringify(body),
       });
     },
     onSuccess: () => {
-      toast.success("Succesfully updated customer");
+      toast.success("Succesfully created customer");
       navigate(-1);
     },
     onError: (error) => {
@@ -30,7 +27,11 @@ export const CustomerEdit = ({ customer }: { customer: Customer }) => {
   });
 
   const form = useForm({
-    defaultValues: restCustomer,
+    defaultValues: {
+      name: "",
+      phone: "",
+      email: "",
+    },
     onSubmit: async ({ value }) => {
       mutate(value);
     },
@@ -93,12 +94,9 @@ export const CustomerEdit = ({ customer }: { customer: Customer }) => {
             </>
           )}
         />
-        <div className="w-full inline-flex justify-between">
-          <Button type="submit" disabled={isDefaultValue}>
-            Submit
-          </Button>
-          <DeleteButton resource="customers" id={String(id)} />
-        </div>
+        <Button type="submit" disabled={isDefaultValue}>
+          Submit
+        </Button>
       </form>
     </div>
   );

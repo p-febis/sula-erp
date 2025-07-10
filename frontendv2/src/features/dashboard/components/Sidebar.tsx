@@ -8,24 +8,24 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
-} from '@/components/ui/sidebar'
-import { BuildingIcon } from 'lucide-react'
-import type { ElementType } from 'react'
-import { Link } from 'react-router'
+} from "@/components/ui/sidebar";
+import { BuildingIcon } from "lucide-react";
+import type { ElementType } from "react";
+import { Link } from "react-router";
 
 type SidebarItem = {
-  title: string
-  path: string
-  icon: ElementType
-}
+  title: string;
+  path: string;
+  icon: ElementType;
+};
 
 const items: SidebarItem[] = [
   {
-    title: 'Customers',
-    path: 'customers',
+    title: "Customers",
+    path: "customers",
     icon: BuildingIcon,
   },
-]
+];
 
 export const Sidebar = () => {
   return (
@@ -52,7 +52,7 @@ export const Sidebar = () => {
         </SidebarGroup>
       </SidebarContent>
     </SidebarComponent>
-  )
-}
+  );
+};
 
-export { SidebarProvider }
+export { SidebarProvider };

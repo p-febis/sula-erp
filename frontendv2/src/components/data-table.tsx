@@ -3,7 +3,7 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
-} from '@tanstack/react-table'
+} from "@tanstack/react-table";
 
 import {
   Table,
@@ -12,29 +12,35 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { useNavigate } from 'react-router'
+} from "@/components/ui/table";
+import { Link, useNavigate } from "react-router";
+import { Button } from "./ui/button";
+import { PlusIcon } from "lucide-react";
 interface DataTableProps<TData extends { id: number }, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
-  resource: string
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
 }
 
 export function DataTable<TData extends { id: number }, TValue>({
   columns,
   data,
-  resource,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-  })
+  });
 
   const navigate = useNavigate();
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border p-4 space-y-2">
+      <Button asChild variant="outline">
+        <Link to="create">
+          <PlusIcon />
+          Create
+        </Link>
+      </Button>
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -49,7 +55,7 @@ export function DataTable<TData extends { id: number }, TValue>({
                           header.getContext(),
                         )}
                   </TableHead>
-                )
+                );
               })}
             </TableRow>
           ))}
@@ -59,9 +65,9 @@ export function DataTable<TData extends { id: number }, TValue>({
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
-                data-state={row.getIsSelected() && 'selected'}
+                data-state={row.getIsSelected() && "selected"}
                 onClick={() => {
-                  navigate(String(row.original.id))
+                  navigate(String(row.original.id));
                 }}
                 className="cursor-pointer"
               >
@@ -82,5 +88,5 @@ export function DataTable<TData extends { id: number }, TValue>({
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }

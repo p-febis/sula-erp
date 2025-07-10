@@ -1,10 +1,9 @@
 import { fetchWithAuth } from "@/features/authentication/lib/fetchWithAuth";
-import { useSuspenseQuery } from "@tanstack/react-query"
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
 import { CustomerEdit } from "../components/CustomerEdit";
 
 export const CustomerPage = () => {
-
   let { customerId } = useParams();
 
   const { data } = useSuspenseQuery({
@@ -18,6 +17,5 @@ export const CustomerPage = () => {
     },
   });
 
-
   return <CustomerEdit customer={data} />;
-}
+};
