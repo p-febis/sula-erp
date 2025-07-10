@@ -14,18 +14,23 @@ function App() {
       path: "/dashboard",
       Component: DashBoardLayout,
       children: [
-        {
-          path: "customers",
-          Component: CustomersPage,
-        },
-        {
-          path: "customers/create",
-          Component: CustomerCreatePage,
-        },
-        {
-          path: "customers/:customerId",
-          Component: CustomerPage,
-        },
+	{
+	  path: "customers",
+	  children: [
+	    {
+	      index: true,
+	      Component: CustomersPage,
+	    },
+	    {
+	      path: "create",
+	      Component: CustomerCreatePage,
+	    },
+	    {
+	      path: ":customerId",
+	      Component: CustomerPage,
+	    },
+	  ]
+	},
       ],
     },
   ]);
