@@ -96,7 +96,7 @@ export const CustomerEdit = ({ customer }: { customer: Customer }) => {
             />
             <div className="w-full inline-flex justify-between">
               <Button type="submit" disabled={isDefaultValue}>
-                Submit
+                Edit
               </Button>
               <DeleteButton resource="customers" id={String(id)} />
             </div>
