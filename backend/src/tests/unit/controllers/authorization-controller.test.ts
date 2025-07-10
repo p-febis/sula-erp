@@ -5,6 +5,7 @@ import {
   AuthorizationController,
   IAuthorizationController,
 } from "@/controllers/AuthorizationController";
+import { permission } from "process";
 
 vi.mock("@/utils/body-parser", () => ({
   parseBodyAsync: async (event: H3Event) => {
@@ -16,6 +17,7 @@ describe("AuthorizationController", () => {
   let authorizationController: IAuthorizationController;
 
   const mockAuthorizationService = {
+    userCanDo: vi.fn(),
     createRole: vi.fn(),
     allRoles: vi.fn(),
   };
@@ -39,23 +41,72 @@ describe("AuthorizationController", () => {
     name: "Marketing",
   };
 
-  it("Should call createRole with correct data", async () => {
+  it.each([
+    {
+      title: "a superuser",
+      claims: { isSuperUser: true, permissions: [] },
+    },
+    {
+      title: "a user with the correct permission",
+      claims: { isSuperUser: false, permissions: ["create:role"] },
+    },
+  ])(
+    "Should call createRole with correct data & $title",
+    async ({ claims }) => {
+      mockAuthorizationService.createRole.mockResolvedValueOnce(sampleRole);
+      mockAuthorizationService.userCanDo.mockReturnValue(true);
+
+      const event = new H3Event(
+        createRequest({ method: "POST", body: sampleCreateBody }),
+      );
+
+      event.context.claims = claims;
+
+      const response = await authorizationController.postCreateRole(event);
+
+      expect(
+        mockAuthorizationService.userCanDo,
+      ).toHaveBeenCalledExactlyOnceWith(claims, ["create:role"]);
+
+      expect(
+        mockAuthorizationService.createRole,
+      ).toHaveBeenCalledExactlyOnceWith(sampleCreateBody);
+
+      expect(response).toEqual({
+        status: 201,
+        statusText: "OK",
+        message: "Created role!",
+        data: sampleRole,
+      });
+    },
+  );
+
+  it("Should not call createRole with correct data a user without permission", async () => {
     mockAuthorizationService.createRole.mockResolvedValueOnce(sampleRole);
+    mockAuthorizationService.userCanDo.mockReturnValue(false);
 
     const event = new H3Event(
       createRequest({ method: "POST", body: sampleCreateBody }),
     );
 
-    const response = await authorizationController.postCreateRole(event);
-    expect(mockAuthorizationService.createRole).toHaveBeenCalledExactlyOnceWith(
-      sampleCreateBody,
+    event.context.claims = {
+      isSuperUser: false,
+      permissions: [],
+    };
+
+    await expect(
+      authorizationController.postCreateRole(event),
+    ).rejects.toThrow();
+
+    expect(mockAuthorizationService.userCanDo).toHaveBeenCalledExactlyOnceWith(
+      {
+        isSuperUser: false,
+        permissions: [],
+      },
+      ["create:role"],
     );
-    expect(response).toEqual({
-      status: 201,
-      statusText: "OK",
-      message: "Created role!",
-      data: sampleRole,
-    });
+
+    expect(mockAuthorizationService.createRole).not.toHaveBeenCalledOnce();
   });
 
   it("Should return all roles", async () => {

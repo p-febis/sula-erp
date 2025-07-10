@@ -56,4 +56,48 @@ describe("AuthorizationService", () => {
     expect(mockAuthorizationRepository.findAllRoles).toHaveBeenCalledOnce();
     expect(result).toEqual(allRoles);
   });
+
+  it("Should return true on valid permissions", () => {
+    const canDo = authorizationService.userCanDo(
+      {
+        isSuperUser: true,
+        permissions: [],
+      },
+      ["create:something"],
+    );
+
+    expect(canDo).toBeTruthy();
+
+    const canDo2 = authorizationService.userCanDo(
+      {
+        isSuperUser: false,
+        permissions: ["create:something"],
+      },
+      ["create:something"],
+    );
+
+    expect(canDo2).toBeTruthy();
+  });
+
+  it("Should return false on invalid permissions", () => {
+    const canDo = authorizationService.userCanDo(
+      {
+        isSuperUser: false,
+        permissions: ["delete:something"],
+      },
+      ["create:something"],
+    );
+
+    expect(canDo).toBeFalsy();
+
+    const canDo2 = authorizationService.userCanDo(
+      {
+        isSuperUser: false,
+        permissions: [],
+      },
+      ["create:something"],
+    );
+
+    expect(canDo2).toBeFalsy();
+  });
 });

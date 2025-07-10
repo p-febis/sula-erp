@@ -2,9 +2,12 @@ import { CreateUserDto, TUser } from "@/models/user";
 import { PrismaClient } from "@/../generated/prisma";
 
 export interface IUserRepository {
-  create(userCreationData: CreateUserDto): Promise<TUser | null>;
+  create(
+    userCreationData: CreateUserDto & { isSuperUser: boolean },
+  ): Promise<TUser | null>;
   findByName(name: string): Promise<TUser | null>;
   refreshUser(id: number): Promise<TUser | null>;
+  isFirstUser(): Promise<boolean>;
 }
 
 export class UserRepository implements IUserRepository {
@@ -44,5 +47,10 @@ export class UserRepository implements IUserRepository {
     });
 
     return user;
+  }
+
+  async isFirstUser() {
+    const count = await this.client.user.count();
+    return count === 0;
   }
 }

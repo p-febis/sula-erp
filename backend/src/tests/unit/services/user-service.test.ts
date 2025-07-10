@@ -2,11 +2,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { UserService, type IUserService } from "@/services/UserService";
 import jwt from "jsonwebtoken";
 import { verify } from "@node-rs/argon2";
+import { permission } from "process";
 
 const mockUserRepository = {
   create: vi.fn(),
   findByName: vi.fn(),
   refreshUser: vi.fn(),
+  isFirstUser: vi.fn(),
 };
 
 describe("UserService", () => {
@@ -24,9 +26,15 @@ describe("UserService", () => {
   it("should create and return user with hashed password", async () => {
     let capturedPassword: string = "";
 
+    mockUserRepository.isFirstUser.mockResolvedValueOnce(true);
     mockUserRepository.create.mockImplementationOnce(async (data) => {
       capturedPassword = data.password;
-      return { id: 1, username: data.username, password: capturedPassword };
+      return {
+        id: 1,
+        username: data.username,
+        password: capturedPassword,
+        isSuperUser: true,
+      };
     });
 
     const user = await userService.createUser({
@@ -34,10 +42,13 @@ describe("UserService", () => {
       password: testPassword,
     });
 
+    expect(mockUserRepository.isFirstUser).toHaveBeenCalledOnce();
+
     expect(mockUserRepository.create).toHaveBeenCalledWith(
       expect.objectContaining({
         username: "Admin",
         password: expect.any(String),
+        isSuperUser: true,
       }),
     );
 
@@ -96,6 +107,7 @@ describe("UserService", () => {
       id: 1,
       username: "Admin",
       password: testHash,
+      isSuperUser: true,
     });
 
     const { accessToken } = await userService.loginUser({
@@ -107,9 +119,19 @@ describe("UserService", () => {
       accessToken,
       process.env.ACCESS_TOKEN_SECRET!,
       { complete: true },
-    ) as unknown as { payload: { sub: number; exp: number } };
+    ) as unknown as {
+      payload: {
+        sub: number;
+        exp: number;
+        authorization: { isSuperUser: boolean; permissions: string[] };
+      };
+    };
 
     expect(payload.sub).toBe(1);
+    expect(payload.authorization).toEqual({
+      isSuperUser: true,
+      permissions: [],
+    });
     expect(payload.exp).toBeGreaterThan(Date.now() / 1000);
   });
 

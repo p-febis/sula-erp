@@ -21,23 +21,33 @@ export const authMiddleware = (exclude = "/auth/") => {
 
     const [, accessToken] = authenticationHeader.split(" ");
 
-    const canPass = authGaurd(accessToken);
+    const [canPass, claims] = authGaurd(accessToken);
 
-    if (!canPass) {
+    if (!canPass || !claims) {
       throw new ErrorResponse(
         "Missing or invalid Authorization header",
         null,
         401,
       );
     }
+
+    event.context.claims = claims.authorization;
   };
 };
 
-export const authGaurd = (accessToken: string) => {
+type Claims = {
+  sub: number;
+  authorization: {
+    isSuperUser: boolean;
+    permissions: string[];
+  };
+};
+
+export const authGaurd = (accessToken: string): [boolean, Claims | null] => {
   try {
-    jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET!);
-    return true;
+    const claims = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET!);
+    return [true, claims as unknown as Claims];
   } catch {
-    return false;
+    return [false, null];
   }
 };

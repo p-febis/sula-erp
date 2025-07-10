@@ -3,6 +3,7 @@ import { IUserRepository } from "@/repositories/UserRepository";
 import { hashingOptions } from "@/utils/argon-options";
 import { hash, verify } from "@node-rs/argon2";
 import jwt from "jsonwebtoken";
+import { permission } from "process";
 
 export interface IUserService {
   createUser(userCreationData: CreateUserDto): Promise<TUser>;
@@ -22,8 +23,11 @@ export class UserService implements IUserService {
   }
 
   async createUser(userCreationData: CreateUserDto): Promise<TUser> {
+    const isSuperUser = await this.m_userRepository.isFirstUser();
+
     const user = await this.m_userRepository.create({
       ...userCreationData,
+      isSuperUser,
       password: await hash(userCreationData.password, hashingOptions),
     });
 
@@ -61,6 +65,10 @@ export class UserService implements IUserService {
     const accessToken = jwt.sign(
       {
         sub: user.id,
+        authorization: {
+          isSuperUser: user.isSuperUser,
+          permissions: [],
+        },
       },
       process.env.ACCESS_TOKEN_SECRET!,
       {

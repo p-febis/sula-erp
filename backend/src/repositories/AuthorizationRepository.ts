@@ -1,4 +1,4 @@
-import { Role, PrismaClient, User } from "@/../generated/prisma";
+import { Role, PrismaClient } from "@/../generated/prisma";
 import { CreateRoleDto } from "@/models/authorization";
 
 export interface IAuthorizationRepository {

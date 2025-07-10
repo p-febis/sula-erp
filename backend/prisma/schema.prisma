@@ -16,6 +16,7 @@ model User {
   refresh_token_version Int
   username              String     @unique
   password              String
+  isSuperUser           Boolean    @default(false)
   UserRole              UserRole[]
 }
 

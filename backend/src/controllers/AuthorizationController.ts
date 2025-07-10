@@ -1,5 +1,5 @@
 import { CreateRoleDto } from "@/models/authorization";
-import { SuccessResponse } from "@/responses/api";
+import { ErrorResponse, SuccessResponse } from "@/responses/api";
 import { IAuthorizationService } from "@/services/AuthorizationService";
 import { parseBodyAsync } from "@/utils/body-parser";
 import { H3Event } from "h3";
@@ -17,10 +17,19 @@ export class AuthorizationController implements IAuthorizationController {
   }
 
   async postCreateRole(event: H3Event) {
+    const canDo = this.m_authorizationService.userCanDo(event.context.claims, [
+      "create:role",
+    ]);
+
+    if (!canDo) {
+      throw new ErrorResponse("Forbidden", null, 403);
+    }
+
     const body = (await parseBodyAsync(event)) as CreateRoleDto;
     const role = await this.m_authorizationService.createRole(body);
     return new SuccessResponse("Created role!", role, 201);
   }
+
   async getAllRoles(event: H3Event) {
     const roles = await this.m_authorizationService.allRoles();
     return new SuccessResponse("Success", roles);
