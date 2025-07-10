@@ -7,6 +7,9 @@ import { CustomerRepository } from "./repositories/CustomerRepository";
 import { CustomerService } from "./services/CustomerService";
 import { CustomerController } from "./controllers/CustomerController";
 import { authMiddleware } from "./middleware/auth-guard";
+import { AuthorizationRepository } from "./repositories/AuthorizationRepository";
+import { AuthorizationService } from "./services/AuthorizationService";
+import { AuthorizationController } from "./controllers/AuthorizationController";
 
 const prisma = new PrismaClient();
 
@@ -18,6 +21,14 @@ async function main() {
   const customerRepository = new CustomerRepository(prisma);
   const customerService = new CustomerService(customerRepository);
   const customerController = new CustomerController(customerService);
+
+  const authorizationRepository = new AuthorizationRepository(prisma);
+  const authorizationService = new AuthorizationService(
+    authorizationRepository,
+  );
+  const authorizationController = new AuthorizationController(
+    authorizationService,
+  );
 
   const app = new H3({
     onError: console.log,
@@ -42,6 +53,16 @@ async function main() {
       customerController.deleteOne.bind(customerController),
     )
     .post("/customers", customerController.postCreate.bind(customerController));
+
+  app
+    .get(
+      "/roles",
+      authorizationController.getAllRoles.bind(authorizationController),
+    )
+    .post(
+      "/roles",
+      authorizationController.postCreateRole.bind(authorizationController),
+    );
 
   serve(app);
 }

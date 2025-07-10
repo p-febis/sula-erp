@@ -47,7 +47,9 @@ describe("CustomerController", () => {
     );
     const response = await controller.postCreate(event);
 
-    expect(mockCustomerService.createCustomer).toHaveBeenCalledExactlyOnceWith(sampleCreateBody);
+    expect(mockCustomerService.createCustomer).toHaveBeenCalledExactlyOnceWith(
+      sampleCreateBody,
+    );
     expect(response).toEqual({
       status: 201,
       statusText: "OK",
@@ -64,7 +66,9 @@ describe("CustomerController", () => {
     const event = new H3Event(createRequest({ method: "POST", body }));
     const response = await controller.postCreate(event);
 
-    expect(mockCustomerService.createCustomer).toHaveBeenCalledExactlyOnceWith(body);
+    expect(mockCustomerService.createCustomer).toHaveBeenCalledExactlyOnceWith(
+      body,
+    );
     expect(response).toEqual({
       status: 201,
       statusText: "OK",
@@ -75,7 +79,10 @@ describe("CustomerController", () => {
 
   it("should throw when no name is provided", async () => {
     const event = new H3Event(
-      createRequest({ method: "POST", body: { email: "a@b.com", phone: "123" } }),
+      createRequest({
+        method: "POST",
+        body: { email: "a@b.com", phone: "123" },
+      }),
     );
 
     const error = await controller.postCreate(event).catch((e) => e);
@@ -139,7 +146,10 @@ describe("CustomerController", () => {
 
     const response = await controller.updateOne(event);
 
-    expect(mockCustomerService.updateCustomer).toHaveBeenCalledExactlyOnceWith(1, body);
+    expect(mockCustomerService.updateCustomer).toHaveBeenCalledExactlyOnceWith(
+      1,
+      body,
+    );
     expect(response).toEqual({
       status: 200,
       statusText: "OK",

@@ -45,7 +45,9 @@ describe("UserController", () => {
 
     await userController.postCreate(event);
 
-    expect(mockUserService.createUser).toHaveBeenCalledExactlyOnceWith(validCredentials);
+    expect(mockUserService.createUser).toHaveBeenCalledExactlyOnceWith(
+      validCredentials,
+    );
   });
 
   it("should return a correctly formatted response after creating user", async () => {
@@ -56,7 +58,9 @@ describe("UserController", () => {
       refresh_token_version: 1,
     });
 
-    const event = new H3Event(createRequest({ method: "POST", body: validCredentials }));
+    const event = new H3Event(
+      createRequest({ method: "POST", body: validCredentials }),
+    );
     const response = await userController.postCreate(event);
 
     expect(response).toEqual({
@@ -76,7 +80,9 @@ describe("UserController", () => {
   ])("should throw on invalid %s during creation", async ({ field, value }) => {
     const invalidData = { ...validCredentials, [field]: value };
 
-    const event = new H3Event(createRequest({ method: "POST", body: invalidData }));
+    const event = new H3Event(
+      createRequest({ method: "POST", body: invalidData }),
+    );
     const error = await userController.postCreate(event).catch((e) => e);
 
     expect(error.cause).toEqual({
@@ -93,7 +99,9 @@ describe("UserController", () => {
   ])("should throw on invalid %s during login", async ({ field, value }) => {
     const invalidData = { ...validCredentials, [field]: value };
 
-    const event = new H3Event(createRequest({ method: "POST", body: invalidData }));
+    const event = new H3Event(
+      createRequest({ method: "POST", body: invalidData }),
+    );
     const error = await userController.postLogin(event).catch((e) => e);
 
     expect(error.cause).toEqual({
@@ -110,7 +118,9 @@ describe("UserController", () => {
       refreshToken: "refreshToken",
     });
 
-    const event = new H3Event(createRequest({ method: "POST", body: validCredentials }));
+    const event = new H3Event(
+      createRequest({ method: "POST", body: validCredentials }),
+    );
     const response = await userController.postLogin(event);
 
     expect(response).toEqual({
@@ -131,7 +141,9 @@ describe("UserController", () => {
       refreshToken: "refreshToken",
     });
 
-    (parseCookie as Mock).mockReturnValueOnce("0a4abb8e-f8d8-4705-ba8c-dc9968a7848a");
+    (parseCookie as Mock).mockReturnValueOnce(
+      "0a4abb8e-f8d8-4705-ba8c-dc9968a7848a",
+    );
 
     const event = new H3Event(
       createRequest({

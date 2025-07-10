@@ -35,7 +35,10 @@ describe("UserService", () => {
     });
 
     expect(mockUserRepository.create).toHaveBeenCalledWith(
-      expect.objectContaining({ username: "Admin", password: expect.any(String) }),
+      expect.objectContaining({
+        username: "Admin",
+        password: expect.any(String),
+      }),
     );
 
     const isValid = await verify(capturedPassword, testPassword);
@@ -47,7 +50,7 @@ describe("UserService", () => {
     mockUserRepository.create.mockResolvedValueOnce(null);
 
     await expect(
-      userService.createUser({ username: "Admin", password: testPassword })
+      userService.createUser({ username: "Admin", password: testPassword }),
     ).rejects.toThrow();
   });
 
@@ -58,7 +61,10 @@ describe("UserService", () => {
       password: testHash,
     });
 
-    const result = await userService.loginUser({ username: "Admin", password: testPassword });
+    const result = await userService.loginUser({
+      username: "Admin",
+      password: testPassword,
+    });
 
     expect(mockUserRepository.findByName).toHaveBeenCalledOnce();
     expect(result).toHaveProperty("accessToken");
@@ -73,7 +79,7 @@ describe("UserService", () => {
     });
 
     await expect(
-      userService.loginUser({ username: "Admin", password: "wrong-password" })
+      userService.loginUser({ username: "Admin", password: "wrong-password" }),
     ).rejects.toThrow();
   });
 
@@ -81,7 +87,7 @@ describe("UserService", () => {
     mockUserRepository.findByName.mockResolvedValueOnce(null);
 
     await expect(
-      userService.loginUser({ username: "Admin", password: testPassword })
+      userService.loginUser({ username: "Admin", password: testPassword }),
     ).rejects.toThrow("No user!");
   });
 
@@ -100,8 +106,8 @@ describe("UserService", () => {
     const { payload } = jwt.verify(
       accessToken,
       process.env.ACCESS_TOKEN_SECRET!,
-      { complete: true }
-    ) as  unknown as { payload: { sub: number; exp: number } };
+      { complete: true },
+    ) as unknown as { payload: { sub: number; exp: number } };
 
     expect(payload.sub).toBe(1);
     expect(payload.exp).toBeGreaterThan(Date.now() / 1000);
@@ -123,8 +129,10 @@ describe("UserService", () => {
     const { payload } = jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET!,
-      { complete: true }
-    ) as  unknown as { payload: { sub: number; exp: number; refresh_token_version: number } };
+      { complete: true },
+    ) as unknown as {
+      payload: { sub: number; exp: number; refresh_token_version: number };
+    };
 
     expect(payload.sub).toBe(1);
     expect(payload.refresh_token_version).toBe(1);
@@ -151,12 +159,13 @@ describe("UserService", () => {
       password: testPassword,
     });
 
-    const { accessToken, refreshToken: newRefreshToken } = await userService.refreshUser(refreshToken);
+    const { accessToken, refreshToken: newRefreshToken } =
+      await userService.refreshUser(refreshToken);
 
     const accessPayload = jwt.verify(
       accessToken,
       process.env.ACCESS_TOKEN_SECRET!,
-      { complete: true }
+      { complete: true },
     ) as unknown as { payload: { sub: number; exp: number } };
 
     expect(accessPayload.payload.sub).toBe(1);
@@ -165,8 +174,10 @@ describe("UserService", () => {
     const refreshPayload = jwt.verify(
       newRefreshToken,
       process.env.REFRESH_TOKEN_SECRET!,
-      { complete: true }
-    ) as unknown  as { payload: { sub: number; exp: number; refresh_token_version: number } };
+      { complete: true },
+    ) as unknown as {
+      payload: { sub: number; exp: number; refresh_token_version: number };
+    };
 
     expect(refreshPayload.payload.sub).toBe(1);
     expect(refreshPayload.payload.refresh_token_version).toBe(2);

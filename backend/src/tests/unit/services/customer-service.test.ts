@@ -34,7 +34,9 @@ describe("CustomerService", () => {
     const result = await service.createCustomer(customerData);
 
     expect(result).toEqual(customerData);
-    expect(mockCustomerRepository.create).toHaveBeenCalledExactlyOnceWith(customerData);
+    expect(mockCustomerRepository.create).toHaveBeenCalledExactlyOnceWith(
+      customerData,
+    );
   });
 
   it("should return all customers", async () => {
@@ -84,7 +86,10 @@ describe("CustomerService", () => {
     const result = await service.updateCustomer(1, updateInput);
 
     expect(result).toEqual(updated);
-    expect(mockCustomerRepository.updateById).toHaveBeenCalledExactlyOnceWith(1, updateInput);
+    expect(mockCustomerRepository.updateById).toHaveBeenCalledExactlyOnceWith(
+      1,
+      updateInput,
+    );
   });
 
   it("should delete a customer", async () => {
@@ -93,6 +98,8 @@ describe("CustomerService", () => {
     const result = await service.deleteCustomer(1);
 
     expect(result).toEqual(fullCustomer);
-    expect(mockCustomerRepository.deleteById).toHaveBeenCalledExactlyOnceWith(1);
+    expect(mockCustomerRepository.deleteById).toHaveBeenCalledExactlyOnceWith(
+      1,
+    );
   });
 });

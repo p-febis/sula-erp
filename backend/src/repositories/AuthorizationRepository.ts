@@ -1,0 +1,41 @@
+import { Role, PrismaClient, User } from "@/../generated/prisma";
+import { CreateRoleDto } from "@/models/authorization";
+
+export interface IAuthorizationRepository {
+  createRole(roleCreationData: CreateRoleDto): Promise<Role | null>;
+  findAllRoles(): Promise<Role[] | null>;
+}
+
+export class AuthorizationRepository implements IAuthorizationRepository {
+  client: PrismaClient;
+
+  constructor(client: PrismaClient) {
+    this.client = client;
+  }
+
+  async createRole(roleCreationData: CreateRoleDto) {
+    const role = this.client.role.create({
+      data: {
+        name: roleCreationData.name,
+        users: {
+          create: roleCreationData.userIds.map((id) => ({
+            user: { connect: { id } },
+          })),
+        },
+        permissions: {
+          create: roleCreationData.permissionIds.map((id) => ({
+            permission: { connect: { id } },
+          })),
+        },
+      },
+    });
+
+    return role;
+  }
+
+  async findAllRoles() {
+    const roles = await this.client.role.findMany();
+
+    return roles;
+  }
+}

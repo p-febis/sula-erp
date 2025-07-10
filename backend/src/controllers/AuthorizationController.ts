@@ -1,0 +1,28 @@
+import { CreateRoleDto } from "@/models/authorization";
+import { SuccessResponse } from "@/responses/api";
+import { IAuthorizationService } from "@/services/AuthorizationService";
+import { parseBodyAsync } from "@/utils/body-parser";
+import { H3Event } from "h3";
+
+export interface IAuthorizationController {
+  postCreateRole(event: H3Event): Promise<SuccessResponse>;
+  getAllRoles(event: H3Event): Promise<SuccessResponse>;
+}
+
+export class AuthorizationController implements IAuthorizationController {
+  m_authorizationService: IAuthorizationService;
+
+  constructor(authorizationService: IAuthorizationService) {
+    this.m_authorizationService = authorizationService;
+  }
+
+  async postCreateRole(event: H3Event) {
+    const body = (await parseBodyAsync(event)) as CreateRoleDto;
+    const role = await this.m_authorizationService.createRole(body);
+    return new SuccessResponse("Created role!", role, 201);
+  }
+  async getAllRoles(event: H3Event) {
+    const roles = await this.m_authorizationService.allRoles();
+    return new SuccessResponse("Success", roles);
+  }
+}
