@@ -10,6 +10,7 @@ describe("AuthorizationService", () => {
   let mockAuthorizationRepository = {
     createRole: vi.fn(),
     findAllRoles: vi.fn(),
+    addUsersToRole: vi.fn()
   };
 
   beforeEach(() => {
@@ -73,7 +74,7 @@ describe("AuthorizationService", () => {
     );
 
     expect(canDo2).toBeTruthy();
-  });
+  })
 
   it("Should return false on invalid permissions", () => {
     const canDo = authorizationService.userCanDo(
@@ -96,4 +97,24 @@ describe("AuthorizationService", () => {
 
     expect(canDo2).toBeFalsy();
   });
+
+  it("Should add users to a role", async () => {
+
+    const sampleRole = {
+      ...fullRole,
+      users: [{
+        id: 1,
+        username: "admin",
+        password: "$argon2id$v=19$m=16,t=2,p=1$cmFuZG9tLXNhbHQ$th+l03f/sP8YVAFse/EOuQ",
+        isSuperUser: false,
+      }]
+    }
+
+    mockAuthorizationRepository.addUsersToRole.mockResolvedValueOnce(sampleRole);
+
+    const role = await authorizationService.addUsersToRole(1, [1]);
+
+    expect(mockAuthorizationRepository.addUsersToRole).toHaveBeenCalledExactlyOnceWith(1, [1]);
+    expect(role).toEqual(sampleRole);
+  })
 });
