@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { UserService, type IUserService } from "@/services/UserService";
 import jwt from "jsonwebtoken";
 import { verify } from "@node-rs/argon2";
-import { permission } from "process";
 
 const mockUserRepository = {
   create: vi.fn(),
@@ -156,8 +155,12 @@ describe("UserService", () => {
       payload: { sub: number; exp: number; refresh_token_version: number };
     };
 
-    expect(payload.sub).toBe(1);
-    expect(payload.refresh_token_version).toBe(1);
+    expect(payload).toEqual(expect.objectContaining({
+      sub: 1,
+      refresh_token_version: 1,
+      exp: expect.any(Number),
+    }))
+
     expect(payload.exp).toBeGreaterThan(Date.now() / 1000);
   });
 
@@ -201,8 +204,14 @@ describe("UserService", () => {
       payload: { sub: number; exp: number; refresh_token_version: number };
     };
 
-    expect(refreshPayload.payload.sub).toBe(1);
-    expect(refreshPayload.payload.refresh_token_version).toBe(2);
+    expect(refreshPayload.payload).toEqual(
+      expect.objectContaining({
+	sub: 1,
+	refresh_token_version: 2,
+	exp: expect.any(Number)
+      })
+    )
+
     expect(refreshPayload.payload.exp).toBeGreaterThan(Date.now() / 1000);
   });
 });
