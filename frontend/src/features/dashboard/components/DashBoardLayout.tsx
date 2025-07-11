@@ -1,4 +1,4 @@
-import { Outlet } from "react-router";
+import { Outlet, useLocation } from "react-router";
 import {
   Sidebar,
   SidebarProvider,
@@ -9,12 +9,15 @@ import { ErrorBoundary } from "react-error-boundary";
 import { Toaster } from "@/components/ui/sonner";
 
 export const DashBoardLayout = () => {
+
+  const location = useLocation();
+
   return (
     <AuthenticationProvider>
       <SidebarProvider>
         <Sidebar />
         <div className="w-full">
-          <ErrorBoundary fallback={<>An error has occured</>}>
+          <ErrorBoundary fallback={<>An error has occured</>} key={location.pathname}>
             <Suspense fallback={<>Loading...</>}>
               <Outlet />
             </Suspense>
