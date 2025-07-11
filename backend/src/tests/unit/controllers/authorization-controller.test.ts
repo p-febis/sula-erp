@@ -5,7 +5,6 @@ import {
   AuthorizationController,
   IAuthorizationController,
 } from "@/controllers/AuthorizationController";
-import { permission } from "process";
 
 vi.mock("@/utils/body-parser", () => ({
   parseBodyAsync: async (event: H3Event) => {
@@ -121,7 +120,10 @@ describe("AuthorizationController", () => {
     };
 
     const response = await authorizationController.getAllRoles(event);
-    expect(mockAuthorizationService.userCanDo).toHaveBeenCalledExactlyOnceWith(event.context.claims, ["read:role"]);
+    expect(mockAuthorizationService.userCanDo).toHaveBeenCalledExactlyOnceWith(
+      event.context.claims,
+      ["read:role"],
+    );
     expect(mockAuthorizationService.allRoles).toHaveBeenCalledOnce();
     expect(response).toEqual({
       status: 200,
@@ -142,11 +144,12 @@ describe("AuthorizationController", () => {
       permissions: [],
     };
 
-    await expect(
-      authorizationController.getAllRoles(event)
-    ).rejects.toThrow();
+    await expect(authorizationController.getAllRoles(event)).rejects.toThrow();
 
-    expect(mockAuthorizationService.userCanDo).toHaveBeenCalledExactlyOnceWith(event.context.claims, ["read:role"]);
+    expect(mockAuthorizationService.userCanDo).toHaveBeenCalledExactlyOnceWith(
+      event.context.claims,
+      ["read:role"],
+    );
     expect(mockAuthorizationService.allRoles).not.toHaveBeenCalledOnce();
   });
 });

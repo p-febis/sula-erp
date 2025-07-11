@@ -35,7 +35,7 @@ export class AuthorizationController implements IAuthorizationController {
       "read:role",
     ]);
 
-    if(!canDo) {
+    if (!canDo) {
       throw new ErrorResponse("Forbidden", null, 403);
     }
 

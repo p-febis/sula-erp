@@ -14,19 +14,9 @@ export class AuthorizationRepository implements IAuthorizationRepository {
   }
 
   async createRole(roleCreationData: CreateRoleDto) {
-    const role = this.client.role.create({
+    const role = await this.client.role.create({
       data: {
         name: roleCreationData.name,
-        users: {
-          create: roleCreationData.userIds.map((id) => ({
-            user: { connect: { id } },
-          })),
-        },
-        permissions: {
-          create: roleCreationData.permissionIds.map((id) => ({
-            permission: { connect: { id } },
-          })),
-        },
       },
     });
 

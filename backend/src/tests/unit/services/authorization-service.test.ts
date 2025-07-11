@@ -21,8 +21,6 @@ describe("AuthorizationService", () => {
 
   const roleData = {
     name: "Marketing",
-    userIds: [],
-    permissionIds: [],
   };
 
   const fullRole = {
@@ -40,8 +38,6 @@ describe("AuthorizationService", () => {
       mockAuthorizationRepository.createRole,
     ).toHaveBeenCalledExactlyOnceWith({
       name: "Marketing",
-      userIds: [],
-      permissionIds: [],
     });
 
     expect(role).toEqual(fullRole);
