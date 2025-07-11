@@ -44,7 +44,10 @@ export class AuthorizationService implements IAuthorizationService {
   }
 
   async addUsersToRole(roleId: number, userIds: number[]) {
-    const role = await this.m_authorizationRepository.addUsersToRole(roleId, userIds);
+    const role = await this.m_authorizationRepository.addUsersToRole(
+      roleId,
+      userIds,
+    );
 
     return role;
   }

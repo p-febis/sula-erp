@@ -62,6 +62,10 @@ async function main() {
     .post(
       "/roles",
       authorizationController.postCreateRole.bind(authorizationController),
+    )
+    .patch(
+      "/roles/:id/users",
+      authorizationController.patchAddUsersToRole.bind(authorizationController),
     );
 
   serve(app);

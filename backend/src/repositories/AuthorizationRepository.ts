@@ -30,22 +30,25 @@ export class AuthorizationRepository implements IAuthorizationRepository {
     return roles;
   }
 
-  async addUsersToRole(roleId: number, userIds: number[]): Promise<Role | null> {
+  async addUsersToRole(
+    roleId: number,
+    userIds: number[],
+  ): Promise<Role | null> {
     if (userIds.length === 0) return null;
 
     await this.client.userRole.createMany({
       data: userIds.map((userId) => ({
-	roleId,
-	userId,
+        roleId,
+        userId,
       })),
     });
 
     const updatedRole = await this.client.role.findFirst({
       where: {
-	id: roleId,
+        id: roleId,
       },
       include: {
-	users: true,
+        users: true,
       },
     });
 

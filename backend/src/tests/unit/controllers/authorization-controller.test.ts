@@ -19,6 +19,7 @@ describe("AuthorizationController", () => {
     userCanDo: vi.fn(),
     createRole: vi.fn(),
     allRoles: vi.fn(),
+    addUsersToRole: vi.fn(),
   };
 
   beforeEach(() => {
@@ -36,6 +37,9 @@ describe("AuthorizationController", () => {
     permissions: [],
   };
 
+  const baseClaims = {
+    isSuperUser: true,
+  };
   const sampleCreateBody = {
     name: "Marketing",
   };
@@ -132,6 +136,7 @@ describe("AuthorizationController", () => {
       data: all,
     });
   });
+
   it("Should not call allRoles if the user doesn't have permission", async () => {
     const all = [sampleRole];
     mockAuthorizationService.allRoles.mockResolvedValueOnce(all);
@@ -151,5 +156,81 @@ describe("AuthorizationController", () => {
       ["read:role"],
     );
     expect(mockAuthorizationService.allRoles).not.toHaveBeenCalledOnce();
+  });
+
+  it("Should call addUserToRole", async () => {
+    const updatedRole = {
+      ...sampleRole,
+      users: [
+        {
+          id: 1,
+          username: "Admin",
+          isSuperUser: true,
+        },
+      ],
+    };
+
+    mockAuthorizationService.addUsersToRole.mockResolvedValueOnce(updatedRole);
+    mockAuthorizationService.userCanDo.mockReturnValue(true);
+
+    const event = new H3Event(
+      createRequest({
+        method: "PATCH",
+        body: {
+          userIds: [1],
+        },
+      }),
+    );
+
+    event.context.claims = baseClaims;
+    event.context.params = { id: "1" };
+
+    const response = await authorizationController.patchAddUsersToRole(event);
+
+    expect(mockAuthorizationService.userCanDo).toHaveBeenCalledExactlyOnceWith(
+      event.context.claims,
+      ["update:role"],
+    );
+
+    expect(
+      mockAuthorizationService.addUsersToRole,
+    ).toHaveBeenCalledExactlyOnceWith(1, [1]);
+
+    expect(response).toEqual({
+      status: 200,
+      statusText: "OK",
+      message: "Updated role!",
+      data: updatedRole,
+    });
+  });
+
+  it("Should not call addUsersToRole if the user doesn't have permission", async () => {
+    mockAuthorizationService.userCanDo.mockReturnValue(false);
+
+    const event = new H3Event(
+      createRequest({
+        method: "PATCH",
+        body: {
+          userIds: [1],
+        },
+      }),
+    );
+    event.context.params = { id: "1" };
+
+    event.context.claims = {
+      isSuperUser: false,
+      permissions: [],
+    };
+
+    await expect(
+      authorizationController.patchAddUsersToRole(event),
+    ).rejects.toThrow();
+
+    expect(mockAuthorizationService.userCanDo).toHaveBeenCalledExactlyOnceWith(
+      event.context.claims,
+      ["update:role"],
+    );
+
+    expect(mockAuthorizationService.addUsersToRole).not.toHaveBeenCalledOnce();
   });
 });

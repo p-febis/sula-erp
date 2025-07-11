@@ -7,6 +7,7 @@ import { H3Event } from "h3";
 export interface IAuthorizationController {
   postCreateRole(event: H3Event): Promise<SuccessResponse>;
   getAllRoles(event: H3Event): Promise<SuccessResponse>;
+  patchAddUsersToRole(event: H3Event): Promise<SuccessResponse>;
 }
 
 export class AuthorizationController implements IAuthorizationController {
@@ -41,5 +42,25 @@ export class AuthorizationController implements IAuthorizationController {
 
     const roles = await this.m_authorizationService.allRoles();
     return new SuccessResponse("Success", roles);
+  }
+
+  async patchAddUsersToRole(event: H3Event) {
+    const canDo = this.m_authorizationService.userCanDo(event.context.claims, [
+      "update:role",
+    ]);
+
+    if (!canDo) {
+      throw new ErrorResponse("Forbidden", null, 403);
+    }
+
+    const { userIds } = (await parseBodyAsync(event)) as Record<string, any>;
+    const { id: roleId } = event.context.params!;
+
+    const role = await this.m_authorizationService.addUsersToRole(
+      Number(roleId),
+      userIds,
+    );
+
+    return new SuccessResponse("Updated role!", role);
   }
 }

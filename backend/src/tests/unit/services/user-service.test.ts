@@ -155,11 +155,13 @@ describe("UserService", () => {
       payload: { sub: number; exp: number; refresh_token_version: number };
     };
 
-    expect(payload).toEqual(expect.objectContaining({
-      sub: 1,
-      refresh_token_version: 1,
-      exp: expect.any(Number),
-    }))
+    expect(payload).toEqual(
+      expect.objectContaining({
+        sub: 1,
+        refresh_token_version: 1,
+        exp: expect.any(Number),
+      }),
+    );
 
     expect(payload.exp).toBeGreaterThan(Date.now() / 1000);
   });
@@ -206,11 +208,11 @@ describe("UserService", () => {
 
     expect(refreshPayload.payload).toEqual(
       expect.objectContaining({
-	sub: 1,
-	refresh_token_version: 2,
-	exp: expect.any(Number)
-      })
-    )
+        sub: 1,
+        refresh_token_version: 2,
+        exp: expect.any(Number),
+      }),
+    );
 
     expect(refreshPayload.payload.exp).toBeGreaterThan(Date.now() / 1000);
   });
