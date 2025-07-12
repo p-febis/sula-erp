@@ -8,7 +8,7 @@ export interface IAuthorizationController {
   postCreateRole(event: H3Event): Promise<SuccessResponse>;
   getAllRoles(event: H3Event): Promise<SuccessResponse>;
   getAllPermissions(event: H3Event): Promise<SuccessResponse>;
-  patchAddUsersToRole(event: H3Event): Promise<SuccessResponse>;
+  patchUpdateRole(event: H3Event): Promise<SuccessResponse>;
   getOneRole(event: H3Event): Promise<SuccessResponse>;
 }
 
@@ -46,7 +46,7 @@ export class AuthorizationController implements IAuthorizationController {
     return new SuccessResponse("Success", roles);
   }
 
-  async patchAddUsersToRole(event: H3Event) {
+  async patchUpdateRole(event: H3Event) {
     const canDo = this.m_authorizationService.userCanDo(event.context.claims, [
       "update:role",
     ]);

@@ -83,8 +83,8 @@ async function main() {
       authorizationController.postCreateRole.bind(authorizationController),
     )
     .patch(
-      "/roles/:id/users",
-      authorizationController.patchAddUsersToRole.bind(authorizationController),
+      "/roles/:id",
+      authorizationController.patchUpdateRole.bind(authorizationController),
     );
 
   app.get("/users", userController.getAllUsers.bind(userController));

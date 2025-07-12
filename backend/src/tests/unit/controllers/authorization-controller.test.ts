@@ -190,7 +190,7 @@ describe("AuthorizationController", () => {
     event.context.claims = baseClaims;
     event.context.params = { id: "1" };
 
-    const response = await authorizationController.patchAddUsersToRole(event);
+    const response = await authorizationController.patchUpdateRole(event);
 
     expect(mockAuthorizationService.userCanDo).toHaveBeenCalledExactlyOnceWith(
       event.context.claims,
@@ -232,7 +232,7 @@ describe("AuthorizationController", () => {
     };
 
     await expect(
-      authorizationController.patchAddUsersToRole(event),
+      authorizationController.patchUpdateRole(event),
     ).rejects.toThrow();
 
     expect(mockAuthorizationService.userCanDo).toHaveBeenCalledExactlyOnceWith(
