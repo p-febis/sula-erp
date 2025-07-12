@@ -66,7 +66,11 @@ export class AuthorizationRepository implements IAuthorizationRepository {
 	},
         permissions: {
 	  include: {
-	    permission: true
+	    permission: {
+	      select: {
+		key: true
+	      }
+	    }
 	  }
 	},
       },
@@ -92,7 +96,11 @@ export class AuthorizationRepository implements IAuthorizationRepository {
 	},
         permissions: {
 	  include: {
-	    permission: true
+	    permission: {
+	      select: {
+		key: true
+	      }
+	    }
 	  }
 	},
       },
