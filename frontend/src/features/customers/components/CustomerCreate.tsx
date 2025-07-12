@@ -1,5 +1,4 @@
 import { Input } from "@/components/ui/input";
-import type { Customer } from "../types/customer";
 import { useForm, useStore } from "@tanstack/react-form";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -11,7 +10,7 @@ export const CustomerCreate = () => {
 
   const { create } = useCreateCustomer((data, error) => {
     if (data) {
-      toast.success("Succesfully created customer");
+      toast.success(`Succesfully created customer '${data.name}'`);
       navigate(-1);
     }
 
