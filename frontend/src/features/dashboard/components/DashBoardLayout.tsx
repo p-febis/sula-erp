@@ -9,7 +9,6 @@ import { ErrorBoundary } from "react-error-boundary";
 import { Toaster } from "@/components/ui/sonner";
 
 export const DashBoardLayout = () => {
-
   const location = useLocation();
 
   return (
@@ -17,7 +16,10 @@ export const DashBoardLayout = () => {
       <SidebarProvider>
         <Sidebar />
         <div className="w-full">
-          <ErrorBoundary fallback={<>An error has occured</>} key={location.pathname}>
+          <ErrorBoundary
+            fallback={<>An error has occured</>}
+            key={location.pathname}
+          >
             <Suspense fallback={<>Loading...</>}>
               <Outlet />
             </Suspense>

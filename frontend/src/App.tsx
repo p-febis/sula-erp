@@ -8,6 +8,7 @@ import { CustomerCreatePage } from "./features/customers/page/CustomerCreatePage
 import { LoginPage } from "./features/authentication/pages/LoginPage";
 import { RolesPage } from "./features/authentication/pages/RolesPage";
 import { RoleCreatePage } from "./features/authentication/pages/RoleCreatePage";
+import { RoleEditPage } from "./features/authentication/pages/RoleEditPage";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,10 @@ function App() {
             {
               path: "create",
               Component: RoleCreatePage,
+            },
+            {
+              path: ":roleId",
+              Component: RoleEditPage,
             },
           ],
         },
