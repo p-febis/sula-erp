@@ -19,7 +19,7 @@ describe("AuthorizationController", () => {
     userCanDo: vi.fn(),
     createRole: vi.fn(),
     allRoles: vi.fn(),
-    addUsersToRole: vi.fn(),
+    updateRole: vi.fn(),
     findRoleById: vi.fn(),
   };
 
@@ -159,7 +159,7 @@ describe("AuthorizationController", () => {
     expect(mockAuthorizationService.allRoles).not.toHaveBeenCalledOnce();
   });
 
-  it("Should call addUserToRole", async () => {
+  it("Should call updateRole", async () => {
     const updatedRole = {
       ...sampleRole,
       users: [
@@ -171,7 +171,7 @@ describe("AuthorizationController", () => {
       ],
     };
 
-    mockAuthorizationService.addUsersToRole.mockResolvedValueOnce(updatedRole);
+    mockAuthorizationService.updateRole.mockResolvedValueOnce(updatedRole);
     mockAuthorizationService.userCanDo.mockReturnValue(true);
 
     const event = new H3Event(
@@ -179,6 +179,7 @@ describe("AuthorizationController", () => {
         method: "PATCH",
         body: {
           userIds: [1],
+          permissionIds: [1],
         },
       }),
     );
@@ -194,8 +195,11 @@ describe("AuthorizationController", () => {
     );
 
     expect(
-      mockAuthorizationService.addUsersToRole,
-    ).toHaveBeenCalledExactlyOnceWith(1, [1]);
+      mockAuthorizationService.updateRole,
+    ).toHaveBeenCalledExactlyOnceWith(1, {
+      userIds: [1],
+      permissionIds: [1],
+    });
 
     expect(response).toEqual({
       status: 200,
@@ -205,7 +209,7 @@ describe("AuthorizationController", () => {
     });
   });
 
-  it("Should not call addUsersToRole if the user doesn't have permission", async () => {
+  it("Should not call updateRole if the user doesn't have permission", async () => {
     mockAuthorizationService.userCanDo.mockReturnValue(false);
 
     const event = new H3Event(
@@ -232,7 +236,7 @@ describe("AuthorizationController", () => {
       ["update:role"],
     );
 
-    expect(mockAuthorizationService.addUsersToRole).not.toHaveBeenCalledOnce();
+    expect(mockAuthorizationService.updateRole).not.toHaveBeenCalledOnce();
   });
 
   it("Should call findRoleById if the user has permission", async () => {
@@ -281,6 +285,6 @@ describe("AuthorizationController", () => {
       ["read:role"],
     );
 
-    expect(mockAuthorizationService.addUsersToRole).not.toHaveBeenCalledOnce();
+    expect(mockAuthorizationService.updateRole).not.toHaveBeenCalledOnce();
   });
 });

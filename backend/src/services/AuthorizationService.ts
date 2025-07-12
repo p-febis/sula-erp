@@ -1,4 +1,4 @@
-import { CreateRoleDto } from "@/models/authorization";
+import { CreateRoleDto, UpdateRoleDto } from "@/models/authorization";
 import { IAuthorizationRepository } from "@/repositories/AuthorizationRepository";
 import { Role } from "generated/prisma";
 
@@ -11,7 +11,7 @@ export interface IAuthorizationService {
   createRole(roleCreationData: CreateRoleDto): Promise<Role | null>;
   allRoles(): Promise<Role[] | null>;
   userCanDo(claims: PermissionClaims, requiredPermissions: string[]): boolean;
-  addUsersToRole(roleId: number, usersIds: number[]): Promise<Role | null>;
+  updateRole(roleId: number, roleUpdateData: UpdateRoleDto): Promise<Role | null>;
   findRoleById(roleId: number): Promise<Role | null>;
 }
 
@@ -44,11 +44,8 @@ export class AuthorizationService implements IAuthorizationService {
     );
   }
 
-  async addUsersToRole(roleId: number, userIds: number[]) {
-    const role = await this.m_authorizationRepository.addUsersToRole(
-      roleId,
-      userIds,
-    );
+  async updateRole(roleId: number, updateRoleData: UpdateRoleDto) {
+    const role = await this.m_authorizationRepository.updateRole(roleId, updateRoleData);
 
     return role;
   }

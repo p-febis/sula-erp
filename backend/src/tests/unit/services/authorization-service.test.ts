@@ -10,7 +10,7 @@ describe("AuthorizationService", () => {
   let mockAuthorizationRepository = {
     createRole: vi.fn(),
     findAllRoles: vi.fn(),
-    addUsersToRole: vi.fn(),
+    updateRole: vi.fn(),
     findRoleById: vi.fn(),
   };
 
@@ -99,7 +99,7 @@ describe("AuthorizationService", () => {
     expect(canDo2).toBeFalsy();
   });
 
-  it("Should add users to a role", async () => {
+  it("Should add update a role", async () => {
     const sampleRole = {
       ...fullRole,
       users: [
@@ -111,17 +111,30 @@ describe("AuthorizationService", () => {
           isSuperUser: false,
         },
       ],
+      permissions: [
+	{
+	  id: 1,
+	  name: "read:role",
+	}
+      ],
     };
 
-    mockAuthorizationRepository.addUsersToRole.mockResolvedValueOnce(
+    mockAuthorizationRepository.updateRole.mockResolvedValueOnce(
       sampleRole,
     );
 
-    const role = await authorizationService.addUsersToRole(1, [1]);
+    const role = await authorizationService.updateRole(1, {
+      userIds: [1],
+      permissionIds: [1],
+    });
 
     expect(
-      mockAuthorizationRepository.addUsersToRole,
-    ).toHaveBeenCalledExactlyOnceWith(1, [1]);
+      mockAuthorizationRepository.updateRole,
+    ).toHaveBeenCalledExactlyOnceWith(1, {
+      userIds: [1],
+      permissionIds: [1],
+    });
+
     expect(role).toEqual(sampleRole);
   });
 

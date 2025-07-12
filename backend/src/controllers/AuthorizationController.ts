@@ -1,4 +1,4 @@
-import { CreateRoleDto } from "@/models/authorization";
+import { CreateRoleDto, UpdateRoleDto } from "@/models/authorization";
 import { ErrorResponse, SuccessResponse } from "@/responses/api";
 import { IAuthorizationService } from "@/services/AuthorizationService";
 import { parseBodyAsync } from "@/utils/body-parser";
@@ -54,13 +54,10 @@ export class AuthorizationController implements IAuthorizationController {
       throw new ErrorResponse("Forbidden", null, 403);
     }
 
-    const { userIds } = (await parseBodyAsync(event)) as Record<string, any>;
+    const body = (await parseBodyAsync(event)) as UpdateRoleDto;
     const { id: roleId } = event.context.params!;
 
-    const role = await this.m_authorizationService.addUsersToRole(
-      Number(roleId),
-      userIds,
-    );
+    const role = await this.m_authorizationService.updateRole(Number(roleId), body);
 
     return new SuccessResponse("Updated role!", role);
   }

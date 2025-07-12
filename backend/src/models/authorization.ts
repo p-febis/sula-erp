@@ -5,3 +5,10 @@ export const CreateRoleDtoSchema = z.object({
 });
 
 export type CreateRoleDto = z.infer<typeof CreateRoleDtoSchema>;
+
+export const UpdateRoleDtoSchema = z.object({
+  userIds: z.number().array(),
+  permissionIds: z.number().array(),
+});
+
+export type UpdateRoleDto = z.infer<typeof UpdateRoleDtoSchema>;
