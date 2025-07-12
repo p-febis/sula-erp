@@ -34,11 +34,14 @@ async function main() {
   const app = new H3();
 
   app.use(
-    onError((error, event) => {
+    onError((error) => {
       if (error.cause instanceof ErrorResponse) {
-        event.res.status = error.cause.status;
-        event.res.statusText = error.cause.statusText;
-        return error.cause;
+        return new Response(JSON.stringify(error.cause), {
+	  ...error.cause,
+	  headers: {
+	    "content-type": "application/json;charset=UTF-8",
+	  },
+	});
       }
 
       console.log(error);
