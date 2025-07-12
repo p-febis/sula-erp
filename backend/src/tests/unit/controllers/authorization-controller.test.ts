@@ -20,6 +20,7 @@ describe("AuthorizationController", () => {
     createRole: vi.fn(),
     allRoles: vi.fn(),
     addUsersToRole: vi.fn(),
+    findRoleById: vi.fn(),
   };
 
   beforeEach(() => {
@@ -229,6 +230,55 @@ describe("AuthorizationController", () => {
     expect(mockAuthorizationService.userCanDo).toHaveBeenCalledExactlyOnceWith(
       event.context.claims,
       ["update:role"],
+    );
+
+    expect(mockAuthorizationService.addUsersToRole).not.toHaveBeenCalledOnce();
+  });
+
+  it("Should call findRoleById if the user has permission", async () => {
+    mockAuthorizationService.findRoleById.mockResolvedValueOnce(sampleRole);
+    mockAuthorizationService.userCanDo.mockReturnValue(true);
+
+    const event = new H3Event(createRequest({ method: "GET" }));
+    event.context.claims = baseClaims;
+
+    event.context.params = { id: "1" };
+
+    const response = await authorizationController.getOneRole(event);
+
+    expect(mockAuthorizationService.userCanDo).toHaveBeenCalledExactlyOnceWith(
+      event.context.claims,
+      ["read:role"],
+    );
+
+    expect(
+      mockAuthorizationService.findRoleById,
+    ).toHaveBeenCalledExactlyOnceWith(1);
+
+    expect(response).toEqual({
+      status: 200,
+      statusText: "OK",
+      message: "Success",
+      data: sampleRole,
+    });
+  });
+
+  it("Should not call findRoleById if the user doesn't have permission", async () => {
+    mockAuthorizationService.userCanDo.mockReturnValue(false);
+
+    const event = new H3Event(createRequest({ method: "GET" }));
+    event.context.params = { id: "1" };
+
+    event.context.claims = {
+      isSuperUser: false,
+      permissions: [],
+    };
+
+    await expect(authorizationController.getOneRole(event)).rejects.toThrow();
+
+    expect(mockAuthorizationService.userCanDo).toHaveBeenCalledExactlyOnceWith(
+      event.context.claims,
+      ["read:role"],
     );
 
     expect(mockAuthorizationService.addUsersToRole).not.toHaveBeenCalledOnce();

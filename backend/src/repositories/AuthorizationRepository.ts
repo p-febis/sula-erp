@@ -5,6 +5,7 @@ export interface IAuthorizationRepository {
   createRole(roleCreationData: CreateRoleDto): Promise<Role | null>;
   findAllRoles(): Promise<Role[] | null>;
   addUsersToRole(roleId: number, userIds: number[]): Promise<Role | null>;
+  findRoleById(roleId: number): Promise<Role | null>;
 }
 
 export class AuthorizationRepository implements IAuthorizationRepository {
@@ -53,5 +54,19 @@ export class AuthorizationRepository implements IAuthorizationRepository {
     });
 
     return updatedRole;
+  }
+
+  async findRoleById(roleId: number) {
+    const role = await this.client.role.findFirst({
+      where: {
+        id: roleId,
+      },
+      include: {
+        users: true,
+        permissions: true,
+      },
+    });
+
+    return role;
   }
 }

@@ -11,6 +11,7 @@ describe("AuthorizationService", () => {
     createRole: vi.fn(),
     findAllRoles: vi.fn(),
     addUsersToRole: vi.fn(),
+    findRoleById: vi.fn(),
   };
 
   beforeEach(() => {
@@ -121,6 +122,30 @@ describe("AuthorizationService", () => {
     expect(
       mockAuthorizationRepository.addUsersToRole,
     ).toHaveBeenCalledExactlyOnceWith(1, [1]);
+    expect(role).toEqual(sampleRole);
+  });
+
+  it("Should return a role by ID", async () => {
+    const sampleRole = {
+      ...fullRole,
+      users: [
+        {
+          id: 1,
+          username: "Admin",
+          isSuperUser: true,
+        },
+      ],
+      permissions: [],
+    };
+
+    mockAuthorizationRepository.findRoleById.mockResolvedValueOnce(sampleRole);
+
+    const role = await authorizationService.findRoleById(1);
+
+    expect(
+      mockAuthorizationRepository.findRoleById,
+    ).toHaveBeenCalledExactlyOnceWith(1);
+
     expect(role).toEqual(sampleRole);
   });
 });

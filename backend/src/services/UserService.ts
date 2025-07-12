@@ -97,8 +97,7 @@ export class UserService implements IUserService {
       { complete: true },
     ) as unknown as { payload: { sub: number } };
 
-    const user = await this.m_userRepository.refreshUser(payload.sub);
-
+    const user = await this.m_userRepository.findById(payload.sub);
     if (!user) {
       throw "User does not exist!";
     }
@@ -113,9 +112,6 @@ export class UserService implements IUserService {
 
   async findAllUsers() {
     const users = await this.m_userRepository.findAll();
-    const usersWithoutPassword =
-      users?.map(({ password, ...restUsers }) => restUsers) ?? null;
-
-    return usersWithoutPassword;
+    return users;
   }
 }

@@ -6,7 +6,7 @@ import { verify } from "@node-rs/argon2";
 const mockUserRepository = {
   create: vi.fn(),
   findByName: vi.fn(),
-  refreshUser: vi.fn(),
+  findById: vi.fn(),
   isFirstUser: vi.fn(),
   findAll: vi.fn(),
 };
@@ -175,10 +175,10 @@ describe("UserService", () => {
       password: testHash,
     });
 
-    mockUserRepository.refreshUser.mockResolvedValue({
+    mockUserRepository.findById.mockResolvedValue({
       id: 1,
       username: "Admin",
-      refresh_token_version: 2,
+      refresh_token_version: 1,
       password: testHash,
     });
 
@@ -189,6 +189,8 @@ describe("UserService", () => {
 
     const { accessToken, refreshToken: newRefreshToken } =
       await userService.refreshUser(refreshToken);
+
+    expect(mockUserRepository.findById).toHaveBeenCalledExactlyOnceWith(1);
 
     const accessPayload = jwt.verify(
       accessToken,
@@ -210,7 +212,7 @@ describe("UserService", () => {
     expect(refreshPayload.payload).toEqual(
       expect.objectContaining({
         sub: 1,
-        refresh_token_version: 2,
+        refresh_token_version: 1,
         exp: expect.any(Number),
       }),
     );
@@ -224,7 +226,6 @@ describe("UserService", () => {
         id: 1,
         username: "Admin",
         isSuperUser: true,
-        password: testHash,
       },
     ];
 
@@ -234,9 +235,6 @@ describe("UserService", () => {
 
     expect(mockUserRepository.findAll).toHaveBeenCalledOnce();
 
-    const expectedUsers = sampleUsers.map(
-      ({ password, ...restUsers }) => restUsers,
-    );
-    expect(users).toEqual(expectedUsers);
+    expect(users).toEqual(sampleUsers);
   });
 });

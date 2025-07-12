@@ -6,8 +6,8 @@ export interface IUserRepository {
     userCreationData: CreateUserDto & { isSuperUser: boolean },
   ): Promise<TUser | null>;
   findByName(name: string): Promise<TUser | null>;
-  findAll(): Promise<TUser[] | null>;
-  refreshUser(id: number): Promise<TUser | null>;
+  findById(id: number): Promise<TUser | null>;
+  findAll(): Promise<Omit<TUser, "password">[] | null>;
   isFirstUser(): Promise<boolean>;
 }
 
@@ -36,14 +36,10 @@ export class UserRepository implements IUserRepository {
 
     return user;
   }
-
-  async refreshUser(id: number) {
-    const user = await this.client.user.update({
-      where: { id },
-      data: {
-        refresh_token_version: {
-          increment: 1,
-        },
+  async findById(id: number) {
+    const user = await this.client.user.findUnique({
+      where: {
+	id
       },
     });
 
@@ -56,7 +52,11 @@ export class UserRepository implements IUserRepository {
   }
 
   async findAll() {
-    const users = await this.client.user.findMany();
+    const users = await this.client.user.findMany({
+      omit: {
+        password: true,
+      },
+    });
     return users;
   }
 }

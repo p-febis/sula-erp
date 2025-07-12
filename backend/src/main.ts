@@ -59,6 +59,10 @@ async function main() {
       "/roles",
       authorizationController.getAllRoles.bind(authorizationController),
     )
+    .get(
+      "/roles/:id",
+      authorizationController.getOneRole.bind(authorizationController),
+    )
     .post(
       "/roles",
       authorizationController.postCreateRole.bind(authorizationController),

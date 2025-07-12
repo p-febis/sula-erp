@@ -8,6 +8,7 @@ export interface IAuthorizationController {
   postCreateRole(event: H3Event): Promise<SuccessResponse>;
   getAllRoles(event: H3Event): Promise<SuccessResponse>;
   patchAddUsersToRole(event: H3Event): Promise<SuccessResponse>;
+  getOneRole(event: H3Event): Promise<SuccessResponse>;
 }
 
 export class AuthorizationController implements IAuthorizationController {
@@ -62,5 +63,21 @@ export class AuthorizationController implements IAuthorizationController {
     );
 
     return new SuccessResponse("Updated role!", role);
+  }
+
+  async getOneRole(event: H3Event) {
+    const canDo = this.m_authorizationService.userCanDo(event.context.claims, [
+      "read:role",
+    ]);
+
+    if (!canDo) {
+      throw new ErrorResponse("Forbidden", null, 403);
+    }
+
+    const { id: roleId } = event.context.params!;
+
+    const role = await this.m_authorizationService.findRoleById(Number(roleId));
+
+    return new SuccessResponse("Success", role);
   }
 }

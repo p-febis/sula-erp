@@ -12,6 +12,7 @@ export interface IAuthorizationService {
   allRoles(): Promise<Role[] | null>;
   userCanDo(claims: PermissionClaims, requiredPermissions: string[]): boolean;
   addUsersToRole(roleId: number, usersIds: number[]): Promise<Role | null>;
+  findRoleById(roleId: number): Promise<Role | null>;
 }
 
 export class AuthorizationService implements IAuthorizationService {
@@ -49,6 +50,11 @@ export class AuthorizationService implements IAuthorizationService {
       userIds,
     );
 
+    return role;
+  }
+
+  async findRoleById(roleId: number) {
+    const role = await this.m_authorizationRepository.findRoleById(roleId);
     return role;
   }
 }
