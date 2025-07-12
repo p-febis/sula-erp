@@ -8,6 +8,7 @@ const mockUserService = {
   createUser: vi.fn(),
   loginUser: vi.fn(),
   refreshUser: vi.fn(),
+  findAllUsers: vi.fn(),
 };
 
 vi.mock("@/utils/body-parser", () => ({
@@ -170,5 +171,29 @@ describe("UserController", () => {
     const cookie = event._res!.headers.get("set-cookie");
     expect(cookie).toMatch(/refreshToken=refreshToken/);
     expect(cookie).toMatch(/Max-Age=315360000000/);
+  });
+
+  it("should return all users", async () => {
+    const sampleUsers = [
+      {
+        id: 1,
+        username: "user1",
+        isSuperUser: true,
+      },
+    ];
+
+    mockUserService.findAllUsers.mockResolvedValueOnce(sampleUsers);
+
+    const event = new H3Event(createRequest({ method: "GET" }));
+    const response = await userController.getAllUsers(event);
+
+    expect(mockUserService.findAllUsers).toHaveBeenCalledOnce();
+
+    expect(response).toEqual({
+      status: 200,
+      statusText: "OK",
+      message: "Success",
+      data: sampleUsers,
+    });
   });
 });

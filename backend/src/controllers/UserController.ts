@@ -3,7 +3,7 @@ import { ErrorResponse, SuccessResponse } from "@/responses/api";
 import { IUserService } from "@/services/UserService";
 import { parseBodyAsync } from "@/utils/body-parser";
 import { parseCookie } from "@/utils/cookie-parser";
-import { getCookie, H3Event, setCookie } from "h3";
+import { H3Event, setCookie } from "h3";
 
 const TEN_YEARS = 315_360_000_000;
 
@@ -11,6 +11,7 @@ export interface IUserController {
   postCreate(event: H3Event): Promise<SuccessResponse>;
   postLogin(event: H3Event): Promise<SuccessResponse>;
   postRefresh(event: H3Event): Promise<SuccessResponse>;
+  getAllUsers(event: H3Event): Promise<SuccessResponse>;
 }
 
 export class UserController implements IUserController {
@@ -78,5 +79,11 @@ export class UserController implements IUserController {
     return new SuccessResponse("Successfully refreshed user", {
       accessToken,
     });
+  }
+
+  async getAllUsers(_event: H3Event) {
+    const users = await this.m_userService.findAllUsers();
+
+    return new SuccessResponse("Success", users);
   }
 }

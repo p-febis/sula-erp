@@ -68,6 +68,8 @@ async function main() {
       authorizationController.patchAddUsersToRole.bind(authorizationController),
     );
 
+  app.get("/users", userController.getAllUsers.bind(userController));
+
   serve(app);
 }
 

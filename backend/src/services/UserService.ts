@@ -3,10 +3,10 @@ import { IUserRepository } from "@/repositories/UserRepository";
 import { hashingOptions } from "@/utils/argon-options";
 import { hash, verify } from "@node-rs/argon2";
 import jwt from "jsonwebtoken";
-import { permission } from "process";
 
 export interface IUserService {
   createUser(userCreationData: CreateUserDto): Promise<TUser>;
+  findAllUsers(): Promise<Omit<TUser, "password">[] | null>;
   loginUser(
     loginData: LoginUserDto,
   ): Promise<{ accessToken: string; refreshToken: string }>;
@@ -109,5 +109,13 @@ export class UserService implements IUserService {
       accessToken,
       refreshToken,
     };
+  }
+
+  async findAllUsers() {
+    const users = await this.m_userRepository.findAll();
+    const usersWithoutPassword =
+      users?.map(({ password, ...restUsers }) => restUsers) ?? null;
+
+    return usersWithoutPassword;
   }
 }

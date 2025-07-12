@@ -8,6 +8,7 @@ const mockUserRepository = {
   findByName: vi.fn(),
   refreshUser: vi.fn(),
   isFirstUser: vi.fn(),
+  findAll: vi.fn(),
 };
 
 describe("UserService", () => {
@@ -215,5 +216,27 @@ describe("UserService", () => {
     );
 
     expect(refreshPayload.payload.exp).toBeGreaterThan(Date.now() / 1000);
+  });
+
+  it("should return all users", async () => {
+    const sampleUsers = [
+      {
+        id: 1,
+        username: "Admin",
+        isSuperUser: true,
+        password: testHash,
+      },
+    ];
+
+    mockUserRepository.findAll = vi.fn().mockResolvedValue(sampleUsers);
+
+    const users = await userService.findAllUsers();
+
+    expect(mockUserRepository.findAll).toHaveBeenCalledOnce();
+
+    const expectedUsers = sampleUsers.map(
+      ({ password, ...restUsers }) => restUsers,
+    );
+    expect(users).toEqual(expectedUsers);
   });
 });

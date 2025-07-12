@@ -6,6 +6,7 @@ export interface IUserRepository {
     userCreationData: CreateUserDto & { isSuperUser: boolean },
   ): Promise<TUser | null>;
   findByName(name: string): Promise<TUser | null>;
+  findAll(): Promise<TUser[] | null>;
   refreshUser(id: number): Promise<TUser | null>;
   isFirstUser(): Promise<boolean>;
 }
@@ -52,5 +53,10 @@ export class UserRepository implements IUserRepository {
   async isFirstUser() {
     const count = await this.client.user.count();
     return count === 0;
+  }
+
+  async findAll() {
+    const users = await this.client.user.findMany();
+    return users;
   }
 }
