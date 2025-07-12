@@ -39,23 +39,38 @@ export class AuthorizationRepository implements IAuthorizationRepository {
     roleId: number,
     { userIds, permissionIds }: UpdateRoleDto,
   ): Promise<Role | null> {
-    const role = await this.client.role.update({
-      where: {
-        id: roleId,
-      },
-      data: {
-        users: {
-          connect: userIds.map((userId) => ({ id: userId })),
-        },
-        permissions: {
-          connect: permissionIds.map((permissionId) => ({ id: permissionId })),
-        },
-      },
+
+    if(userIds.length > 0) {
+      await this.client.userRole.createMany({
+	data: userIds.map(userId => ({ userId, roleId }))
+      })
+    }
+
+    if (permissionIds.length > 0) {
+      await this.client.rolePermission.createMany({
+	data: permissionIds.map((permissionId) => ({ permissionId, roleId })),
+      });
+    }
+
+    const role = await this.client.role.findUnique({
+      where: { id: roleId },
       include: {
-        users: true,
-        permissions: true,
+        users: {
+	  include: {
+	    user: {
+	      select: {
+		username: true,
+	      }
+	    }
+	  }
+	},
+        permissions: {
+	  include: {
+	    permission: true
+	  }
+	},
       },
-    });
+    })
 
     return role;
   }
@@ -66,8 +81,20 @@ export class AuthorizationRepository implements IAuthorizationRepository {
         id: roleId,
       },
       include: {
-        users: true,
-        permissions: true,
+        users: {
+	  include: {
+	    user: {
+	      select: {
+		username: true,
+	      }
+	    }
+	  }
+	},
+        permissions: {
+	  include: {
+	    permission: true
+	  }
+	},
       },
     });
 
