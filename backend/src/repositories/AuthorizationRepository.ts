@@ -80,7 +80,7 @@ export class AuthorizationRepository implements IAuthorizationRepository {
   }
 
   async findRoleById(roleId: number) {
-    const role = await this.client.role.findFirst({
+    const role = await this.client.role.findUnique({
       where: {
         id: roleId,
       },
