@@ -2,7 +2,7 @@ import { PrismaClient } from "@/../generated/prisma";
 import { UserRepository } from "./repositories/UserRepository";
 import { UserService } from "./services/UserService";
 import { UserController } from "./controllers/UserController";
-import { H3, serve } from "h3";
+import { H3, onError, serve } from "h3";
 import { CustomerRepository } from "./repositories/CustomerRepository";
 import { CustomerService } from "./services/CustomerService";
 import { CustomerController } from "./controllers/CustomerController";
@@ -10,6 +10,7 @@ import { authMiddleware } from "./middleware/auth-guard";
 import { AuthorizationRepository } from "./repositories/AuthorizationRepository";
 import { AuthorizationService } from "./services/AuthorizationService";
 import { AuthorizationController } from "./controllers/AuthorizationController";
+import { ErrorResponse } from "./responses/api";
 
 const prisma = new PrismaClient();
 
@@ -30,9 +31,19 @@ async function main() {
     authorizationService,
   );
 
-  const app = new H3({
-    onError: console.log,
-  });
+  const app = new H3();
+
+  app.use(
+    onError((error, event) => {
+      if (error.cause instanceof ErrorResponse) {
+	event.res.status = error.cause.status;
+	event.res.statusText = error.cause.statusText;
+	return error.cause;
+      }
+
+      console.log(error);
+    })
+  )
 
   app.use(authMiddleware("/auth/"));
 

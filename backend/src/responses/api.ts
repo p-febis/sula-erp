@@ -27,20 +27,26 @@ export class SuccessResponse<T = unknown> {
 }
 
 export class ErrorResponse<T = unknown> extends HTTPError {
-  data: T;
-
   constructor(
     message: string,
     data: T,
     status = 400,
     statusText = "Bad Request",
   ) {
-    super({
-      status,
-      statusText,
-      message,
-      data,
-    });
-    this.data = data;
+      super({
+	message,
+	data,
+	status,
+	statusText
+      })
+  }
+
+  toJSON() {
+    return {
+      status: this.status,
+      statusText: this.statusText,
+      message: this.message,
+      data: this.data,
+    };
   }
 }
