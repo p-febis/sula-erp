@@ -39,7 +39,7 @@ export class UserRepository implements IUserRepository {
   async findById(id: number) {
     const user = await this.client.user.findUnique({
       where: {
-	id
+        id,
       },
     });
 

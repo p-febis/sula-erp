@@ -33,12 +33,12 @@ export class ErrorResponse<T = unknown> extends HTTPError {
     status = 400,
     statusText = "Bad Request",
   ) {
-      super({
-	message,
-	data,
-	status,
-	statusText
-      })
+    super({
+      message,
+      data,
+      status,
+      statusText,
+    });
   }
 
   toJSON() {

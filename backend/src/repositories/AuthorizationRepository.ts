@@ -1,10 +1,14 @@
-import { Role, PrismaClient } from "@/../generated/prisma";
+import { Role, PrismaClient, Permission } from "@/../generated/prisma";
 import { CreateRoleDto, UpdateRoleDto } from "@/models/authorization";
 
 export interface IAuthorizationRepository {
   createRole(roleCreationData: CreateRoleDto): Promise<Role | null>;
   findAllRoles(): Promise<Role[] | null>;
-  updateRole(roleId: number, roleUpdateData: UpdateRoleDto): Promise<Role | null>;
+  findAllPermissions(): Promise<Permission[] | null>;
+  updateRole(
+    roleId: number,
+    roleUpdateData: UpdateRoleDto,
+  ): Promise<Role | null>;
   findRoleById(roleId: number): Promise<Role | null>;
 }
 
@@ -31,24 +35,25 @@ export class AuthorizationRepository implements IAuthorizationRepository {
     return roles;
   }
 
-  async updateRole(roleId: number,
-    { userIds, permissionIds }: UpdateRoleDto
+  async updateRole(
+    roleId: number,
+    { userIds, permissionIds }: UpdateRoleDto,
   ): Promise<Role | null> {
     const role = await this.client.role.update({
       where: {
-	id: roleId,
+        id: roleId,
       },
       data: {
-	users: {
-	  connect: userIds.map((userId) => ({ id: userId })),
-	},
-	permissions: {
-	  connect: permissionIds.map((permissionId) => ({ id: permissionId, })),
-	},
+        users: {
+          connect: userIds.map((userId) => ({ id: userId })),
+        },
+        permissions: {
+          connect: permissionIds.map((permissionId) => ({ id: permissionId })),
+        },
       },
       include: {
-	users: true,
-	permissions: true,
+        users: true,
+        permissions: true,
       },
     });
 
@@ -67,5 +72,10 @@ export class AuthorizationRepository implements IAuthorizationRepository {
     });
 
     return role;
+  }
+
+  async findAllPermissions() {
+    const permissions = await this.client.permission.findMany();
+    return permissions;
   }
 }

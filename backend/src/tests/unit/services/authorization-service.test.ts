@@ -10,6 +10,7 @@ describe("AuthorizationService", () => {
   let mockAuthorizationRepository = {
     createRole: vi.fn(),
     findAllRoles: vi.fn(),
+    findAllPermissions: vi.fn(),
     updateRole: vi.fn(),
     findRoleById: vi.fn(),
   };
@@ -112,16 +113,14 @@ describe("AuthorizationService", () => {
         },
       ],
       permissions: [
-	{
-	  id: 1,
-	  name: "read:role",
-	}
+        {
+          id: 1,
+          name: "read:role",
+        },
       ],
     };
 
-    mockAuthorizationRepository.updateRole.mockResolvedValueOnce(
-      sampleRole,
-    );
+    mockAuthorizationRepository.updateRole.mockResolvedValueOnce(sampleRole);
 
     const role = await authorizationService.updateRole(1, {
       userIds: [1],
@@ -160,5 +159,25 @@ describe("AuthorizationService", () => {
     ).toHaveBeenCalledExactlyOnceWith(1);
 
     expect(role).toEqual(sampleRole);
+  });
+
+  it("Should return all permissions", async () => {
+    const allPermissions = [
+      {
+        id: 1,
+        key: "create:something",
+      },
+      {
+        id: 2,
+        key: "delete:something",
+      },
+    ];
+
+    mockAuthorizationRepository.findAllPermissions.mockResolvedValueOnce(
+      allPermissions,
+    );
+
+    const result = await authorizationService.allPermissions();
+    expect(result).toEqual(allPermissions);
   });
 });

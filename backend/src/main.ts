@@ -36,14 +36,14 @@ async function main() {
   app.use(
     onError((error, event) => {
       if (error.cause instanceof ErrorResponse) {
-	event.res.status = error.cause.status;
-	event.res.statusText = error.cause.statusText;
-	return error.cause;
+        event.res.status = error.cause.status;
+        event.res.statusText = error.cause.statusText;
+        return error.cause;
       }
 
       console.log(error);
-    })
-  )
+    }),
+  );
 
   app.use(authMiddleware("/auth/"));
 
@@ -69,6 +69,10 @@ async function main() {
     .get(
       "/roles",
       authorizationController.getAllRoles.bind(authorizationController),
+    )
+    .get(
+      "/permissions",
+      authorizationController.getAllPermissions.bind(authorizationController),
     )
     .get(
       "/roles/:id",

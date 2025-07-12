@@ -19,6 +19,7 @@ describe("AuthorizationController", () => {
     userCanDo: vi.fn(),
     createRole: vi.fn(),
     allRoles: vi.fn(),
+    allPermissions: vi.fn(),
     updateRole: vi.fn(),
     findRoleById: vi.fn(),
   };
@@ -43,6 +44,11 @@ describe("AuthorizationController", () => {
   };
   const sampleCreateBody = {
     name: "Marketing",
+  };
+
+  const samplePermission = {
+    id: 1,
+    key: "create:something",
   };
 
   it.each([
@@ -119,10 +125,7 @@ describe("AuthorizationController", () => {
     mockAuthorizationService.userCanDo.mockReturnValue(true);
 
     const event = new H3Event(createRequest({ method: "GET" }));
-    event.context.claims = {
-      isSuperUser: true,
-      permissions: [],
-    };
+    event.context.claims = baseClaims;
 
     const response = await authorizationController.getAllRoles(event);
     expect(mockAuthorizationService.userCanDo).toHaveBeenCalledExactlyOnceWith(
@@ -146,7 +149,7 @@ describe("AuthorizationController", () => {
     const event = new H3Event(createRequest({ method: "GET" }));
 
     event.context.claims = {
-      isSuperUser: true,
+      isSuperUser: false,
       permissions: [],
     };
 
@@ -194,12 +197,13 @@ describe("AuthorizationController", () => {
       ["update:role"],
     );
 
-    expect(
-      mockAuthorizationService.updateRole,
-    ).toHaveBeenCalledExactlyOnceWith(1, {
-      userIds: [1],
-      permissionIds: [1],
-    });
+    expect(mockAuthorizationService.updateRole).toHaveBeenCalledExactlyOnceWith(
+      1,
+      {
+        userIds: [1],
+        permissionIds: [1],
+      },
+    );
 
     expect(response).toEqual({
       status: 200,
@@ -286,5 +290,48 @@ describe("AuthorizationController", () => {
     );
 
     expect(mockAuthorizationService.updateRole).not.toHaveBeenCalledOnce();
+  });
+
+  it("Should call allPermissions if the user has permission", async () => {
+    const all = [samplePermission];
+    mockAuthorizationService.allPermissions.mockResolvedValueOnce(all);
+    mockAuthorizationService.userCanDo.mockReturnValue(true);
+
+    const event = new H3Event(createRequest({ method: "GET" }));
+    event.context.claims = baseClaims;
+
+    const response = await authorizationController.getAllPermissions(event);
+    expect(mockAuthorizationService.userCanDo).toHaveBeenCalledExactlyOnceWith(
+      event.context.claims,
+      ["read:permission"],
+    );
+    expect(mockAuthorizationService.allPermissions).toHaveBeenCalledOnce();
+    expect(response).toEqual({
+      status: 200,
+      statusText: "OK",
+      message: "Success",
+      data: all,
+    });
+  });
+
+  it("Should not call allPermissions if the user doesn't have permission", async () => {
+    const all = [samplePermission];
+    mockAuthorizationService.allPermissions.mockResolvedValueOnce(all);
+
+    const event = new H3Event(createRequest({ method: "GET" }));
+    event.context.claims = {
+      isSuperUser: false,
+      permissions: [],
+    };
+
+    await expect(
+      authorizationController.getAllPermissions(event),
+    ).rejects.toThrow();
+
+    expect(mockAuthorizationService.userCanDo).toHaveBeenCalledExactlyOnceWith(
+      event.context.claims,
+      ["read:permission"],
+    );
+    expect(mockAuthorizationService.allPermissions).not.toHaveBeenCalledOnce();
   });
 });

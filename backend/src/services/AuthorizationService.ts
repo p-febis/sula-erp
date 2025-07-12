@@ -1,6 +1,6 @@
 import { CreateRoleDto, UpdateRoleDto } from "@/models/authorization";
 import { IAuthorizationRepository } from "@/repositories/AuthorizationRepository";
-import { Role } from "generated/prisma";
+import { Permission, Role } from "generated/prisma";
 
 export type PermissionClaims = {
   isSuperUser: boolean;
@@ -10,8 +10,12 @@ export type PermissionClaims = {
 export interface IAuthorizationService {
   createRole(roleCreationData: CreateRoleDto): Promise<Role | null>;
   allRoles(): Promise<Role[] | null>;
+  allPermissions(): Promise<Permission[] | null>;
   userCanDo(claims: PermissionClaims, requiredPermissions: string[]): boolean;
-  updateRole(roleId: number, roleUpdateData: UpdateRoleDto): Promise<Role | null>;
+  updateRole(
+    roleId: number,
+    roleUpdateData: UpdateRoleDto,
+  ): Promise<Role | null>;
   findRoleById(roleId: number): Promise<Role | null>;
 }
 
@@ -45,7 +49,10 @@ export class AuthorizationService implements IAuthorizationService {
   }
 
   async updateRole(roleId: number, updateRoleData: UpdateRoleDto) {
-    const role = await this.m_authorizationRepository.updateRole(roleId, updateRoleData);
+    const role = await this.m_authorizationRepository.updateRole(
+      roleId,
+      updateRoleData,
+    );
 
     return role;
   }
@@ -53,5 +60,12 @@ export class AuthorizationService implements IAuthorizationService {
   async findRoleById(roleId: number) {
     const role = await this.m_authorizationRepository.findRoleById(roleId);
     return role;
+  }
+
+  async allPermissions() {
+    const permissions =
+      await this.m_authorizationRepository.findAllPermissions();
+
+    return permissions;
   }
 }
