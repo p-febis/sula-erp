@@ -7,6 +7,7 @@ import { AuthenticationProvider } from "@/features/authentication/components/Aut
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { Toaster } from "@/components/ui/sonner";
+import { Spinner } from "@/components/Spinner";
 
 export const DashBoardLayout = () => {
   const location = useLocation();
@@ -20,7 +21,7 @@ export const DashBoardLayout = () => {
             fallback={<>An error has occured</>}
             key={location.pathname}
           >
-            <Suspense fallback={<>Loading...</>}>
+            <Suspense fallback={<Spinner />}>
               <Outlet />
             </Suspense>
           </ErrorBoundary>
