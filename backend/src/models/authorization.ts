@@ -13,4 +13,6 @@ export const UpdateRoleDtoSchema = z.object({
 export type UpdateRoleDto = z.infer<typeof UpdateRoleDtoSchema>;
 
 export const DeleteAssociationsFromRoleDtoSchema = UpdateRoleDtoSchema;
-export type DeleteAssociationsFromRoleDto = z.infer<typeof DeleteAssociationsFromRoleDtoSchema>;
+export type DeleteAssociationsFromRoleDto = z.infer<
+  typeof DeleteAssociationsFromRoleDtoSchema
+>;

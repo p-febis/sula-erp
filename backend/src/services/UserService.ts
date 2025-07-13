@@ -1,4 +1,5 @@
 import { CreateUserDto, LoginUserDto, TUser } from "@/models/user";
+import { IAuthorizationRepository } from "@/repositories/AuthorizationRepository";
 import { IUserRepository } from "@/repositories/UserRepository";
 import { hashingOptions } from "@/utils/argon-options";
 import { hash, verify } from "@node-rs/argon2";
@@ -17,9 +18,14 @@ export interface IUserService {
 
 export class UserService implements IUserService {
   m_userRepository: IUserRepository;
+  m_authorizationRepository: IAuthorizationRepository;
 
-  constructor(userRepository: IUserRepository) {
+  constructor(
+    userRepository: IUserRepository,
+    authorizationRepository: IAuthorizationRepository,
+  ) {
     this.m_userRepository = userRepository;
+    this.m_authorizationRepository = authorizationRepository;
   }
 
   async createUser(userCreationData: CreateUserDto): Promise<TUser> {
@@ -53,7 +59,11 @@ export class UserService implements IUserService {
       throw "Passwords don't match!";
     }
 
-    const { accessToken, refreshToken } = this.createTokens(user);
+    const permissions = await this.m_authorizationRepository.getUserPermissions(
+      user.id,
+    );
+
+    const { accessToken, refreshToken } = this.createTokens(user, permissions);
 
     return {
       accessToken,
@@ -61,13 +71,13 @@ export class UserService implements IUserService {
     };
   }
 
-  createTokens(user: TUser) {
+  createTokens(user: TUser, permissions: string[]) {
     const accessToken = jwt.sign(
       {
         sub: user.id,
         authorization: {
           isSuperUser: user.isSuperUser,
-          permissions: [],
+          permissions,
         },
       },
       process.env.ACCESS_TOKEN_SECRET!,
@@ -102,7 +112,11 @@ export class UserService implements IUserService {
       throw "User does not exist!";
     }
 
-    const { accessToken, refreshToken } = this.createTokens(user);
+    const permissions = await this.m_authorizationRepository.getUserPermissions(
+      user.id,
+    );
+
+    const { accessToken, refreshToken } = this.createTokens(user, permissions);
 
     return {
       accessToken,

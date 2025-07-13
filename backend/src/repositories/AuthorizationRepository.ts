@@ -18,6 +18,7 @@ export interface IAuthorizationRepository {
     roleDeleteFromData: DeleteAssociationsFromRoleDto,
   ): Promise<Role | null>;
   findRoleById(roleId: number): Promise<Role | null>;
+  getUserPermissions(userId: number): Promise<string[]>;
 }
 
 export class AuthorizationRepository implements IAuthorizationRepository {
@@ -128,5 +129,25 @@ export class AuthorizationRepository implements IAuthorizationRepository {
     const role = await this.findRoleById(roleId);
 
     return role;
+  }
+
+  async getUserPermissions(userId: number): Promise<string[]> {
+    const permissions = await this.client.permission.findMany({
+      where: {
+        RolePermission: {
+          some: {
+            role: {
+              users: {
+                some: {
+                  userId,
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return permissions.map((permission) => permission.key);
   }
 }

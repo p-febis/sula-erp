@@ -11,6 +11,10 @@ const mockUserRepository = {
   findAll: vi.fn(),
 };
 
+const mockAuthorizationRepository = {
+  getUserPermissions: vi.fn(),
+};
+
 describe("UserService", () => {
   let userService: IUserService;
 
@@ -20,7 +24,10 @@ describe("UserService", () => {
 
   beforeEach(() => {
     vi.resetAllMocks();
-    userService = new UserService(mockUserRepository);
+    userService = new UserService(
+      mockUserRepository,
+      mockAuthorizationRepository,
+    );
   });
 
   it("should create and return user with hashed password", async () => {
@@ -110,6 +117,17 @@ describe("UserService", () => {
       isSuperUser: true,
     });
 
+    const permissions = [
+      "read:something",
+      "write:something",
+      "delete:something",
+      "update:something",
+    ];
+
+    mockAuthorizationRepository.getUserPermissions.mockResolvedValue(
+      permissions,
+    );
+
     const { accessToken } = await userService.loginUser({
       username: "Admin",
       password: testPassword,
@@ -127,11 +145,16 @@ describe("UserService", () => {
       };
     };
 
+    expect(
+      mockAuthorizationRepository.getUserPermissions,
+    ).toHaveBeenCalledExactlyOnceWith(1);
+
     expect(payload.sub).toBe(1);
     expect(payload.authorization).toEqual({
       isSuperUser: true,
-      permissions: [],
+      permissions: permissions,
     });
+
     expect(payload.exp).toBeGreaterThan(Date.now() / 1000);
   });
 
@@ -170,6 +193,7 @@ describe("UserService", () => {
   it("should refresh access and refresh tokens", async () => {
     mockUserRepository.findByName.mockResolvedValue({
       id: 1,
+      isSuperUser: true,
       username: "Admin",
       refresh_token_version: 1,
       password: testHash,
@@ -177,10 +201,22 @@ describe("UserService", () => {
 
     mockUserRepository.findById.mockResolvedValue({
       id: 1,
+      isSuperUser: true,
       username: "Admin",
       refresh_token_version: 1,
       password: testHash,
     });
+
+    const permissions = [
+      "read:something",
+      "write:something",
+      "delete:something",
+      "update:something",
+    ];
+
+    mockAuthorizationRepository.getUserPermissions.mockResolvedValue(
+      permissions,
+    );
 
     const { refreshToken } = await userService.loginUser({
       username: "Admin",
@@ -196,10 +232,26 @@ describe("UserService", () => {
       accessToken,
       process.env.ACCESS_TOKEN_SECRET!,
       { complete: true },
-    ) as unknown as { payload: { sub: number; exp: number } };
+    ) as unknown as {
+      payload: {
+        sub: number;
+        exp: number;
+        authorization: { isSuperUser: boolean; permissions: string[] };
+      };
+    };
+    expect(
+      mockAuthorizationRepository.getUserPermissions,
+    ).toHaveBeenNthCalledWith(1, 1);
+    expect(
+      mockAuthorizationRepository.getUserPermissions,
+    ).toHaveBeenNthCalledWith(2, 1);
 
     expect(accessPayload.payload.sub).toBe(1);
     expect(accessPayload.payload.exp).toBeGreaterThan(Date.now() / 1000);
+    expect(accessPayload.payload.authorization).toEqual({
+      isSuperUser: true,
+      permissions: permissions,
+    });
 
     const refreshPayload = jwt.verify(
       newRefreshToken,
