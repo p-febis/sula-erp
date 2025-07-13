@@ -4,7 +4,7 @@ import { useCustomers } from "../hooks/use-customers";
 export const CustomersPage = () => {
   const { data, isLoading } = useCustomers();
 
-  if(isLoading) {
+  if (isLoading) {
     return <>Loading...</>;
   }
 
