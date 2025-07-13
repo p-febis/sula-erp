@@ -1,5 +1,9 @@
 import { Role, PrismaClient, Permission } from "@/../generated/prisma";
-import { CreateRoleDto, UpdateRoleDto } from "@/models/authorization";
+import {
+  CreateRoleDto,
+  DeleteAssociationsFromRoleDto,
+  UpdateRoleDto,
+} from "@/models/authorization";
 
 export interface IAuthorizationRepository {
   createRole(roleCreationData: CreateRoleDto): Promise<Role | null>;
@@ -8,6 +12,10 @@ export interface IAuthorizationRepository {
   updateRole(
     roleId: number,
     roleUpdateData: UpdateRoleDto,
+  ): Promise<Role | null>;
+  unlinkRoleAssociations(
+    roleId: number,
+    roleDeleteFromData: DeleteAssociationsFromRoleDto,
   ): Promise<Role | null>;
   findRoleById(roleId: number): Promise<Role | null>;
 }
@@ -53,29 +61,7 @@ export class AuthorizationRepository implements IAuthorizationRepository {
       });
     }
 
-    const role = await this.client.role.findUnique({
-      where: { id: roleId },
-      include: {
-        users: {
-          include: {
-            user: {
-              select: {
-                username: true,
-              },
-            },
-          },
-        },
-        permissions: {
-          include: {
-            permission: {
-              select: {
-                key: true,
-              },
-            },
-          },
-        },
-      },
-    });
+    const role = await this.findRoleById(roleId);
 
     return role;
   }
@@ -113,5 +99,34 @@ export class AuthorizationRepository implements IAuthorizationRepository {
   async findAllPermissions() {
     const permissions = await this.client.permission.findMany();
     return permissions;
+  }
+
+  async unlinkRoleAssociations(
+    roleId: number,
+    deleteFromRoleData: DeleteAssociationsFromRoleDto,
+  ) {
+    const { userIds, permissionIds } = deleteFromRoleData;
+
+    if (userIds.length > 0) {
+      await this.client.userRole.deleteMany({
+        where: {
+          roleId,
+          userId: { in: userIds },
+        },
+      });
+    }
+
+    if (permissionIds.length > 0) {
+      await this.client.rolePermission.deleteMany({
+        where: {
+          roleId,
+          permissionId: { in: permissionIds },
+        },
+      });
+    }
+
+    const role = await this.findRoleById(roleId);
+
+    return role;
   }
 }

@@ -88,6 +88,12 @@ async function main() {
     .patch(
       "/roles/:id",
       authorizationController.patchUpdateRole.bind(authorizationController),
+    )
+    .delete(
+      "/roles/:id/associations",
+      authorizationController.deleteUnlinkRoleAssociations.bind(
+        authorizationController,
+      ),
     );
 
   app.get("/users", userController.getAllUsers.bind(userController));

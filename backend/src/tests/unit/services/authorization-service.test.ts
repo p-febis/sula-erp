@@ -13,6 +13,7 @@ describe("AuthorizationService", () => {
     findAllPermissions: vi.fn(),
     updateRole: vi.fn(),
     findRoleById: vi.fn(),
+    unlinkRoleAssociations: vi.fn(),
   };
 
   beforeEach(() => {
@@ -100,16 +101,13 @@ describe("AuthorizationService", () => {
     expect(canDo2).toBeFalsy();
   });
 
-  it("Should add update a role", async () => {
+  it("Should update a role", async () => {
     const sampleRole = {
       ...fullRole,
       users: [
         {
           user: {
             username: "admin",
-            password:
-              "$argon2id$v=19$m=16,t=2,p=1$cmFuZG9tLXNhbHQ$th+l03f/sP8YVAFse/EOuQ",
-            isSuperUser: false,
           },
         },
       ],
@@ -183,5 +181,31 @@ describe("AuthorizationService", () => {
 
     const result = await authorizationService.allPermissions();
     expect(result).toEqual(allPermissions);
+  });
+
+  it("Should unlink users & permissions from a role", async () => {
+    const sampleRole = {
+      ...fullRole,
+      users: [],
+      permissions: [],
+    };
+
+    mockAuthorizationRepository.unlinkRoleAssociations.mockResolvedValueOnce(
+      sampleRole,
+    );
+
+    const role = await authorizationService.unlinkRoleAssociations(1, {
+      userIds: [1],
+      permissionIds: [1],
+    });
+
+    expect(
+      mockAuthorizationRepository.unlinkRoleAssociations,
+    ).toHaveBeenCalledExactlyOnceWith(1, {
+      userIds: [1],
+      permissionIds: [1],
+    });
+
+    expect(role).toEqual(sampleRole);
   });
 });

@@ -1,4 +1,8 @@
-import { CreateRoleDto, UpdateRoleDto } from "@/models/authorization";
+import {
+  CreateRoleDto,
+  DeleteAssociationsFromRoleDto,
+  UpdateRoleDto,
+} from "@/models/authorization";
 import { IAuthorizationRepository } from "@/repositories/AuthorizationRepository";
 import { Permission, Role } from "generated/prisma";
 
@@ -15,6 +19,10 @@ export interface IAuthorizationService {
   updateRole(
     roleId: number,
     roleUpdateData: UpdateRoleDto,
+  ): Promise<Role | null>;
+  unlinkRoleAssociations(
+    roleId: number,
+    roleUpdateData: DeleteAssociationsFromRoleDto,
   ): Promise<Role | null>;
   findRoleById(roleId: number): Promise<Role | null>;
 }
@@ -67,5 +75,17 @@ export class AuthorizationService implements IAuthorizationService {
       await this.m_authorizationRepository.findAllPermissions();
 
     return permissions;
+  }
+
+  async unlinkRoleAssociations(
+    roleId: number,
+    roleUpdateData: DeleteAssociationsFromRoleDto,
+  ) {
+    const role = await this.m_authorizationRepository.unlinkRoleAssociations(
+      roleId,
+      roleUpdateData,
+    );
+
+    return role;
   }
 }

@@ -21,7 +21,9 @@ describe("AuthorizationController", () => {
     allRoles: vi.fn(),
     allPermissions: vi.fn(),
     updateRole: vi.fn(),
+    unlinkRoleAssociations: vi.fn(),
     findRoleById: vi.fn(),
+    update: vi.fn(),
   };
 
   beforeEach(() => {
@@ -335,5 +337,78 @@ describe("AuthorizationController", () => {
       ["read:permission"],
     );
     expect(mockAuthorizationService.allPermissions).not.toHaveBeenCalledOnce();
+  });
+
+  it("Should call unlinkRoleAssociations if the user has permission", async () => {
+    mockAuthorizationService.unlinkRoleAssociations.mockResolvedValueOnce(
+      sampleRole,
+    );
+    mockAuthorizationService.userCanDo.mockReturnValue(true);
+
+    const event = new H3Event(
+      createRequest({
+        method: "PATCH",
+        body: {
+          userIds: [1],
+          permissionIds: [1],
+        },
+      }),
+    );
+    event.context.claims = baseClaims;
+    event.context.params = { id: "1" };
+
+    const response =
+      await authorizationController.deleteUnlinkRoleAssociations(event);
+
+    expect(mockAuthorizationService.userCanDo).toHaveBeenCalledExactlyOnceWith(
+      event.context.claims,
+      ["update:role"],
+    );
+
+    expect(
+      mockAuthorizationService.unlinkRoleAssociations,
+    ).toHaveBeenCalledExactlyOnceWith(1, {
+      userIds: [1],
+      permissionIds: [1],
+    });
+
+    expect(response).toEqual({
+      status: 200,
+      statusText: "OK",
+      message: "Success",
+      data: sampleRole,
+    });
+  });
+
+  it("Should not call unlinkRoleAssociations if the user doesn't have permission", async () => {
+    mockAuthorizationService.userCanDo.mockReturnValue(false);
+
+    const event = new H3Event(
+      createRequest({
+        method: "PATCH",
+        body: {
+          userIds: [1],
+          permissionIds: [1],
+        },
+      }),
+    );
+    event.context.claims = {
+      isSuperUser: false,
+      permissions: [],
+    };
+    event.context.params = { id: "1" };
+
+    await expect(
+      authorizationController.deleteUnlinkRoleAssociations(event),
+    ).rejects.toThrow();
+
+    expect(mockAuthorizationService.userCanDo).toHaveBeenCalledExactlyOnceWith(
+      event.context.claims,
+      ["update:role"],
+    );
+
+    expect(
+      mockAuthorizationService.unlinkRoleAssociations,
+    ).not.toHaveBeenCalledOnce();
   });
 });

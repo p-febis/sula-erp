@@ -1,4 +1,8 @@
-import { CreateRoleDto, UpdateRoleDto } from "@/models/authorization";
+import {
+  CreateRoleDto,
+  DeleteAssociationsFromRoleDto,
+  UpdateRoleDto,
+} from "@/models/authorization";
 import { ErrorResponse, SuccessResponse } from "@/responses/api";
 import { IAuthorizationService } from "@/services/AuthorizationService";
 import { parseBodyAsync } from "@/utils/body-parser";
@@ -9,6 +13,7 @@ export interface IAuthorizationController {
   getAllRoles(event: H3Event): Promise<SuccessResponse>;
   getAllPermissions(event: H3Event): Promise<SuccessResponse>;
   patchUpdateRole(event: H3Event): Promise<SuccessResponse>;
+  deleteUnlinkRoleAssociations(event: H3Event): Promise<SuccessResponse>;
   getOneRole(event: H3Event): Promise<SuccessResponse>;
 }
 
@@ -94,5 +99,25 @@ export class AuthorizationController implements IAuthorizationController {
     const permissions = await this.m_authorizationService.allPermissions();
 
     return new SuccessResponse("Success", permissions);
+  }
+
+  async deleteUnlinkRoleAssociations(event: H3Event) {
+    const canDo = this.m_authorizationService.userCanDo(event.context.claims, [
+      "update:role",
+    ]);
+
+    if (!canDo) {
+      throw new ErrorResponse("Forbidden", null, 403);
+    }
+
+    const body = (await parseBodyAsync(event)) as DeleteAssociationsFromRoleDto;
+    const { id: roleId } = event.context.params!;
+
+    const role = await this.m_authorizationService.unlinkRoleAssociations(
+      Number(roleId),
+      body,
+    );
+
+    return new SuccessResponse("Success", role);
   }
 }
