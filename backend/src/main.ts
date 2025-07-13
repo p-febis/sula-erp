@@ -15,9 +15,6 @@ import { ErrorResponse } from "./responses/api";
 const prisma = new PrismaClient();
 
 async function main() {
-  const customerRepository = new CustomerRepository(prisma);
-  const customerService = new CustomerService(customerRepository);
-  const customerController = new CustomerController(customerService);
 
   const authorizationRepository = new AuthorizationRepository(prisma);
   const authorizationService = new AuthorizationService(
@@ -27,9 +24,13 @@ async function main() {
     authorizationService,
   );
 
+  const customerRepository = new CustomerRepository(prisma);
+  const customerService = new CustomerService(customerRepository);
+  const customerController = new CustomerController(customerService, authorizationService);
+
   const userRepository = new UserRepository(prisma);
   const userService = new UserService(userRepository, authorizationRepository);
-  const userController = new UserController(userService);
+  const userController = new UserController(userService, authorizationService);
 
   const app = new H3();
 
