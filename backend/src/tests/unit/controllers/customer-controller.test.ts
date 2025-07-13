@@ -87,6 +87,8 @@ describe("CustomerController", () => {
       mockAuthorizationService.userCanDo,
     ).toHaveBeenCalledExactlyOnceWith(event.context.claims, ["create:customer"]);
 
+    expect(mockCustomerService.createCustomer).not.toHaveBeenCalled();
+
     expect(error.cause).toEqual({
       status: 403,
       statusText: "Forbidden",
@@ -178,6 +180,8 @@ describe("CustomerController", () => {
       mockAuthorizationService.userCanDo,
     ).toHaveBeenCalledExactlyOnceWith(event.context.claims, ["read:customer"]);
 
+    expect(mockCustomerService.allCustomers).not.toHaveBeenCalled();
+
     expect(error.cause).toEqual({
       status: 403,
       statusText: "Forbidden",
@@ -220,6 +224,8 @@ describe("CustomerController", () => {
     expect(
       mockAuthorizationService.userCanDo,
     ).toHaveBeenCalledExactlyOnceWith(event.context.claims, ["read:customer"]);
+
+    expect(mockCustomerService.getCustomer).not.toHaveBeenCalled();
 
     expect(error.cause).toEqual({
       status: 403,
@@ -268,6 +274,8 @@ describe("CustomerController", () => {
       mockAuthorizationService.userCanDo,
     ).toHaveBeenCalledExactlyOnceWith(event.context.claims, ["update:customer"]);
 
+    expect(mockCustomerService.updateCustomer).not.toHaveBeenCalled();
+
     expect(error.cause).toEqual({
       status: 403,
       statusText: "Forbidden",
@@ -310,6 +318,8 @@ describe("CustomerController", () => {
     expect(
       mockAuthorizationService.userCanDo,
     ).toHaveBeenCalledExactlyOnceWith(event.context.claims, ["delete:customer"]);
+
+    expect(mockCustomerService.deleteCustomer).not.toHaveBeenCalled();
 
     expect(error.cause).toEqual({
       status: 403,

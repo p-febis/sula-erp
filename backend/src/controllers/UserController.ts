@@ -1,5 +1,6 @@
 import { CreateUserDtoSchema, LoginUserDtoSchema } from "@/models/user";
 import { ErrorResponse, SuccessResponse } from "@/responses/api";
+import { IAuthorizationService } from "@/services/AuthorizationService";
 import { IUserService } from "@/services/UserService";
 import { parseBodyAsync } from "@/utils/body-parser";
 import { parseCookie } from "@/utils/cookie-parser";
@@ -16,9 +17,11 @@ export interface IUserController {
 
 export class UserController implements IUserController {
   m_userService: IUserService;
+  m_authorizationService: IAuthorizationService;
 
-  constructor(userService: IUserService) {
+  constructor(userService: IUserService, authorizationService: IAuthorizationService) {
     this.m_userService = userService;
+    this.m_authorizationService = authorizationService;
   }
 
   async postCreate(event: H3Event) {
@@ -81,7 +84,16 @@ export class UserController implements IUserController {
     });
   }
 
-  async getAllUsers(_event: H3Event) {
+  async getAllUsers(event: H3Event) {
+    const canDo = this.m_authorizationService.userCanDo(
+      event.context.claims,
+      ["read:user"],
+    );
+
+    if (!canDo) {
+      throw new ErrorResponse("Forbidden", null, 403, "Forbidden");
+    }
+
     const users = await this.m_userService.findAllUsers();
 
     return new SuccessResponse("Success", users);
