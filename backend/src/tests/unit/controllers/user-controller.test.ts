@@ -11,6 +11,14 @@ const mockUserService = {
   findAllUsers: vi.fn(),
 };
 
+const mockAuthorizationService = {
+  userCanDo: vi.fn(),
+};
+
+const baseClaims = {
+  isSuperUser: true,
+};
+
 vi.mock("@/utils/body-parser", () => ({
   parseBodyAsync: async (event: H3Event) => event.req.body,
 }));
@@ -29,7 +37,7 @@ describe("UserController", () => {
 
   beforeEach(() => {
     vi.resetAllMocks();
-    userController = new UserController(mockUserService);
+    userController = new UserController(mockUserService, mockAuthorizationService);
   });
 
   it("should call createUser with correct data", async () => {
@@ -173,7 +181,8 @@ describe("UserController", () => {
     expect(cookie).toMatch(/Max-Age=315360000000/);
   });
 
-  it("should return all users", async () => {
+  it("should return all users if user has permission", async () => {
+    mockAuthorizationService.userCanDo.mockReturnValueOnce(true);
     const sampleUsers = [
       {
         id: 1,
@@ -185,7 +194,13 @@ describe("UserController", () => {
     mockUserService.findAllUsers.mockResolvedValueOnce(sampleUsers);
 
     const event = new H3Event(createRequest({ method: "GET" }));
+    event.context.claims = baseClaims;
+
     const response = await userController.getAllUsers(event);
+
+    expect(
+      mockAuthorizationService.userCanDo,
+    ).toHaveBeenCalledExactlyOnceWith(event.context.claims, ["read:user"]);
 
     expect(mockUserService.findAllUsers).toHaveBeenCalledOnce();
 
@@ -194,6 +209,28 @@ describe("UserController", () => {
       statusText: "OK",
       message: "Success",
       data: sampleUsers,
+    });
+  });
+
+  it("should throw when user does not have permission to get all users", async () => {
+    mockAuthorizationService.userCanDo.mockReturnValueOnce(false);
+
+    const event = new H3Event(createRequest({ method: "GET" }));
+    event.context.claims = baseClaims;
+
+    const error = await userController.getAllUsers(event).catch((e) => e);
+
+    expect(
+      mockAuthorizationService.userCanDo,
+    ).toHaveBeenCalledExactlyOnceWith(event.context.claims, ["read:user"]);
+
+    expect(mockUserService.findAllUsers).not.toHaveBeenCalled();
+
+    expect(error.cause).toEqual({
+      status: 403,
+      statusText: "Forbidden",
+      message: "Forbidden",
+      data: null,
     });
   });
 });
