@@ -1,9 +1,9 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { fetchWithAuth } from "../lib/fetchWithAuth";
 import type { Role } from "../types/role";
 
-export const useRole = (roleId?: string) => {
-  const { data: role, ...restQuery } = useSuspenseQuery({
+export const roleOptions = (roleId?: string) => {
+  return queryOptions({
     queryKey: ["roles", roleId],
     queryFn: async () => {
       const response = await fetchWithAuth(`/api/roles/${roleId}`);
@@ -13,6 +13,10 @@ export const useRole = (roleId?: string) => {
       return json.data as Role;
     },
   });
+};
+
+export const useRole = (roleId?: string) => {
+  const { data: role, ...restQuery } = useSuspenseQuery(roleOptions(roleId));
 
   return { role, ...restQuery };
 };

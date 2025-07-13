@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { mutationOptions, useMutation } from "@tanstack/react-query";
 import { fetchWithAuth } from "../lib/fetchWithAuth";
 
 type UpdateRoleAssociationsBody = {
@@ -8,8 +8,8 @@ type UpdateRoleAssociationsBody = {
 
 type UpdateRoleAssociationsAction = "associate" | "disassociate";
 
-export const useUpdateRole = (roleId: number) => {
-  const { mutate, ...restMutation } = useMutation({
+export const roleOptions = (roleId: number) => {
+  return mutationOptions({
     mutationFn: async ({
       action,
       body,
@@ -31,6 +31,10 @@ export const useUpdateRole = (roleId: number) => {
       return json.data;
     },
   });
+};
+
+export const useUpdateRole = (roleId: number) => {
+  const { mutate, ...restMutation } = useMutation(roleOptions(roleId));
 
   return {
     updateRoleAssociations: mutate,

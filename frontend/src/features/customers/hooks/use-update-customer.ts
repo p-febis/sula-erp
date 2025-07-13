@@ -1,14 +1,14 @@
-import { useMutation } from "@tanstack/react-query";
+import { mutationOptions, useMutation } from "@tanstack/react-query";
 import { fetchWithAuth } from "@/features/authentication/lib/fetchWithAuth";
 import type { Customer } from "../types/customer";
 
 type SettledFunction = (data?: Customer, error?: Error | null) => void;
 
-export const useUpdateCustomer = (
+export const updateCustomerOptions = (
   customerId: string | number,
   onSettled: SettledFunction,
 ) => {
-  const { mutate, mutateAsync, ...restMutation } = useMutation({
+  return mutationOptions({
     mutationFn: async (body: Omit<Customer, "id">) => {
       const response = await fetchWithAuth(`/api/customers/${customerId}`, {
         method: "PATCH",
@@ -21,6 +21,15 @@ export const useUpdateCustomer = (
     },
     onSettled,
   });
+};
+
+export const useUpdateCustomer = (
+  customerId: string | number,
+  onSettled: SettledFunction,
+) => {
+  const { mutate, mutateAsync, ...restMutation } = useMutation(
+    updateCustomerOptions(customerId, onSettled),
+  );
 
   return {
     update: mutate,

@@ -1,14 +1,14 @@
-import { useMutation } from "@tanstack/react-query";
+import { mutationOptions, useMutation } from "@tanstack/react-query";
 import { fetchWithAuth } from "@/features/authentication/lib/fetchWithAuth";
 
 type SettledFunction<T> = (data?: T, error?: Error | null) => void;
 
-export const useDeleteResource = <T>(
+export const deleteResourceOptions = <T>(
   resource: string,
   id: string | number,
   onSettled: SettledFunction<T>,
 ) => {
-  const { mutate, mutateAsync, ...restMutation } = useMutation({
+  return mutationOptions({
     mutationFn: async () => {
       const response = await fetchWithAuth(`/api/${resource}/${id}`, {
         method: "DELETE",
@@ -21,6 +21,16 @@ export const useDeleteResource = <T>(
     },
     onSettled,
   });
+};
+
+export const useDeleteResource = <T>(
+  resource: string,
+  id: string | number,
+  onSettled: SettledFunction<T>,
+) => {
+  const { mutate, mutateAsync, ...restMutation } = useMutation(
+    deleteResourceOptions(resource, id, onSettled),
+  );
 
   return {
     delete$: mutate,

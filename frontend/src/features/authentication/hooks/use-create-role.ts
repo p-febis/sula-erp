@@ -1,11 +1,11 @@
-import { useMutation } from "@tanstack/react-query";
+import { mutationOptions, useMutation } from "@tanstack/react-query";
 import { fetchWithAuth } from "@/features/authentication/lib/fetchWithAuth";
 import type { Role } from "../types/role";
 
 type SettledFunction = (data?: Role, error?: Error | null) => void;
 
-export const useCreateRole = (onSettled: SettledFunction) => {
-  const { mutate, mutateAsync, ...restMutation } = useMutation({
+export const createRoleOptions = (onSettled: SettledFunction) => {
+  return mutationOptions({
     mutationKey: ["roles"],
     mutationFn: async (body: Omit<Role, "id">) => {
       const response = await fetchWithAuth(`/api/roles`, {
@@ -19,6 +19,12 @@ export const useCreateRole = (onSettled: SettledFunction) => {
     },
     onSettled,
   });
+};
+
+export const useCreateRole = (onSettled: SettledFunction) => {
+  const { mutate, mutateAsync, ...restMutation } = useMutation(
+    createRoleOptions(onSettled),
+  );
 
   return {
     create: mutate,

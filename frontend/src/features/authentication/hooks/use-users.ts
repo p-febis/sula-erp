@@ -1,8 +1,8 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { fetchWithAuth } from "../lib/fetchWithAuth";
 
-export const useUsers = () => {
-  const { data: users, ...restQuery } = useSuspenseQuery({
+export const usersOptions = () => {
+  return queryOptions({
     queryKey: ["users"],
     queryFn: async () => {
       const response = await fetchWithAuth(`/api/users`);
@@ -12,6 +12,10 @@ export const useUsers = () => {
       return json.data;
     },
   });
+};
+
+export const useUsers = () => {
+  const { data: users, ...restQuery } = useSuspenseQuery(usersOptions());
 
   return { users, ...restQuery };
 };

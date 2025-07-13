@@ -1,8 +1,8 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { fetchWithAuth } from "../lib/fetchWithAuth";
 
-export const usePermissions = () => {
-  const { data: permissions, ...restQuery } = useSuspenseQuery({
+export const permissionOptions = () => {
+  return queryOptions({
     queryKey: ["permissions"],
     queryFn: async () => {
       const response = await fetchWithAuth(`/api/permissions`);
@@ -12,6 +12,11 @@ export const usePermissions = () => {
       return json.data;
     },
   });
+};
+
+export const usePermissions = () => {
+  const { data: permissions, ...restQuery } =
+    useSuspenseQuery(permissionOptions());
 
   return { permissions, ...restQuery };
 };

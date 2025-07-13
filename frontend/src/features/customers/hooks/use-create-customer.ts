@@ -1,11 +1,11 @@
-import { useMutation } from "@tanstack/react-query";
+import { mutationOptions, useMutation } from "@tanstack/react-query";
 import { fetchWithAuth } from "@/features/authentication/lib/fetchWithAuth";
 import type { Customer } from "../types/customer";
 
 type SettledFunction = (data?: Customer, error?: Error | null) => void;
 
-export const useCreateCustomer = (onSettled: SettledFunction) => {
-  const { mutate, mutateAsync, ...restMutation } = useMutation({
+export const createCustomerOptions = (onSettled: SettledFunction) => {
+  return mutationOptions({
     mutationFn: async (body: Omit<Customer, "id">) => {
       const response = await fetchWithAuth(`/api/customers`, {
         method: "POST",
@@ -18,6 +18,12 @@ export const useCreateCustomer = (onSettled: SettledFunction) => {
     },
     onSettled,
   });
+};
+
+export const useCreateCustomer = (onSettled: SettledFunction) => {
+  const { mutate, mutateAsync, ...restMutation } = useMutation(
+    createCustomerOptions(onSettled),
+  );
 
   return {
     create: mutate,

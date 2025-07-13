@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { mutationOptions, useMutation } from "@tanstack/react-query";
 import { fetchWithAuth } from "@/features/authentication/lib/fetchWithAuth";
 
 type SettledFunction = (
@@ -6,8 +6,8 @@ type SettledFunction = (
   error?: Error | null,
 ) => void;
 
-export const useLogin = (onSettled: SettledFunction) => {
-  const { mutate, mutateAsync, ...restMutation } = useMutation({
+const loginOptions = (onSettled: SettledFunction) => {
+  return mutationOptions({
     mutationKey: ["auth", "login"],
     mutationFn: async (body: { username: string; password: string }) => {
       const response = await fetchWithAuth(`/api/auth/login`, {
@@ -21,6 +21,12 @@ export const useLogin = (onSettled: SettledFunction) => {
     },
     onSettled,
   });
+};
+
+export const useLogin = (onSettled: SettledFunction) => {
+  const { mutate, mutateAsync, ...restMutation } = useMutation(
+    loginOptions(onSettled),
+  );
 
   return {
     login: mutate,
