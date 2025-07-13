@@ -86,7 +86,7 @@ async function main() {
       authorizationController.postCreateRole.bind(authorizationController),
     )
     .patch(
-      "/roles/:id",
+      "/roles/:id/associations",
       authorizationController.patchUpdateRole.bind(authorizationController),
     )
     .delete(
