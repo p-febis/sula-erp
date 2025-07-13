@@ -10,7 +10,7 @@ import { RolesPage } from "./features/authentication/pages/RolesPage";
 import { RoleCreatePage } from "./features/authentication/pages/RoleCreatePage";
 import { RoleEditPage } from "./features/authentication/pages/RoleEditPage";
 
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 
 function App() {
   const router = createBrowserRouter([

@@ -15,5 +15,11 @@ export const RolesPage = () => {
     },
   });
 
-  return <DataTable data={data} columns={roleListColumns} />;
+  return (
+    <div className="flex items-center justify-center h-full">
+      <main className="h-fit md:w-4/5 p-4">
+        <DataTable columns={roleListColumns} data={data} />
+      </main>
+    </div>
+  );
 };
