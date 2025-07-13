@@ -3,6 +3,7 @@ import {
   UpdateCustomerDtoSchema,
 } from "@/models/customer";
 import { ErrorResponse, SuccessResponse } from "@/responses/api";
+import { IAuthorizationService } from "@/services/AuthorizationService";
 import { ICustomerService } from "@/services/CustomerService";
 import { parseBodyAsync } from "@/utils/body-parser";
 import { H3Event } from "h3";
@@ -17,13 +18,21 @@ export interface ICustomerController {
 
 export class CustomerController implements ICustomerController {
   m_customerService: ICustomerService;
+  m_authorizationService: IAuthorizationService;
 
-  constructor(customerService: ICustomerService) {
+  constructor(customerService: ICustomerService, authorizationService: IAuthorizationService) {
     this.m_customerService = customerService;
+    this.m_authorizationService = authorizationService;
   }
 
   async postCreate(event: H3Event) {
     let creationData = null;
+
+    const canDo = this.m_authorizationService.userCanDo(event.context.claims, ["create:customer"]);
+
+    if(!canDo) {
+      throw new ErrorResponse("Forbidden", null, 403, "Forbidden");
+    }
 
     try {
       const body = await parseBodyAsync(event);
@@ -36,11 +45,25 @@ export class CustomerController implements ICustomerController {
   }
 
   async getAll(event: H3Event) {
+
+    const canDo = this.m_authorizationService.userCanDo(event.context.claims, ["read:customer"]);
+
+    if(!canDo) {
+      throw new ErrorResponse("Forbidden", null, 403, "Forbidden");
+    }
+
     const customers = await this.m_customerService.allCustomers();
     return new SuccessResponse("Success", customers);
   }
 
   async getOne(event: H3Event) {
+
+    const canDo = this.m_authorizationService.userCanDo(event.context.claims, ["read:customer"]);
+
+    if(!canDo) {
+      throw new ErrorResponse("Forbidden", null, 403, "Forbidden");
+    }
+
     const { id } = event.context.params!;
     const customer = await this.m_customerService.getCustomer(Number(id));
 
@@ -48,6 +71,13 @@ export class CustomerController implements ICustomerController {
   }
 
   async updateOne(event: H3Event) {
+
+    const canDo = this.m_authorizationService.userCanDo(event.context.claims, ["update:customer"]);
+
+    if(!canDo) {
+      throw new ErrorResponse("Forbidden", null, 403, "Forbidden");
+    }
+
     const { id } = event.context.params!;
     let creationData = null;
 
@@ -66,6 +96,13 @@ export class CustomerController implements ICustomerController {
   }
 
   async deleteOne(event: H3Event) {
+
+    const canDo = this.m_authorizationService.userCanDo(event.context.claims, ["delete:customer"]);
+
+    if(!canDo) {
+      throw new ErrorResponse("Forbidden", null, 403, "Forbidden");
+    }
+
     const { id } = event.context.params!;
     const deletedCustomer = await this.m_customerService.deleteCustomer(
       Number(id),
