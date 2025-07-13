@@ -39,16 +39,17 @@ export class AuthorizationRepository implements IAuthorizationRepository {
     roleId: number,
     { userIds, permissionIds }: UpdateRoleDto,
   ): Promise<Role | null> {
-
-    if(userIds.length > 0) {
+    if (userIds.length > 0) {
       await this.client.userRole.createMany({
-	data: userIds.map(userId => ({ userId, roleId }))
-      })
+        data: userIds.map((userId) => ({ userId, roleId })),
+        skipDuplicates: true,
+      });
     }
 
     if (permissionIds.length > 0) {
       await this.client.rolePermission.createMany({
-	data: permissionIds.map((permissionId) => ({ permissionId, roleId })),
+        data: permissionIds.map((permissionId) => ({ permissionId, roleId })),
+        skipDuplicates: true,
       });
     }
 
@@ -56,25 +57,25 @@ export class AuthorizationRepository implements IAuthorizationRepository {
       where: { id: roleId },
       include: {
         users: {
-	  include: {
-	    user: {
-	      select: {
-		username: true,
-	      }
-	    }
-	  }
-	},
+          include: {
+            user: {
+              select: {
+                username: true,
+              },
+            },
+          },
+        },
         permissions: {
-	  include: {
-	    permission: {
-	      select: {
-		key: true
-	      }
-	    }
-	  }
-	},
+          include: {
+            permission: {
+              select: {
+                key: true,
+              },
+            },
+          },
+        },
       },
-    })
+    });
 
     return role;
   }
@@ -86,23 +87,23 @@ export class AuthorizationRepository implements IAuthorizationRepository {
       },
       include: {
         users: {
-	  include: {
-	    user: {
-	      select: {
-		username: true,
-	      }
-	    }
-	  }
-	},
+          include: {
+            user: {
+              select: {
+                username: true,
+              },
+            },
+          },
+        },
         permissions: {
-	  include: {
-	    permission: {
-	      select: {
-		key: true
-	      }
-	    }
-	  }
-	},
+          include: {
+            permission: {
+              select: {
+                key: true,
+              },
+            },
+          },
+        },
       },
     });
 

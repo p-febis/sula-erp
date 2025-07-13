@@ -37,11 +37,11 @@ async function main() {
     onError((error) => {
       if (error.cause instanceof ErrorResponse) {
         return new Response(JSON.stringify(error.cause), {
-	  ...error.cause,
-	  headers: {
-	    "content-type": "application/json;charset=UTF-8",
-	  },
-	});
+          ...error.cause,
+          headers: {
+            "content-type": "application/json;charset=UTF-8",
+          },
+        });
       }
 
       console.log(error);

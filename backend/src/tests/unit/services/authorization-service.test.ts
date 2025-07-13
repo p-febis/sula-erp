@@ -105,17 +105,19 @@ describe("AuthorizationService", () => {
       ...fullRole,
       users: [
         {
-          id: 1,
-          username: "admin",
-          password:
-            "$argon2id$v=19$m=16,t=2,p=1$cmFuZG9tLXNhbHQ$th+l03f/sP8YVAFse/EOuQ",
-          isSuperUser: false,
+          user: {
+            username: "admin",
+            password:
+              "$argon2id$v=19$m=16,t=2,p=1$cmFuZG9tLXNhbHQ$th+l03f/sP8YVAFse/EOuQ",
+            isSuperUser: false,
+          },
         },
       ],
       permissions: [
         {
-          id: 1,
-          name: "read:role",
+          permission: {
+            name: "read:role",
+          },
         },
       ],
     };
@@ -142,9 +144,11 @@ describe("AuthorizationService", () => {
       ...fullRole,
       users: [
         {
-          id: 1,
-          username: "Admin",
-          isSuperUser: true,
+          user: {
+            id: 1,
+            username: "Admin",
+            isSuperUser: true,
+          },
         },
       ],
       permissions: [],

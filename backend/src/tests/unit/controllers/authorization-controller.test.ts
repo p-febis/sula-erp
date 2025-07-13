@@ -167,9 +167,11 @@ describe("AuthorizationController", () => {
       ...sampleRole,
       users: [
         {
-          id: 1,
-          username: "Admin",
-          isSuperUser: true,
+          user: {
+            id: 1,
+            username: "Admin",
+            isSuperUser: true,
+          },
         },
       ],
     };
