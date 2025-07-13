@@ -281,7 +281,7 @@ describe("UserService", () => {
       },
     ];
 
-    mockUserRepository.findAll = vi.fn().mockResolvedValue(sampleUsers);
+    mockUserRepository.findAll.mockResolvedValue(sampleUsers);
 
     const users = await userService.findAllUsers();
 
