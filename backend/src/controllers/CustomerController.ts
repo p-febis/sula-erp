@@ -20,7 +20,10 @@ export class CustomerController implements ICustomerController {
   m_customerService: ICustomerService;
   m_authorizationService: IAuthorizationService;
 
-  constructor(customerService: ICustomerService, authorizationService: IAuthorizationService) {
+  constructor(
+    customerService: ICustomerService,
+    authorizationService: IAuthorizationService,
+  ) {
     this.m_customerService = customerService;
     this.m_authorizationService = authorizationService;
   }
@@ -28,9 +31,11 @@ export class CustomerController implements ICustomerController {
   async postCreate(event: H3Event) {
     let creationData = null;
 
-    const canDo = this.m_authorizationService.userCanDo(event.context.claims, ["create:customer"]);
+    const canDo = this.m_authorizationService.userCanDo(event.context.claims, [
+      "create:customer",
+    ]);
 
-    if(!canDo) {
+    if (!canDo) {
       throw new ErrorResponse("Forbidden", null, 403, "Forbidden");
     }
 
@@ -45,10 +50,11 @@ export class CustomerController implements ICustomerController {
   }
 
   async getAll(event: H3Event) {
+    const canDo = this.m_authorizationService.userCanDo(event.context.claims, [
+      "read:customer",
+    ]);
 
-    const canDo = this.m_authorizationService.userCanDo(event.context.claims, ["read:customer"]);
-
-    if(!canDo) {
+    if (!canDo) {
       throw new ErrorResponse("Forbidden", null, 403, "Forbidden");
     }
 
@@ -57,10 +63,11 @@ export class CustomerController implements ICustomerController {
   }
 
   async getOne(event: H3Event) {
+    const canDo = this.m_authorizationService.userCanDo(event.context.claims, [
+      "read:customer",
+    ]);
 
-    const canDo = this.m_authorizationService.userCanDo(event.context.claims, ["read:customer"]);
-
-    if(!canDo) {
+    if (!canDo) {
       throw new ErrorResponse("Forbidden", null, 403, "Forbidden");
     }
 
@@ -71,10 +78,11 @@ export class CustomerController implements ICustomerController {
   }
 
   async updateOne(event: H3Event) {
+    const canDo = this.m_authorizationService.userCanDo(event.context.claims, [
+      "update:customer",
+    ]);
 
-    const canDo = this.m_authorizationService.userCanDo(event.context.claims, ["update:customer"]);
-
-    if(!canDo) {
+    if (!canDo) {
       throw new ErrorResponse("Forbidden", null, 403, "Forbidden");
     }
 
@@ -96,10 +104,11 @@ export class CustomerController implements ICustomerController {
   }
 
   async deleteOne(event: H3Event) {
+    const canDo = this.m_authorizationService.userCanDo(event.context.claims, [
+      "delete:customer",
+    ]);
 
-    const canDo = this.m_authorizationService.userCanDo(event.context.claims, ["delete:customer"]);
-
-    if(!canDo) {
+    if (!canDo) {
       throw new ErrorResponse("Forbidden", null, 403, "Forbidden");
     }
 

@@ -37,7 +37,10 @@ describe("UserController", () => {
 
   beforeEach(() => {
     vi.resetAllMocks();
-    userController = new UserController(mockUserService, mockAuthorizationService);
+    userController = new UserController(
+      mockUserService,
+      mockAuthorizationService,
+    );
   });
 
   it("should call createUser with correct data", async () => {
@@ -198,9 +201,10 @@ describe("UserController", () => {
 
     const response = await userController.getAllUsers(event);
 
-    expect(
-      mockAuthorizationService.userCanDo,
-    ).toHaveBeenCalledExactlyOnceWith(event.context.claims, ["read:user"]);
+    expect(mockAuthorizationService.userCanDo).toHaveBeenCalledExactlyOnceWith(
+      event.context.claims,
+      ["read:user"],
+    );
 
     expect(mockUserService.findAllUsers).toHaveBeenCalledOnce();
 
@@ -220,9 +224,10 @@ describe("UserController", () => {
 
     const error = await userController.getAllUsers(event).catch((e) => e);
 
-    expect(
-      mockAuthorizationService.userCanDo,
-    ).toHaveBeenCalledExactlyOnceWith(event.context.claims, ["read:user"]);
+    expect(mockAuthorizationService.userCanDo).toHaveBeenCalledExactlyOnceWith(
+      event.context.claims,
+      ["read:user"],
+    );
 
     expect(mockUserService.findAllUsers).not.toHaveBeenCalled();
 

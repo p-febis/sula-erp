@@ -43,7 +43,10 @@ describe("CustomerController", () => {
 
   beforeEach(() => {
     vi.resetAllMocks();
-    controller = new CustomerController(mockCustomerService, mockAuthorizationService);
+    controller = new CustomerController(
+      mockCustomerService,
+      mockAuthorizationService,
+    );
   });
 
   it("should create a customer with full data if user has permission", async () => {
@@ -58,9 +61,10 @@ describe("CustomerController", () => {
 
     const response = await controller.postCreate(event);
 
-    expect(
-      mockAuthorizationService.userCanDo,
-    ).toHaveBeenCalledExactlyOnceWith(baseClaims, ["create:customer"]);
+    expect(mockAuthorizationService.userCanDo).toHaveBeenCalledExactlyOnceWith(
+      baseClaims,
+      ["create:customer"],
+    );
 
     expect(mockCustomerService.createCustomer).toHaveBeenCalledExactlyOnceWith(
       sampleCreateBody,
@@ -83,9 +87,10 @@ describe("CustomerController", () => {
 
     const error = await controller.postCreate(event).catch((e) => e);
 
-    expect(
-      mockAuthorizationService.userCanDo,
-    ).toHaveBeenCalledExactlyOnceWith(event.context.claims, ["create:customer"]);
+    expect(mockAuthorizationService.userCanDo).toHaveBeenCalledExactlyOnceWith(
+      event.context.claims,
+      ["create:customer"],
+    );
 
     expect(mockCustomerService.createCustomer).not.toHaveBeenCalled();
 
@@ -95,7 +100,7 @@ describe("CustomerController", () => {
       message: "Forbidden",
       data: null,
     });
-  })
+  });
 
   it("should create a customer with only name", async () => {
     const body = { name: "Jane Doe & Co" };
@@ -176,9 +181,10 @@ describe("CustomerController", () => {
 
     const error = await controller.getAll(event).catch((e) => e);
 
-    expect(
-      mockAuthorizationService.userCanDo,
-    ).toHaveBeenCalledExactlyOnceWith(event.context.claims, ["read:customer"]);
+    expect(mockAuthorizationService.userCanDo).toHaveBeenCalledExactlyOnceWith(
+      event.context.claims,
+      ["read:customer"],
+    );
 
     expect(mockCustomerService.allCustomers).not.toHaveBeenCalled();
 
@@ -200,9 +206,10 @@ describe("CustomerController", () => {
 
     const response = await controller.getOne(event);
 
-    expect(
-      mockAuthorizationService.userCanDo,
-    ).toHaveBeenCalledExactlyOnceWith(event.context.claims, ["read:customer"]);
+    expect(mockAuthorizationService.userCanDo).toHaveBeenCalledExactlyOnceWith(
+      event.context.claims,
+      ["read:customer"],
+    );
 
     expect(mockCustomerService.getCustomer).toHaveBeenCalledOnce();
     expect(response).toEqual({
@@ -221,9 +228,10 @@ describe("CustomerController", () => {
 
     const error = await controller.getOne(event).catch((e) => e);
 
-    expect(
-      mockAuthorizationService.userCanDo,
-    ).toHaveBeenCalledExactlyOnceWith(event.context.claims, ["read:customer"]);
+    expect(mockAuthorizationService.userCanDo).toHaveBeenCalledExactlyOnceWith(
+      event.context.claims,
+      ["read:customer"],
+    );
 
     expect(mockCustomerService.getCustomer).not.toHaveBeenCalled();
 
@@ -246,9 +254,10 @@ describe("CustomerController", () => {
 
     const response = await controller.updateOne(event);
 
-    expect(
-      mockAuthorizationService.userCanDo,
-    ).toHaveBeenCalledExactlyOnceWith(event.context.claims, ["update:customer"]);
+    expect(mockAuthorizationService.userCanDo).toHaveBeenCalledExactlyOnceWith(
+      event.context.claims,
+      ["update:customer"],
+    );
 
     expect(mockCustomerService.updateCustomer).toHaveBeenCalledExactlyOnceWith(
       1,
@@ -270,9 +279,10 @@ describe("CustomerController", () => {
 
     const error = await controller.updateOne(event).catch((e) => e);
 
-    expect(
-      mockAuthorizationService.userCanDo,
-    ).toHaveBeenCalledExactlyOnceWith(event.context.claims, ["update:customer"]);
+    expect(mockAuthorizationService.userCanDo).toHaveBeenCalledExactlyOnceWith(
+      event.context.claims,
+      ["update:customer"],
+    );
 
     expect(mockCustomerService.updateCustomer).not.toHaveBeenCalled();
 
@@ -294,9 +304,10 @@ describe("CustomerController", () => {
 
     const response = await controller.deleteOne(event);
 
-    expect(
-      mockAuthorizationService.userCanDo,
-    ).toHaveBeenCalledExactlyOnceWith(event.context.claims, ["delete:customer"]);
+    expect(mockAuthorizationService.userCanDo).toHaveBeenCalledExactlyOnceWith(
+      event.context.claims,
+      ["delete:customer"],
+    );
 
     expect(mockCustomerService.deleteCustomer).toHaveBeenCalledOnce();
     expect(response).toEqual({
@@ -315,9 +326,10 @@ describe("CustomerController", () => {
 
     const error = await controller.deleteOne(event).catch((e) => e);
 
-    expect(
-      mockAuthorizationService.userCanDo,
-    ).toHaveBeenCalledExactlyOnceWith(event.context.claims, ["delete:customer"]);
+    expect(mockAuthorizationService.userCanDo).toHaveBeenCalledExactlyOnceWith(
+      event.context.claims,
+      ["delete:customer"],
+    );
 
     expect(mockCustomerService.deleteCustomer).not.toHaveBeenCalled();
 

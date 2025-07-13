@@ -19,7 +19,10 @@ export class UserController implements IUserController {
   m_userService: IUserService;
   m_authorizationService: IAuthorizationService;
 
-  constructor(userService: IUserService, authorizationService: IAuthorizationService) {
+  constructor(
+    userService: IUserService,
+    authorizationService: IAuthorizationService,
+  ) {
     this.m_userService = userService;
     this.m_authorizationService = authorizationService;
   }
@@ -85,10 +88,9 @@ export class UserController implements IUserController {
   }
 
   async getAllUsers(event: H3Event) {
-    const canDo = this.m_authorizationService.userCanDo(
-      event.context.claims,
-      ["read:user"],
-    );
+    const canDo = this.m_authorizationService.userCanDo(event.context.claims, [
+      "read:user",
+    ]);
 
     if (!canDo) {
       throw new ErrorResponse("Forbidden", null, 403, "Forbidden");
