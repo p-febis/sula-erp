@@ -7,7 +7,8 @@ type SettledFunction = (data?: Role, error?: Error | null) => void;
 export const createRoleOptions = (onSettled: SettledFunction) => {
   return mutationOptions({
     mutationKey: ["roles"],
-    mutationFn: async (body: Omit<Role, "id">) => {
+
+    mutationFn: async (body: Omit<Role, "id" | "users" | "permissions">) => {
       const response = await fetchWithAuth(`/api/roles`, {
         method: "POST",
         body: JSON.stringify(body),
