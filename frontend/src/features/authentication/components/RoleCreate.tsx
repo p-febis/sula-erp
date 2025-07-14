@@ -15,7 +15,7 @@ export const RoleCreate = () => {
     }
 
     if (error) {
-      toast.error(JSON.stringify(error));
+      toast.error(error.message);
     }
   });
 

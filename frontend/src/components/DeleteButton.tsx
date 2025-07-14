@@ -29,7 +29,7 @@ export const DeleteButton = ({
     }
 
     if (error) {
-      toast.error(JSON.stringify(error));
+      toast.error(error.message);
     }
   });
 

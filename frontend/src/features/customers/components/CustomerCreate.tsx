@@ -15,7 +15,7 @@ export const CustomerCreate = () => {
     }
 
     if (error) {
-      toast.error(JSON.stringify(error));
+      toast.error(error.message);
     }
   });
 
