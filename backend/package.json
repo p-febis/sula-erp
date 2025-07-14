@@ -4,6 +4,7 @@
   "description": "",
   "type": "module",
   "scripts": {
+    "build": "tsup src/main.ts --format esm --outDir dist --target node20 --splitting false",
     "format": "prettier src --write",
     "codegen": "kysely-codegen --out-file ./src/db/db.d.ts",
     "test": "vitest"
@@ -19,6 +20,7 @@
     "kysely-codegen": "^0.18.5",
     "node-mocks-http": "^1.17.2",
     "prettier": "^3.5.3",
+    "tsup": "^8.5.0",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"
