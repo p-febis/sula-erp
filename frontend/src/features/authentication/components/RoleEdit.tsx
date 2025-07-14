@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useForm, useStore } from "@tanstack/react-form";
 import { Button } from "@/components/ui/button";
-import { MultiSelect } from "@/components/multi-select";
+import Select from "react-select";
 import type { User } from "../types/user";
 import { roleOptions } from "../hooks/use-role";
 import { usersOptions } from "../hooks/use-users";
@@ -13,12 +13,12 @@ import type { Role } from "../types/role";
 import type { Permission } from "../types/permission";
 
 export const RoleEdit = ({ roleId }: { roleId?: string }) => {
-  const { data, loading } = useQueries({
+  const { data, isPending } = useQueries({
     queries: [roleOptions(roleId), usersOptions(), permissionQueryOptions()],
     combine: (results) => {
       return {
         data: results.map((result) => result.data),
-        loading: results.some((result) => result.isLoading),
+        isPending: results.some((result) => result.isPending),
       };
     },
   });
@@ -45,16 +45,16 @@ export const RoleEdit = ({ roleId }: { roleId?: string }) => {
 
   const form = useForm({
     defaultValues: {
-      userIds: role?.users?.map(({ userId }) => userId) ?? [],
+      userIds: role?.users?.map(({ id }) => id) ?? [],
       permissionIds:
-        role?.permissions?.map(({ permissionId }) => permissionId) ?? [],
+        role?.permissions?.map(({ id }) => id) ?? [],
     },
     onSubmit: async ({ value }) => {
       const {
         toAssociate: toAssociateUserIds,
         toDisassociate: toDisassociateUserIds,
       } = calculateDifference(
-        role.users.map(({ userId }) => userId),
+        role.users.map(({ id }) => id),
         value.userIds,
       );
 
@@ -62,7 +62,7 @@ export const RoleEdit = ({ roleId }: { roleId?: string }) => {
         toAssociate: toAssociatePermissionIds,
         toDisassociate: toDisassociatePermissionIds,
       } = calculateDifference(
-        role.permissions.map(({ permissionId }) => permissionId),
+        role.permissions.map(({ id }) => id),
         value.permissionIds,
       );
 
@@ -86,7 +86,7 @@ export const RoleEdit = ({ roleId }: { roleId?: string }) => {
 
   const isDefaultValue = useStore(form.store, (state) => state.isDefaultValue);
 
-  if (loading || !role) {
+  if (isPending) {
     return <div className="p-4">Loading...</div>;
   }
 
@@ -110,18 +110,12 @@ export const RoleEdit = ({ roleId }: { roleId?: string }) => {
               children={(field) => (
                 <>
                   <label htmlFor={field.name}>Users:</label>
-                  <MultiSelect
-                    // @ts-ignore: the multiselect is picky for no explainable reason.
-                    options={userOptions}
-                    id={field.name}
-                    name={field.name}
-                    value={field.state.value.map(String)}
-                    defaultValue={field.state.value as unknown as string[]}
-                    onBlur={field.handleBlur}
-                    onValueChange={(value) => {
-                      field.handleChange(value.map(Number));
-                    }}
-                  />
+		  <Select 
+		    options={userOptions}
+		    isMulti
+		    value={userOptions.filter(option => field.state.value.includes(option.value))}
+		    onChange={(value) => field.handleChange(value.map(({ value }) => value))}
+		    />
                 </>
               )}
             />
@@ -130,18 +124,12 @@ export const RoleEdit = ({ roleId }: { roleId?: string }) => {
               children={(field) => (
                 <>
                   <label htmlFor={field.name}>Permissions:</label>
-                  <MultiSelect
-                    // @ts-ignore: the multiselect is picky for no explainable reason.
-                    options={permissionOptions}
-                    id={field.name}
-                    name={field.name}
-                    value={field.state.value.map(String)}
-                    defaultValue={field.state.value as unknown as string[]}
-                    onBlur={field.handleBlur}
-                    onValueChange={(value) => {
-                      field.handleChange(value.map(Number));
-                    }}
-                  />
+		  <Select 
+		    options={permissionOptions}
+		    isMulti
+		    value={permissionOptions.filter(option => field.state.value.includes(option.value))}
+		    onChange={(value) => field.handleChange(value.map(({ value }) => value))}
+		    />
                 </>
               )}
             />
