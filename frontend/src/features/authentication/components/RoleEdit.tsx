@@ -46,8 +46,7 @@ export const RoleEdit = ({ roleId }: { roleId?: string }) => {
   const form = useForm({
     defaultValues: {
       userIds: role?.users?.map(({ id }) => id) ?? [],
-      permissionIds:
-        role?.permissions?.map(({ id }) => id) ?? [],
+      permissionIds: role?.permissions?.map(({ id }) => id) ?? [],
     },
     onSubmit: async ({ value }) => {
       const {
@@ -110,12 +109,16 @@ export const RoleEdit = ({ roleId }: { roleId?: string }) => {
               children={(field) => (
                 <>
                   <label htmlFor={field.name}>Users:</label>
-		  <Select 
-		    options={userOptions}
-		    isMulti
-		    value={userOptions.filter(option => field.state.value.includes(option.value))}
-		    onChange={(value) => field.handleChange(value.map(({ value }) => value))}
-		    />
+                  <Select
+                    options={userOptions}
+                    isMulti
+                    value={userOptions.filter((option) =>
+                      field.state.value.includes(option.value),
+                    )}
+                    onChange={(value) =>
+                      field.handleChange(value.map(({ value }) => value))
+                    }
+                  />
                 </>
               )}
             />
@@ -124,12 +127,16 @@ export const RoleEdit = ({ roleId }: { roleId?: string }) => {
               children={(field) => (
                 <>
                   <label htmlFor={field.name}>Permissions:</label>
-		  <Select 
-		    options={permissionOptions}
-		    isMulti
-		    value={permissionOptions.filter(option => field.state.value.includes(option.value))}
-		    onChange={(value) => field.handleChange(value.map(({ value }) => value))}
-		    />
+                  <Select
+                    options={permissionOptions}
+                    isMulti
+                    value={permissionOptions.filter((option) =>
+                      field.state.value.includes(option.value),
+                    )}
+                    onChange={(value) =>
+                      field.handleChange(value.map(({ value }) => value))
+                    }
+                  />
                 </>
               )}
             />
