@@ -4,7 +4,6 @@ import { DB, User } from "@/db/db";
 import { Kysely } from "kysely";
 import { Selectable } from "kysely";
 
-
 export interface IUserRepository {
   create(
     userCreationData: CreateUserDto & { is_super_user: boolean },
@@ -23,43 +22,56 @@ export class UserRepository implements IUserRepository {
   }
 
   async create(userCreationData: CreateUserDto & { is_super_user: boolean }) {
-    const user =  await this.client.insertInto("user")
-      .values(userCreationData)
-      .returningAll()
-      .executeTakeFirst() ?? null;
+    const user =
+      (await this.client
+        .insertInto("user")
+        .values(userCreationData)
+        .returningAll()
+        .executeTakeFirst()) ?? null;
 
-      return user;
- }
+    return user;
+  }
 
   async findByName(name: string) {
-    const user = await this.client.selectFrom("user")
-      .where("username", "=", name)
-      .selectAll()
-      .executeTakeFirst() ?? null;
+    const user =
+      (await this.client
+        .selectFrom("user")
+        .where("username", "=", name)
+        .selectAll()
+        .executeTakeFirst()) ?? null;
 
     return user;
   }
   async findById(id: number) {
-    const user = await this.client.selectFrom("user")
-      .where("id", "=", id)
-      .selectAll()
-      .executeTakeFirst() ?? null;
+    const user =
+      (await this.client
+        .selectFrom("user")
+        .where("id", "=", id)
+        .selectAll()
+        .executeTakeFirst()) ?? null;
 
     return user;
   }
 
   async isFirstUser() {
-    const count = await this.client.selectFrom("user")
-	.select(({ fn }) => fn.count("id").as("count"))
-	.executeTakeFirst()
-	.then(result => result?.count);
+    const count = await this.client
+      .selectFrom("user")
+      .select(({ fn }) => fn.count("id").as("count"))
+      .executeTakeFirst()
+      .then((result) => result?.count);
 
     return Number(count) === 0;
   }
 
   async findAll() {
-    const users = await this.client.selectFrom("user")
-      .select(["user.id", "user.username", "user.refresh_token_version", "user.is_super_user"])
+    const users = await this.client
+      .selectFrom("user")
+      .select([
+        "user.id",
+        "user.username",
+        "user.refresh_token_version",
+        "user.is_super_user",
+      ])
       .execute();
     return users;
   }

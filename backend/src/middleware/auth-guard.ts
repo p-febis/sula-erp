@@ -23,7 +23,6 @@ export const authMiddleware = (exclude = "/auth/") => {
 
     const [canPass, claims] = authGaurd(accessToken);
 
-
     if (!canPass || !claims) {
       throw new ErrorResponse(
         "Missing or invalid Authorization header",

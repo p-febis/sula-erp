@@ -35,7 +35,7 @@ export class UserService implements IUserService {
 
     const user = await this.m_userRepository.create({
       ...userCreationData,
-      is_super_user ,
+      is_super_user,
       password: await hash(userCreationData.password, hashingOptions),
     });
 

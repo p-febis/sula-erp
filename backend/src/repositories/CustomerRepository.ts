@@ -4,7 +4,9 @@ import { Selectable } from "kysely";
 import { Kysely } from "kysely";
 
 export interface ICustomerRepository {
-  create(customerCreationData: CreateCustomerDto): Promise<Selectable<Customer> | null>;
+  create(
+    customerCreationData: CreateCustomerDto,
+  ): Promise<Selectable<Customer> | null>;
   findAll(): Promise<Selectable<Customer>[] | null>;
   findById(id: number): Promise<Selectable<Customer> | null>;
   deleteById(id: number): Promise<Selectable<Customer> | null>;
@@ -22,7 +24,8 @@ export class CustomerRepository implements ICustomerRepository {
   }
 
   async create(customerCreationData: CreateCustomerDto) {
-    const customer = await this.client.insertInto("customer")
+    const customer = await this.client
+      .insertInto("customer")
       .values(customerCreationData)
       .returningAll()
       .executeTakeFirst();
@@ -31,14 +34,16 @@ export class CustomerRepository implements ICustomerRepository {
   }
 
   async findAll() {
-    const customers = await this.client.selectFrom("customer")
+    const customers = await this.client
+      .selectFrom("customer")
       .selectAll()
       .execute();
 
     return customers ?? null;
   }
   async findById(id: number) {
-    const customer = await this.client.selectFrom("customer")
+    const customer = await this.client
+      .selectFrom("customer")
       .where("customer.id", "=", id)
       .selectAll()
       .executeTakeFirst();
@@ -46,7 +51,8 @@ export class CustomerRepository implements ICustomerRepository {
     return customer ?? null;
   }
   async updateById(id: number, updateData: UpdateCustomerDto) {
-    const customer = await this.client.updateTable("customer")
+    const customer = await this.client
+      .updateTable("customer")
       .set(updateData)
       .where("id", "=", id)
       .returningAll()
@@ -56,7 +62,8 @@ export class CustomerRepository implements ICustomerRepository {
   }
 
   async deleteById(id: number) {
-    const customer = await this.client.deleteFrom("customer")
+    const customer = await this.client
+      .deleteFrom("customer")
       .where("id", "=", id)
       .returningAll()
       .executeTakeFirst();

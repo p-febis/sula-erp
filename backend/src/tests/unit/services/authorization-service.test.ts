@@ -142,9 +142,9 @@ describe("AuthorizationService", () => {
       ...fullRole,
       users: [
         {
-            id: 1,
-            username: "Admin",
-            is_super_user: true,
+          id: 1,
+          username: "Admin",
+          is_super_user: true,
         },
       ],
       permissions: [],
