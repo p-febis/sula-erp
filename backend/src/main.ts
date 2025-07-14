@@ -36,9 +36,11 @@ async function main() {
 
   app.use(async (event, next) => {
     const start = Date.now();
-    await next();
+    const response = await next();
     const duration = Date.now() - start;
     console.log(`${event.req.method} ${event.req.url} - ${duration}ms`);
+
+    return response;
   });
 
   app.use(
