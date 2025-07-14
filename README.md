@@ -33,16 +33,16 @@ To get started with Sula ERP, follow these steps:
    cd sula-erp/backend
    ```
 2. **Install Dependencies**:
-```bash
-pnpm install
-```
+    ```bash
+    pnpm install
+    ```
 
 3. **Set Up Environment Variables**:
    Create a `.env` file in the `backend` (based on the `.env.example`) and configure your database connection and other settings.
 
 4. **Run Migrations**:
    ```bash
-    pnpm prisma migrate dev --name init
+    dbmate up
     ```
 
 5. **Start the Backend Server**:
