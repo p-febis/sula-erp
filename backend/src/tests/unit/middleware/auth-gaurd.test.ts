@@ -5,7 +5,7 @@ import { authGaurd } from "@/middleware/auth-guard";
 describe("Authentication middleware", () => {
   const claims = {
     sub: 1,
-    isSuperUser: true,
+    is_super_user: true,
     permissions: [],
   };
 

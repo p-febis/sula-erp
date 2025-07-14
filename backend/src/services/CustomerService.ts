@@ -1,19 +1,20 @@
+import { Customer } from "@/db/db";
 import { CreateCustomerDto, UpdateCustomerDto } from "@/models/customer";
 import { ICustomerRepository } from "@/repositories/CustomerRepository";
-import { Customer } from "generated/prisma";
+import { Selectable } from "kysely";
 
 export interface ICustomerService {
   createCustomer(
     customerCreationData: CreateCustomerDto,
-  ): Promise<Customer | null>;
+  ): Promise<Selectable<Customer> | null>;
 
-  allCustomers(): Promise<Customer[] | null>;
-  getCustomer(id: number): Promise<Customer | null>;
+  allCustomers(): Promise<Selectable<Customer>[] | null>;
+  getCustomer(id: number): Promise<Selectable<Customer> | null>;
   updateCustomer(
     id: number,
     customerUpdateData: UpdateCustomerDto,
-  ): Promise<Customer | null>;
-  deleteCustomer(id: number): Promise<Customer | null>;
+  ): Promise<Selectable<Customer> | null>;
+  deleteCustomer(id: number): Promise<Selectable<Customer> | null>;
 }
 
 export class CustomerService implements ICustomerService {

@@ -1,45 +1,47 @@
-import { Role, PrismaClient, Permission } from "@/../generated/prisma";
+import { Role, Permission, DB } from "@/db/db";
+
 import {
   CreateRoleDto,
   DeleteAssociationsFromRoleDto,
   UpdateRoleDto,
 } from "@/models/authorization";
+import { Selectable } from "kysely";
+import { Kysely } from "kysely";
 
 export interface IAuthorizationRepository {
-  createRole(roleCreationData: CreateRoleDto): Promise<Role | null>;
-  findAllRoles(): Promise<Role[] | null>;
-  findAllPermissions(): Promise<Permission[] | null>;
+  createRole(roleCreationData: CreateRoleDto): Promise<Selectable<Role> | null>;
+  findAllRoles(): Promise<Selectable<Role>[] | null>;
+  findAllPermissions(): Promise<Selectable<Permission>[] | null>;
   updateRole(
     roleId: number,
     roleUpdateData: UpdateRoleDto,
-  ): Promise<Role | null>;
+  ): Promise<Selectable<Role> | null>;
   unlinkRoleAssociations(
     roleId: number,
     roleDeleteFromData: DeleteAssociationsFromRoleDto,
-  ): Promise<Role | null>;
-  findRoleById(roleId: number): Promise<Role | null>;
+  ): Promise<Selectable<Role> | null>;
+  findRoleById(roleId: number): Promise<Selectable<Role> | null>;
   getUserPermissions(userId: number): Promise<string[]>;
 }
 
 export class AuthorizationRepository implements IAuthorizationRepository {
-  client: PrismaClient;
+  client: Kysely<DB>;
 
-  constructor(client: PrismaClient) {
+  constructor(client: Kysely<DB>) {
     this.client = client;
   }
 
   async createRole(roleCreationData: CreateRoleDto) {
-    const role = await this.client.role.create({
-      data: {
-        name: roleCreationData.name,
-      },
-    });
+    const role = await this.client.insertInto("role")
+      .values(roleCreationData)
+      .returningAll()
+      .executeTakeFirst() ?? null;
 
     return role;
   }
 
   async findAllRoles() {
-    const roles = await this.client.role.findMany();
+    const roles = await this.client.selectFrom("role").selectAll().execute();
 
     return roles;
   }
@@ -47,19 +49,20 @@ export class AuthorizationRepository implements IAuthorizationRepository {
   async updateRole(
     roleId: number,
     { userIds, permissionIds }: UpdateRoleDto,
-  ): Promise<Role | null> {
+  ) {
     if (userIds.length > 0) {
-      await this.client.userRole.createMany({
-        data: userIds.map((userId) => ({ userId, roleId })),
-        skipDuplicates: true,
-      });
+      await this.client.insertInto("user_role")
+	.values(userIds.map((userId) => ({ user_id: userId, role_id: roleId })))
+	.onConflict((oc) => oc.columns(["user_id", "role_id"]).doNothing())
+	.execute();
+
     }
 
     if (permissionIds.length > 0) {
-      await this.client.rolePermission.createMany({
-        data: permissionIds.map((permissionId) => ({ permissionId, roleId })),
-        skipDuplicates: true,
-      });
+      await this.client.insertInto("role_permission")
+	.values(permissionIds.map((permissionId) => ({ permission_id: permissionId, role_id: roleId })))
+	.onConflict((oc) => oc.columns(["permission_id", "role_id"]).doNothing())
+	.execute();
     }
 
     const role = await this.findRoleById(roleId);
@@ -68,37 +71,38 @@ export class AuthorizationRepository implements IAuthorizationRepository {
   }
 
   async findRoleById(roleId: number) {
-    const role = await this.client.role.findUnique({
-      where: {
-        id: roleId,
-      },
-      include: {
-        users: {
-          include: {
-            user: {
-              select: {
-                username: true,
-              },
-            },
-          },
-        },
-        permissions: {
-          include: {
-            permission: {
-              select: {
-                key: true,
-              },
-            },
-          },
-        },
-      },
-    });
 
-    return role;
+    const roleRows = await this.client
+      .selectFrom("role")
+      .leftJoin("user_role", "role.id", "user_role.role_id")
+      .leftJoin("user", "user_role.user_id", "user.id")
+
+      .leftJoin("role_permission", "role.id", "role_permission.role_id")
+      .leftJoin("permission", "role_permission.permission_id", "permission.id")
+      .where("role.id", "=", roleId)
+      .select([
+	"role.id as role_id",
+	"role.name as role_name",
+	"user.username as user_username",
+	"user.id as user_id",
+	"user.is_super_user as user_is_super_user",
+	"permission.key as permission_key",
+	"permission.id as permission_id",
+      ])
+      .execute();
+
+      const parsedRole = {
+	id: roleRows[0].role_id,
+	name: roleRows[0].role_name,
+	users: roleRows.map(r => ({ username: r.user_username, id: r.user_id, is_super_user: r.user_is_super_user })).filter(r => r.username),
+	permissions: roleRows.map(r => ({ key: r.permission_key, id: r.permission_id })).filter(r => r.id),
+      };
+
+    return parsedRole;
   }
 
   async findAllPermissions() {
-    const permissions = await this.client.permission.findMany();
+    const permissions = await this.client.selectFrom("permission").selectAll().execute();
     return permissions;
   }
 
@@ -109,21 +113,17 @@ export class AuthorizationRepository implements IAuthorizationRepository {
     const { userIds, permissionIds } = deleteFromRoleData;
 
     if (userIds.length > 0) {
-      await this.client.userRole.deleteMany({
-        where: {
-          roleId,
-          userId: { in: userIds },
-        },
-      });
+      await this.client.deleteFrom("user_role")
+	.where("role_id", "=", roleId)
+	.where("user_id", "in", userIds)
+	.execute();
     }
 
     if (permissionIds.length > 0) {
-      await this.client.rolePermission.deleteMany({
-        where: {
-          roleId,
-          permissionId: { in: permissionIds },
-        },
-      });
+      await this.client.deleteFrom("role_permission")
+	.where("role_id", "=", roleId)
+	.where("permission_id", "in", permissionIds)
+	.execute();
     }
 
     const role = await this.findRoleById(roleId);
@@ -132,21 +132,13 @@ export class AuthorizationRepository implements IAuthorizationRepository {
   }
 
   async getUserPermissions(userId: number): Promise<string[]> {
-    const permissions = await this.client.permission.findMany({
-      where: {
-        RolePermission: {
-          some: {
-            role: {
-              users: {
-                some: {
-                  userId,
-                },
-              },
-            },
-          },
-        },
-      },
-    });
+    const permissions = await this.client
+      .selectFrom("permission")
+      .innerJoin("role_permission", "permission.id", "role_permission.permission_id")
+      .innerJoin("user_role", "role_permission.role_id", "user_role.role_id")
+      .where("user_role.user_id", "=", userId)
+      .selectAll(["permission"])
+      .execute();
 
     return permissions.map((permission) => permission.key);
   }

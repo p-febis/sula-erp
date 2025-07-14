@@ -40,7 +40,7 @@ describe("UserService", () => {
         id: 1,
         username: data.username,
         password: capturedPassword,
-        isSuperUser: true,
+        is_super_user: true,
       };
     });
 
@@ -55,7 +55,7 @@ describe("UserService", () => {
       expect.objectContaining({
         username: "Admin",
         password: expect.any(String),
-        isSuperUser: true,
+        is_super_user: true,
       }),
     );
 
@@ -114,7 +114,7 @@ describe("UserService", () => {
       id: 1,
       username: "Admin",
       password: testHash,
-      isSuperUser: true,
+      is_super_user: true,
     });
 
     const permissions = [
@@ -141,7 +141,7 @@ describe("UserService", () => {
       payload: {
         sub: number;
         exp: number;
-        authorization: { isSuperUser: boolean; permissions: string[] };
+        authorization: { is_super_user: boolean; permissions: string[] };
       };
     };
 
@@ -151,7 +151,7 @@ describe("UserService", () => {
 
     expect(payload.sub).toBe(1);
     expect(payload.authorization).toEqual({
-      isSuperUser: true,
+      is_super_user: true,
       permissions: permissions,
     });
 
@@ -193,7 +193,7 @@ describe("UserService", () => {
   it("should refresh access and refresh tokens", async () => {
     mockUserRepository.findByName.mockResolvedValue({
       id: 1,
-      isSuperUser: true,
+      is_super_user: true,
       username: "Admin",
       refresh_token_version: 1,
       password: testHash,
@@ -201,7 +201,7 @@ describe("UserService", () => {
 
     mockUserRepository.findById.mockResolvedValue({
       id: 1,
-      isSuperUser: true,
+      is_super_user: true,
       username: "Admin",
       refresh_token_version: 1,
       password: testHash,
@@ -236,7 +236,7 @@ describe("UserService", () => {
       payload: {
         sub: number;
         exp: number;
-        authorization: { isSuperUser: boolean; permissions: string[] };
+        authorization: { is_super_user: boolean; permissions: string[] };
       };
     };
     expect(
@@ -249,7 +249,7 @@ describe("UserService", () => {
     expect(accessPayload.payload.sub).toBe(1);
     expect(accessPayload.payload.exp).toBeGreaterThan(Date.now() / 1000);
     expect(accessPayload.payload.authorization).toEqual({
-      isSuperUser: true,
+      is_super_user: true,
       permissions: permissions,
     });
 
@@ -277,7 +277,7 @@ describe("UserService", () => {
       {
         id: 1,
         username: "Admin",
-        isSuperUser: true,
+        is_super_user: true,
       },
     ];
 

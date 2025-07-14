@@ -1,13 +1,15 @@
-import { CreateUserDto, LoginUserDto, TUser } from "@/models/user";
+import { User } from "@/db/db";
+import { CreateUserDto, LoginUserDto } from "@/models/user";
 import { IAuthorizationRepository } from "@/repositories/AuthorizationRepository";
 import { IUserRepository } from "@/repositories/UserRepository";
 import { hashingOptions } from "@/utils/argon-options";
 import { hash, verify } from "@node-rs/argon2";
 import jwt from "jsonwebtoken";
+import { Selectable } from "kysely";
 
 export interface IUserService {
-  createUser(userCreationData: CreateUserDto): Promise<TUser>;
-  findAllUsers(): Promise<Omit<TUser, "password">[] | null>;
+  createUser(userCreationData: CreateUserDto): Promise<Selectable<User>>;
+  findAllUsers(): Promise<Omit<Selectable<User>, "password">[] | null>;
   loginUser(
     loginData: LoginUserDto,
   ): Promise<{ accessToken: string; refreshToken: string }>;
@@ -28,12 +30,12 @@ export class UserService implements IUserService {
     this.m_authorizationRepository = authorizationRepository;
   }
 
-  async createUser(userCreationData: CreateUserDto): Promise<TUser> {
-    const isSuperUser = await this.m_userRepository.isFirstUser();
+  async createUser(userCreationData: CreateUserDto) {
+    const is_super_user = await this.m_userRepository.isFirstUser();
 
     const user = await this.m_userRepository.create({
       ...userCreationData,
-      isSuperUser,
+      is_super_user ,
       password: await hash(userCreationData.password, hashingOptions),
     });
 
@@ -71,12 +73,12 @@ export class UserService implements IUserService {
     };
   }
 
-  createTokens(user: TUser, permissions: string[]) {
+  createTokens(user: Selectable<User>, permissions: string[]) {
     const accessToken = jwt.sign(
       {
         sub: user.id,
         authorization: {
-          isSuperUser: user.isSuperUser,
+          is_super_user: user.is_super_user,
           permissions,
         },
       },

@@ -1,4 +1,3 @@
-import { PrismaClient } from "@/../generated/prisma";
 import { UserRepository } from "./repositories/UserRepository";
 import { UserService } from "./services/UserService";
 import { UserController } from "./controllers/UserController";
@@ -12,10 +11,26 @@ import { AuthorizationService } from "./services/AuthorizationService";
 import { AuthorizationController } from "./controllers/AuthorizationController";
 import { ErrorResponse } from "./responses/api";
 
-const prisma = new PrismaClient();
+import { Pool } from "pg";
+import { Kysely, PostgresDialect } from 'kysely'
+import { DB } from "./db/db";
+
+const dialect = new PostgresDialect({
+  pool: new Pool({
+    connectionString: process.env.DATABASE_URL 
+  })
+})
+
+// Database interface is passed to Kysely's constructor, and from now on, Kysely 
+// knows your database structure.
+// Dialect is passed to Kysely's constructor, and from now on, Kysely knows how 
+// to communicate with your database.
+export const db = new Kysely<DB>({
+  dialect,
+})
 
 async function main() {
-  const authorizationRepository = new AuthorizationRepository(prisma);
+  const authorizationRepository = new AuthorizationRepository(db);
   const authorizationService = new AuthorizationService(
     authorizationRepository,
   );
@@ -23,14 +38,14 @@ async function main() {
     authorizationService,
   );
 
-  const customerRepository = new CustomerRepository(prisma);
+  const customerRepository = new CustomerRepository(db);
   const customerService = new CustomerService(customerRepository);
   const customerController = new CustomerController(
     customerService,
     authorizationService,
   );
 
-  const userRepository = new UserRepository(prisma);
+  const userRepository = new UserRepository(db);
   const userService = new UserService(userRepository, authorizationRepository);
   const userController = new UserController(userService, authorizationService);
 
@@ -56,7 +71,7 @@ async function main() {
         });
       }
 
-      console.log(error);
+      console.log("Error:", error);
     }),
   );
 
@@ -115,10 +130,10 @@ async function main() {
 
 main()
   .then(async () => {
-    await prisma.$disconnect();
+    await db.destroy();
   })
   .catch(async (e) => {
     console.error(e);
-    await prisma.$disconnect();
+    await db.destroy();
     process.exit(1);
   });

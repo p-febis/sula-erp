@@ -23,6 +23,7 @@ export const authMiddleware = (exclude = "/auth/") => {
 
     const [canPass, claims] = authGaurd(accessToken);
 
+
     if (!canPass || !claims) {
       throw new ErrorResponse(
         "Missing or invalid Authorization header",
@@ -38,7 +39,7 @@ export const authMiddleware = (exclude = "/auth/") => {
 type Claims = {
   sub: number;
   authorization: {
-    isSuperUser: boolean;
+    is_super_user: boolean;
     permissions: string[];
   };
 };

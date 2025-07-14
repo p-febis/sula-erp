@@ -1,30 +1,31 @@
+import { Permission, Role } from "@/db/db";
 import {
   CreateRoleDto,
   DeleteAssociationsFromRoleDto,
   UpdateRoleDto,
 } from "@/models/authorization";
 import { IAuthorizationRepository } from "@/repositories/AuthorizationRepository";
-import { Permission, Role } from "generated/prisma";
+import { Selectable } from "kysely";
 
 export type PermissionClaims = {
-  isSuperUser: boolean;
+  is_super_user: boolean;
   permissions: string[];
 };
 
 export interface IAuthorizationService {
-  createRole(roleCreationData: CreateRoleDto): Promise<Role | null>;
-  allRoles(): Promise<Role[] | null>;
-  allPermissions(): Promise<Permission[] | null>;
+  createRole(roleCreationData: CreateRoleDto): Promise<Selectable<Role> | null>;
+  allRoles(): Promise<Selectable<Role>[] | null>;
+  allPermissions(): Promise<Selectable<Permission>[] | null>;
   userCanDo(claims: PermissionClaims, requiredPermissions: string[]): boolean;
   updateRole(
     roleId: number,
     roleUpdateData: UpdateRoleDto,
-  ): Promise<Role | null>;
+  ): Promise<Selectable<Role> | null>;
   unlinkRoleAssociations(
     roleId: number,
     roleUpdateData: DeleteAssociationsFromRoleDto,
-  ): Promise<Role | null>;
-  findRoleById(roleId: number): Promise<Role | null>;
+  ): Promise<Selectable<Role> | null>;
+  findRoleById(roleId: number): Promise<Selectable<Role> | null>;
 }
 
 export class AuthorizationService implements IAuthorizationService {
@@ -47,7 +48,7 @@ export class AuthorizationService implements IAuthorizationService {
   }
 
   userCanDo(claims: PermissionClaims, requiredPermissions: string[]): boolean {
-    if (claims.isSuperUser) {
+    if (claims.is_super_user) {
       return true;
     }
 

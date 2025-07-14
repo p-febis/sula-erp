@@ -1,62 +1,66 @@
-import { CreateUserDto, TUser } from "@/models/user";
-import { PrismaClient } from "@/../generated/prisma";
+import { CreateUserDto } from "@/models/user";
+
+import { DB, User } from "@/db/db";
+import { Kysely } from "kysely";
+import { Selectable } from "kysely";
+
 
 export interface IUserRepository {
   create(
-    userCreationData: CreateUserDto & { isSuperUser: boolean },
-  ): Promise<TUser | null>;
-  findByName(name: string): Promise<TUser | null>;
-  findById(id: number): Promise<TUser | null>;
-  findAll(): Promise<Omit<TUser, "password">[] | null>;
+    userCreationData: CreateUserDto & { is_super_user: boolean },
+  ): Promise<Selectable<User> | null>;
+  findByName(name: string): Promise<Selectable<User> | null>;
+  findById(id: number): Promise<Selectable<User> | null>;
+  findAll(): Promise<Omit<Selectable<User>, "password">[] | null>;
   isFirstUser(): Promise<boolean>;
 }
 
 export class UserRepository implements IUserRepository {
-  client: PrismaClient;
+  client: Kysely<DB>;
 
-  constructor(client: PrismaClient) {
+  constructor(client: Kysely<DB>) {
     this.client = client;
   }
 
-  async create(userCreationData: CreateUserDto) {
-    return this.client.user.create({
-      data: {
-        ...userCreationData,
-        refresh_token_version: 1,
-      },
-    });
-  }
+  async create(userCreationData: CreateUserDto & { is_super_user: boolean }) {
+    const user =  await this.client.insertInto("user")
+      .values(userCreationData)
+      .returningAll()
+      .executeTakeFirst() ?? null;
+
+      return user;
+ }
 
   async findByName(name: string) {
-    const user = await this.client.user.findUnique({
-      where: {
-        username: name,
-      },
-    });
+    const user = await this.client.selectFrom("user")
+      .where("username", "=", name)
+      .selectAll()
+      .executeTakeFirst() ?? null;
 
     return user;
   }
   async findById(id: number) {
-    const user = await this.client.user.findUnique({
-      where: {
-        id,
-      },
-    });
+    const user = await this.client.selectFrom("user")
+      .where("id", "=", id)
+      .selectAll()
+      .executeTakeFirst() ?? null;
 
     return user;
   }
 
   async isFirstUser() {
-    const count = await this.client.user.count();
+    const count = await this.client.selectFrom("user")
+	.select(({ fn }) => fn.count("id").as("count"))
+	.executeTakeFirst()
+	.then(result => result?.count);
+
     return count === 0;
   }
 
   async findAll() {
-    const users = await this.client.user.findMany({
-      omit: {
-        password: true,
-      },
-    });
+    const users = await this.client.selectFrom("user")
+      .select(["user.id", "user.username", "user.refresh_token_version", "user.is_super_user"])
+      .execute();
     return users;
   }
 }

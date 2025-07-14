@@ -16,7 +16,7 @@ const mockAuthorizationService = {
 };
 
 const baseClaims = {
-  isSuperUser: true,
+  is_super_user: true,
 };
 
 vi.mock("@/utils/body-parser", () => ({
@@ -190,7 +190,7 @@ describe("UserController", () => {
       {
         id: 1,
         username: "user1",
-        isSuperUser: true,
+        is_super_user: true,
       },
     ];
 

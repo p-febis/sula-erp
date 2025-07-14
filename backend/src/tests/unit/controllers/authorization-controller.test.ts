@@ -42,7 +42,7 @@ describe("AuthorizationController", () => {
   };
 
   const baseClaims = {
-    isSuperUser: true,
+    is_super_user: true,
   };
   const sampleCreateBody = {
     name: "Marketing",
@@ -56,11 +56,11 @@ describe("AuthorizationController", () => {
   it.each([
     {
       title: "a superuser",
-      claims: { isSuperUser: true, permissions: [] },
+      claims: { is_super_user: true, permissions: [] },
     },
     {
       title: "a user with the correct permission",
-      claims: { isSuperUser: false, permissions: ["create:role"] },
+      claims: { is_super_user: false, permissions: ["create:role"] },
     },
   ])(
     "Should call createRole with correct data & $title",
@@ -102,7 +102,7 @@ describe("AuthorizationController", () => {
     );
 
     event.context.claims = {
-      isSuperUser: false,
+      is_super_user: false,
       permissions: [],
     };
 
@@ -112,7 +112,7 @@ describe("AuthorizationController", () => {
 
     expect(mockAuthorizationService.userCanDo).toHaveBeenCalledExactlyOnceWith(
       {
-        isSuperUser: false,
+        is_super_user: false,
         permissions: [],
       },
       ["create:role"],
@@ -151,7 +151,7 @@ describe("AuthorizationController", () => {
     const event = new H3Event(createRequest({ method: "GET" }));
 
     event.context.claims = {
-      isSuperUser: false,
+      is_super_user: false,
       permissions: [],
     };
 
@@ -172,7 +172,7 @@ describe("AuthorizationController", () => {
           user: {
             id: 1,
             username: "Admin",
-            isSuperUser: true,
+            is_super_user: true,
           },
         },
       ],
@@ -231,7 +231,7 @@ describe("AuthorizationController", () => {
     event.context.params = { id: "1" };
 
     event.context.claims = {
-      isSuperUser: false,
+      is_super_user: false,
       permissions: [],
     };
 
@@ -282,7 +282,7 @@ describe("AuthorizationController", () => {
     event.context.params = { id: "1" };
 
     event.context.claims = {
-      isSuperUser: false,
+      is_super_user: false,
       permissions: [],
     };
 
@@ -324,7 +324,7 @@ describe("AuthorizationController", () => {
 
     const event = new H3Event(createRequest({ method: "GET" }));
     event.context.claims = {
-      isSuperUser: false,
+      is_super_user: false,
       permissions: [],
     };
 
@@ -393,7 +393,7 @@ describe("AuthorizationController", () => {
       }),
     );
     event.context.claims = {
-      isSuperUser: false,
+      is_super_user: false,
       permissions: [],
     };
     event.context.params = { id: "1" };

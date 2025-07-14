@@ -25,7 +25,7 @@ describe("CustomerController", () => {
   let controller: ICustomerController;
 
   const baseClaims = {
-    isSuperUser: true,
+    is_super_user: true,
   };
 
   const sampleCustomer = {

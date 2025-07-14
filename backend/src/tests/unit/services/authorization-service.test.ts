@@ -60,7 +60,7 @@ describe("AuthorizationService", () => {
   it("Should return true on valid permissions", () => {
     const canDo = authorizationService.userCanDo(
       {
-        isSuperUser: true,
+        is_super_user: true,
         permissions: [],
       },
       ["create:something"],
@@ -70,7 +70,7 @@ describe("AuthorizationService", () => {
 
     const canDo2 = authorizationService.userCanDo(
       {
-        isSuperUser: false,
+        is_super_user: false,
         permissions: ["create:something"],
       },
       ["create:something"],
@@ -82,7 +82,7 @@ describe("AuthorizationService", () => {
   it("Should return false on invalid permissions", () => {
     const canDo = authorizationService.userCanDo(
       {
-        isSuperUser: false,
+        is_super_user: false,
         permissions: ["delete:something"],
       },
       ["create:something"],
@@ -92,7 +92,7 @@ describe("AuthorizationService", () => {
 
     const canDo2 = authorizationService.userCanDo(
       {
-        isSuperUser: false,
+        is_super_user: false,
         permissions: [],
       },
       ["create:something"],
@@ -142,11 +142,9 @@ describe("AuthorizationService", () => {
       ...fullRole,
       users: [
         {
-          user: {
             id: 1,
             username: "Admin",
-            isSuperUser: true,
-          },
+            is_super_user: true,
         },
       ],
       permissions: [],
