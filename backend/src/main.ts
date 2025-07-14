@@ -34,6 +34,13 @@ async function main() {
 
   const app = new H3();
 
+  app.use(async (event, next) => {
+    const start = Date.now();
+    await next();
+    const duration = Date.now() - start;
+    console.log(`${event.req.method} ${event.req.url} - ${duration}ms`);
+  });
+
   app.use(
     onError((error) => {
       if (error.cause instanceof ErrorResponse) {
