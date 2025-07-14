@@ -54,7 +54,7 @@ export class UserRepository implements IUserRepository {
 	.executeTakeFirst()
 	.then(result => result?.count);
 
-    return count === 0;
+    return Number(count) === 0;
   }
 
   async findAll() {
