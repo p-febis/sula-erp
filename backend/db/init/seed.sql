@@ -6,7 +6,7 @@ actions AS (
   SELECT unnest(ARRAY['create', 'read', 'update', 'delete']) AS action
 ),
 permissions_to_insert AS (
-  SELECT model || ':' || action AS key
+  SELECT action || ':' || model AS key
   FROM models, actions
 )
 

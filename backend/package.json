@@ -4,7 +4,7 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "build": "tsup src/main.ts --format esm --outDir dist --target node20 --splitting false",
+    "build": "tsc -p tsconfig.build.json && tsup src/main.ts --format esm --outDir dist --target node20 --splitting false",
     "format": "prettier src --write",
     "codegen": "kysely-codegen --out-file ./src/db/db.d.ts",
     "test": "vitest"

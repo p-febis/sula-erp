@@ -1,3 +1,5 @@
+import { User } from "@/db/db";
+import { Selectable } from "kysely";
 import { z } from "zod/v4";
 
 export const CreateUserDtoSchema = z.object({
@@ -13,3 +15,8 @@ export const LoginUserDtoSchema = z.object({
 });
 
 export type LoginUserDto = z.infer<typeof CreateUserDtoSchema>;
+
+export type UserIdentity = {
+  user: Omit<Selectable<User>, "password" | "refresh_token_version">;
+  permissions: string[];
+};

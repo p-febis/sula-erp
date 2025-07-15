@@ -42,7 +42,9 @@ describe("AuthorizationController", () => {
   };
 
   const baseClaims = {
-    is_super_user: true,
+    authorization: {
+      is_super_user: true,
+    },
   };
   const sampleCreateBody = {
     name: "Marketing",

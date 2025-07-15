@@ -119,7 +119,7 @@ describe("UserService", () => {
 
     const permissions = [
       "read:something",
-      "write:something",
+      "create:something",
       "delete:something",
       "update:something",
     ];
@@ -209,7 +209,7 @@ describe("UserService", () => {
 
     const permissions = [
       "read:something",
-      "write:something",
+      "create:something",
       "delete:something",
       "update:something",
     ];
@@ -288,5 +288,44 @@ describe("UserService", () => {
     expect(mockUserRepository.findAll).toHaveBeenCalledOnce();
 
     expect(users).toEqual(sampleUsers);
+  });
+
+  it("should return the users' identity", async () => {
+    const permissions = [
+      "read:something",
+      "create:something",
+      "update:something",
+      "delete:something",
+    ];
+
+    const user = {
+      id: 1,
+      is_super_user: true,
+      username: "Admin",
+      refresh_token_version: 1,
+      password: testHash,
+    };
+
+    mockAuthorizationRepository.getUserPermissions.mockResolvedValueOnce(
+      permissions,
+    );
+
+    mockUserRepository.findById.mockResolvedValueOnce(user);
+
+    const identity = await userService.userIdentity(1);
+
+    expect(mockUserRepository.findById).toHaveBeenCalledExactlyOnceWith(1);
+    expect(
+      mockAuthorizationRepository.getUserPermissions,
+    ).toHaveBeenCalledExactlyOnceWith(1);
+
+    expect(identity).toEqual({
+      user: {
+        id: 1,
+        is_super_user: true,
+        username: "Admin",
+      },
+      permissions,
+    });
   });
 });

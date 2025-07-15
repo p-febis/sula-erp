@@ -9,6 +9,7 @@ const mockUserService = {
   loginUser: vi.fn(),
   refreshUser: vi.fn(),
   findAllUsers: vi.fn(),
+  userIdentity: vi.fn(),
 };
 
 const mockAuthorizationService = {
@@ -16,7 +17,10 @@ const mockAuthorizationService = {
 };
 
 const baseClaims = {
-  is_super_user: true,
+  sub: 1,
+  authorization: {
+    is_super_user: true,
+  },
 };
 
 vi.mock("@/utils/body-parser", () => ({
@@ -236,6 +240,38 @@ describe("UserController", () => {
       statusText: "Forbidden",
       message: "Forbidden",
       data: null,
+    });
+  });
+
+  it("should return the user's identity", async () => {
+    const identity = {
+      user: {
+        id: 1,
+        is_super_user: true,
+        username: "Admin",
+      },
+      permissions: [
+        "read:something",
+        "create:something",
+        "delete:something",
+        "update:something",
+      ],
+    };
+    mockUserService.userIdentity.mockResolvedValueOnce(identity);
+
+    const event = new H3Event(
+      createRequest({ method: "POST", body: validCredentials }),
+    );
+    event.context.claims = baseClaims;
+
+    const response = await userController.getUserIdentity(event);
+
+    expect(mockUserService.userIdentity).toHaveBeenCalledExactlyOnceWith(1);
+    expect(response).toEqual({
+      status: 200,
+      statusText: "OK",
+      message: "Success",
+      data: identity,
     });
   });
 });

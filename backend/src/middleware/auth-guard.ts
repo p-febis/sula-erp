@@ -31,7 +31,7 @@ export const authMiddleware = (exclude = "/auth/") => {
       );
     }
 
-    event.context.claims = claims.authorization;
+    event.context.claims = claims;
   };
 };
 

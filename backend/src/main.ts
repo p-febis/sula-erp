@@ -123,7 +123,9 @@ async function main() {
       ),
     );
 
-  app.get("/users", userController.getAllUsers.bind(userController));
+  app
+    .get("/users", userController.getAllUsers.bind(userController))
+    .get("/users/me", userController.getUserIdentity.bind(userController));
 
   serve(app);
 }

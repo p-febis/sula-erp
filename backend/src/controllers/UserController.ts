@@ -13,6 +13,7 @@ export interface IUserController {
   postLogin(event: H3Event): Promise<SuccessResponse>;
   postRefresh(event: H3Event): Promise<SuccessResponse>;
   getAllUsers(event: H3Event): Promise<SuccessResponse>;
+  getUserIdentity(event: H3Event): Promise<SuccessResponse>;
 }
 
 export class UserController implements IUserController {
@@ -99,5 +100,11 @@ export class UserController implements IUserController {
     const users = await this.m_userService.findAllUsers();
 
     return new SuccessResponse("Success", users);
+  }
+  async getUserIdentity(event: H3Event) {
+    const identity = await this.m_userService.userIdentity(
+      event.context.claims.sub,
+    );
+    return new SuccessResponse("Success", identity);
   }
 }

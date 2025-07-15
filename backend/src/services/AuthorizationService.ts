@@ -16,7 +16,10 @@ export interface IAuthorizationService {
   createRole(roleCreationData: CreateRoleDto): Promise<Selectable<Role> | null>;
   allRoles(): Promise<Selectable<Role>[] | null>;
   allPermissions(): Promise<Selectable<Permission>[] | null>;
-  userCanDo(claims: PermissionClaims, requiredPermissions: string[]): boolean;
+  userCanDo(
+    claims: { authorization: PermissionClaims },
+    requiredPermissions: string[],
+  ): boolean;
   updateRole(
     roleId: number,
     roleUpdateData: UpdateRoleDto,
@@ -47,13 +50,16 @@ export class AuthorizationService implements IAuthorizationService {
     return roles;
   }
 
-  userCanDo(claims: PermissionClaims, requiredPermissions: string[]): boolean {
-    if (claims.is_super_user) {
+  userCanDo(
+    { authorization }: { authorization: PermissionClaims },
+    requiredPermissions: string[],
+  ): boolean {
+    if (authorization.is_super_user) {
       return true;
     }
 
     return requiredPermissions.every((permission) =>
-      claims.permissions.includes(permission),
+      authorization.permissions.includes(permission),
     );
   }
 

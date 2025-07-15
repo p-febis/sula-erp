@@ -1,5 +1,5 @@
 import { User } from "@/db/db";
-import { CreateUserDto, LoginUserDto } from "@/models/user";
+import { CreateUserDto, LoginUserDto, UserIdentity } from "@/models/user";
 import { IAuthorizationRepository } from "@/repositories/AuthorizationRepository";
 import { IUserRepository } from "@/repositories/UserRepository";
 import { hashingOptions } from "@/utils/argon-options";
@@ -9,6 +9,7 @@ import { Selectable } from "kysely";
 
 export interface IUserService {
   createUser(userCreationData: CreateUserDto): Promise<Selectable<User>>;
+  userIdentity(userId: number): Promise<UserIdentity | null>;
   findAllUsers(): Promise<Omit<Selectable<User>, "password">[] | null>;
   loginUser(
     loginData: LoginUserDto,
@@ -129,5 +130,25 @@ export class UserService implements IUserService {
   async findAllUsers() {
     const users = await this.m_userRepository.findAll();
     return users;
+  }
+
+  async userIdentity(userId: number) {
+    const userPromise = this.m_userRepository.findById(userId);
+    const permissionsPromise =
+      this.m_authorizationRepository.getUserPermissions(userId);
+
+    const [user, permissions] = await Promise.all([
+      userPromise,
+      permissionsPromise,
+    ]);
+
+    if (!user || !permissions) return null;
+
+    const { password, refresh_token_version, ...filteredUser } = user;
+
+    return {
+      user: filteredUser,
+      permissions,
+    };
   }
 }
