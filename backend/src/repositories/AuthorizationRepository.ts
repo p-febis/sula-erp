@@ -1,4 +1,4 @@
-import { Role, Permission, DB } from "@/db/db";
+import { Role, Permission, DB, User } from "@/db/db";
 
 import {
   CreateRoleDto,
@@ -97,19 +97,40 @@ export class AuthorizationRepository implements IAuthorizationRepository {
       ])
       .execute();
 
+    const userMap = new Map<number, Partial<Selectable<User>>>();
+    const permissionMap = new Map<number, Selectable<Permission>>();
+
+    for (const row of roleRows) {
+      if (
+        row.user_id !== null &&
+        row.user_username !== null &&
+        row.user_is_super_user !== null &&
+        !userMap.has(row.user_id)
+      ) {
+        userMap.set(row.user_id, {
+          id: row.user_id,
+          username: row.user_username,
+          is_super_user: row.user_is_super_user,
+        });
+      }
+
+      if (
+        row.permission_id !== null &&
+        row.permission_key !== null &&
+        !permissionMap.has(row.permission_id)
+      ) {
+        permissionMap.set(row.permission_id, {
+          id: row.permission_id,
+          key: row.permission_key,
+        });
+      }
+    }
+
     const parsedRole = {
       id: roleRows[0].role_id,
       name: roleRows[0].role_name,
-      users: roleRows
-        .map((r) => ({
-          username: r.user_username,
-          id: r.user_id,
-          is_super_user: r.user_is_super_user,
-        }))
-        .filter((r) => r.username),
-      permissions: roleRows
-        .map((r) => ({ key: r.permission_key, id: r.permission_id }))
-        .filter((r) => r.id),
+      users: Array.from(userMap.values()),
+      permissions: Array.from(permissionMap.values()),
     };
 
     return parsedRole;
