@@ -8,14 +8,18 @@ import {
   type SetStateAction,
 } from "react";
 import { Navigate } from "react-router";
+import { fetchWithAuth } from "../lib/fetchWithAuth";
+import type { User } from "../types/user";
 
 type TAuthenticationContext = {
   isLoggedIn: boolean;
+  userIdentity: { user: User; permissions: string[] } | null;
   setIsLoggedIn: Dispatch<SetStateAction<boolean>> | null;
 };
-const AuthenticationContext = createContext<TAuthenticationContext>({
+export const AuthenticationContext = createContext<TAuthenticationContext>({
   isLoggedIn: false,
   setIsLoggedIn: null,
+  userIdentity: null,
 });
 
 export async function refreshAuth(): Promise<{ accessToken: string } | null> {
@@ -41,6 +45,17 @@ export const AuthenticationProvider = ({ children }: PropsWithChildren) => {
     queryFn: refreshAuth,
   });
 
+  const { data: userIdentity } = useQuery({
+    queryKey: ["users", "me"],
+    queryFn: async () => {
+      const response = await fetchWithAuth("/api/users/me");
+      const json = await response.json();
+
+      if (!response.ok) throw new Error(JSON.stringify(json));
+      return json.data;
+    },
+  });
+
   useEffect(() => {
     if (!isLoading && data) {
       sessionStorage.setItem("accessToken", data.accessToken);
@@ -55,7 +70,7 @@ export const AuthenticationProvider = ({ children }: PropsWithChildren) => {
   }
 
   return (
-    <AuthenticationContext value={{ isLoggedIn, setIsLoggedIn }}>
+    <AuthenticationContext value={{ isLoggedIn, setIsLoggedIn, userIdentity }}>
       {children}
     </AuthenticationContext>
   );

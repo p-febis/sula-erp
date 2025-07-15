@@ -18,7 +18,7 @@ export const RolesPage = () => {
   return (
     <div className="flex items-center justify-center h-full">
       <main className="h-fit md:w-4/5 p-4">
-        <DataTable columns={roleListColumns} data={data} />
+        <DataTable columns={roleListColumns} data={data} resourceSingular="role" />
       </main>
     </div>
   );

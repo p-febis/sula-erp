@@ -16,14 +16,17 @@ import {
 import { Link, useNavigate } from "react-router";
 import { Button } from "./ui/button";
 import { PlusIcon } from "lucide-react";
+import { PermissionGaurd } from "@/features/authentication/components/PermissionsGaurds";
 interface DataTableProps<TData extends { id: number }, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  resourceSingular: string;
 }
 
 export function DataTable<TData extends { id: number }, TValue>({
   columns,
   data,
+  resourceSingular
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -35,12 +38,14 @@ export function DataTable<TData extends { id: number }, TValue>({
 
   return (
     <div className="rounded-md border p-4 space-y-2">
-      <Button asChild variant="outline">
-        <Link to="create">
-          <PlusIcon />
-          Create
-        </Link>
-      </Button>
+      <PermissionGaurd permissions={[`create:${resourceSingular}`]}>
+	<Button asChild variant="outline">
+	  <Link to="create">
+	    <PlusIcon />
+	    Create
+	  </Link>
+	</Button>
+      </PermissionGaurd>
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (

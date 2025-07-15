@@ -11,8 +11,12 @@ import { useUpdateRole } from "../hooks/use-update-role";
 import { useQueries } from "@tanstack/react-query";
 import type { Role } from "../types/role";
 import type { Permission } from "../types/permission";
+import { useHasPermissions } from "../hooks/use-has-permission";
 
 export const RoleEdit = ({ roleId }: { roleId?: string }) => {
+
+  const canEdit = useHasPermissions(["update:role"]);
+
   const { data, isPending } = useQueries({
     queries: [roleOptions(roleId), usersOptions(), permissionQueryOptions()],
     combine: (results) => {
@@ -93,7 +97,7 @@ export const RoleEdit = ({ roleId }: { roleId?: string }) => {
     <div className="p-4 flex items-center justify-center h-full">
       <Card>
         <CardHeader>
-          <CardTitle>Edit role '{role.name}'</CardTitle>
+          <CardTitle>{canEdit ? "Edit" : "View"} role '{role.name}'</CardTitle>
         </CardHeader>
         <CardContent>
           <form
@@ -112,6 +116,7 @@ export const RoleEdit = ({ roleId }: { roleId?: string }) => {
                   <Select
                     options={userOptions}
                     isMulti
+		    isDisabled={!canEdit}
                     value={userOptions.filter((option) =>
                       field.state.value.includes(option.value),
                     )}
@@ -129,6 +134,7 @@ export const RoleEdit = ({ roleId }: { roleId?: string }) => {
                   <label htmlFor={field.name}>Permissions:</label>
                   <Select
                     options={permissionOptions}
+		    isDisabled={!canEdit}
                     isMulti
                     value={permissionOptions.filter((option) =>
                       field.state.value.includes(option.value),
@@ -141,9 +147,11 @@ export const RoleEdit = ({ roleId }: { roleId?: string }) => {
               )}
             />
             <div className="w-full inline-flex justify-between">
-              <Button type="submit" disabled={isDefaultValue}>
-                Save
-              </Button>
+	      { canEdit && (
+		<Button type="submit" disabled={isDefaultValue}>
+		  Save
+		</Button>
+	      )}
             </div>
           </form>
         </CardContent>
