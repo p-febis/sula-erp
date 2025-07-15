@@ -17,7 +17,7 @@ fi
 export PGPASSWORD=$DB_PASSWORD
 SQL_FILE="./db/init/seed.sql"
 
-echo "Running seed SQL script on $DB_HOST:$DB_PORT/$DB_NAME as $DB_USER..."
+echo "Running seed SQL script on..."
 
 psql $DATABASE_URL -f "$SQL_FILE"
 
