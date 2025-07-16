@@ -8,4 +8,4 @@ export const useHasPermissions = (permissions: string[]) => {
   );
 
   return hasPermission || userIdentity?.user.is_super_user;
-}
+};

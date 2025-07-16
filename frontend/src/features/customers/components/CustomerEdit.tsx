@@ -40,7 +40,9 @@ export const CustomerEdit = ({ customer }: { customer: Customer }) => {
     <div className="p-4 flex items-center justify-center h-full">
       <Card>
         <CardHeader>
-          <CardTitle>{canEdit ? "Edit" : "View"} customer '{customer.name}'</CardTitle>
+          <CardTitle>
+            {canEdit ? "Edit" : "View"} customer '{customer.name}'
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <form
@@ -57,7 +59,7 @@ export const CustomerEdit = ({ customer }: { customer: Customer }) => {
                 <>
                   <label htmlFor={field.name}>Name:</label>
                   <Input
-		    disabled={!canEdit}
+                    disabled={!canEdit}
                     id={field.name}
                     name={field.name}
                     value={field.state.value}
@@ -73,7 +75,7 @@ export const CustomerEdit = ({ customer }: { customer: Customer }) => {
                 <>
                   <label htmlFor={field.name}>Email:</label>
                   <Input
-		    disabled={!canEdit}
+                    disabled={!canEdit}
                     id={field.name}
                     name={field.name}
                     value={field.state.value}
@@ -89,7 +91,7 @@ export const CustomerEdit = ({ customer }: { customer: Customer }) => {
                 <>
                   <label htmlFor={field.name}>Phone number:</label>
                   <Input
-		    disabled={!canEdit}
+                    disabled={!canEdit}
                     id={field.name}
                     name={field.name}
                     value={field.state.value}
@@ -100,14 +102,14 @@ export const CustomerEdit = ({ customer }: { customer: Customer }) => {
               )}
             />
             <div className="w-full inline-flex justify-between">
-	      { canEdit && (
-		<>
-		  <Button type="submit" disabled={isDefaultValue}>
-		    Save
-		  </Button>
-		  <DeleteButton resource="customers" id={String(id)} />
-		</>
-	      )}
+              {canEdit && (
+                <>
+                  <Button type="submit" disabled={isDefaultValue}>
+                    Save
+                  </Button>
+                  <DeleteButton resource="customers" id={String(id)} />
+                </>
+              )}
             </div>
           </form>
         </CardContent>

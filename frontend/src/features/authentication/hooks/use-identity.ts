@@ -1,5 +1,5 @@
 import { AUTHENTICATION_STALE_TIME } from "@/constants";
-import { queryOptions, useQuery } from "@tanstack/react-query"
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { fetchWithAuth } from "../lib/fetchWithAuth";
 
 export const useIdentityOptions = () => {
@@ -13,14 +13,14 @@ export const useIdentityOptions = () => {
       if (!response.ok) throw new Error(JSON.stringify(json));
       return json.data;
     },
-  })
-}
+  });
+};
 
 export const useIdentity = () => {
   const { data, ...restQuery } = useQuery(useIdentityOptions());
 
   return {
     userIdentity: data,
-    ...restQuery
-  }
-}
+    ...restQuery,
+  };
+};

@@ -6,10 +6,9 @@ export const PermissionGaurd = ({
   permissions,
   fallback = <></>,
 }: PropsWithChildren<{ permissions: string[]; fallback?: ReactNode }>) => {
-
   const canDo = useHasPermissions(permissions);
 
-  if(!canDo) {
+  if (!canDo) {
     return fallback;
   }
 

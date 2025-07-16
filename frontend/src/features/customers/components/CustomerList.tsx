@@ -6,7 +6,11 @@ export const CustomerList = ({ customers }: { customers: Customer[] }) => {
   return (
     <div className="flex items-center justify-center h-full">
       <main className="h-fit md:w-4/5 p-4">
-        <DataTable columns={customerListColumns} data={customers} resourceSingular="customer" />
+        <DataTable
+          columns={customerListColumns}
+          data={customers}
+          resourceSingular="customer"
+        />
       </main>
     </div>
   );

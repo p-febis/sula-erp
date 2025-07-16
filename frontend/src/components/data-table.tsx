@@ -26,7 +26,7 @@ interface DataTableProps<TData extends { id: number }, TValue> {
 export function DataTable<TData extends { id: number }, TValue>({
   columns,
   data,
-  resourceSingular
+  resourceSingular,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -39,12 +39,12 @@ export function DataTable<TData extends { id: number }, TValue>({
   return (
     <div className="rounded-md border p-4 space-y-2">
       <PermissionGaurd permissions={[`create:${resourceSingular}`]}>
-	<Button asChild variant="outline">
-	  <Link to="create">
-	    <PlusIcon />
-	    Create
-	  </Link>
-	</Button>
+        <Button asChild variant="outline">
+          <Link to="create">
+            <PlusIcon />
+            Create
+          </Link>
+        </Button>
       </PermissionGaurd>
       <Table>
         <TableHeader>
