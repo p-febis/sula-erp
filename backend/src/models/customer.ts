@@ -1,7 +1,7 @@
 import { z } from "zod/v4";
 
 export const CreateCustomerDtoSchema = z.object({
-  name: z.string(),
+  name: z.string().min(1),
   email: z.string().optional(),
   phone: z.string().optional(),
 });

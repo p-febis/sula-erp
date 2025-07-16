@@ -271,6 +271,29 @@ describe("CustomerController", () => {
     });
   });
 
+  it("should throw a on update if no name is provided", async () => {
+    const invalidBody = {
+      name: null,
+    };
+
+    mockCustomerService.updateCustomer.mockResolvedValueOnce(sampleCustomer);
+    mockAuthorizationService.userCanDo.mockReturnValueOnce(true);
+
+    const event = new H3Event(createRequest({ method: "PATCH", body: invalidBody }));
+    event.context.params = { id: "1" };
+    event.context.claims = baseClaims;
+
+    const error = await controller.updateOne(event).catch(e => e);
+
+    expect(error.cause).toEqual({
+      status: 400,
+      statusText: "Bad Request",
+      message: "Bad Request",
+      data: null,
+    })
+
+  });
+
   it("should throw when user does not have permission to update a customer", async () => {
     mockAuthorizationService.userCanDo.mockReturnValueOnce(false);
 
