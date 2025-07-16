@@ -8,8 +8,9 @@ import {
   type SetStateAction,
 } from "react";
 import { Navigate } from "react-router";
-import { fetchWithAuth } from "../lib/fetchWithAuth";
 import type { User } from "../types/user";
+import { AUTHENTICATION_STALE_TIME } from "@/constants";
+import { useIdentity } from "../hooks/use-identity";
 
 type TAuthenticationContext = {
   isLoggedIn: boolean;
@@ -34,28 +35,15 @@ export async function refreshAuth(): Promise<{ accessToken: string } | null> {
   return data;
 }
 
-const FIFTEEN_MINUTES = 900000;
-const TEN_SECONDS = 10000;
-
 export const AuthenticationProvider = ({ children }: PropsWithChildren) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { data, isLoading } = useQuery({
     queryKey: ["auth"],
-    staleTime: FIFTEEN_MINUTES - TEN_SECONDS,
+    staleTime: AUTHENTICATION_STALE_TIME,
     queryFn: refreshAuth,
   });
 
-  const { data: userIdentity } = useQuery({
-    queryKey: ["users", "me"],
-    staleTime: FIFTEEN_MINUTES - TEN_SECONDS,
-    queryFn: async () => {
-      const response = await fetchWithAuth("/api/users/me");
-      const json = await response.json();
-
-      if (!response.ok) throw new Error(JSON.stringify(json));
-      return json.data;
-    },
-  });
+  const { userIdentity } = useIdentity();
 
   useEffect(() => {
     if (!isLoading && data) {
