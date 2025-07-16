@@ -47,6 +47,7 @@ export const AuthenticationProvider = ({ children }: PropsWithChildren) => {
 
   const { data: userIdentity } = useQuery({
     queryKey: ["users", "me"],
+    staleTime: FIFTEEN_MINUTES - TEN_SECONDS,
     queryFn: async () => {
       const response = await fetchWithAuth("/api/users/me");
       const json = await response.json();
