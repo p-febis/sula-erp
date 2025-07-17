@@ -5,10 +5,15 @@
 
 import type { ColumnType } from "kysely";
 
-export type Generated<T> =
-  T extends ColumnType<infer S, infer I, infer U>
-    ? ColumnType<S, I | undefined, U>
-    : ColumnType<T, T | undefined, T>;
+export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
+  ? ColumnType<S, I | undefined, U>
+  : ColumnType<T, T | undefined, T>;
+
+export interface Category {
+  id: Generated<number>;
+  name: string;
+  parent_id: number | null;
+}
 
 export interface Customer {
   email: string | null;
@@ -50,6 +55,7 @@ export interface UserRole {
 }
 
 export interface DB {
+  category: Category;
   customer: Customer;
   permission: Permission;
   role: Role;
