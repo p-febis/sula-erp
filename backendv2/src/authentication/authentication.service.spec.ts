@@ -134,6 +134,7 @@ describe("AuthenticationService", () => {
       expect(mockJwtService.signAccessToken).toHaveBeenCalledTimes(1);
       expect(mockJwtService.signAccessToken).toHaveBeenCalledWith({
         sub: 1,
+	permissions: []
       });
 
       expect(mockSessionService.createSession).toHaveBeenCalledTimes(1);

@@ -14,3 +14,31 @@ export const sessionsTable = pgTable("sessions", {
     .references(() => usersTable.id),
   secretHash: text().notNull(),
 });
+
+export const rolesTable = pgTable("roles", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  name: varchar({ length: 255 }).notNull(),
+});
+
+export const usersRolesTable = pgTable("users_roles", {
+  userId: integer()
+    .notNull()
+    .references(() => usersTable.id),
+  roleId: integer()
+    .notNull()
+    .references(() => rolesTable.id),
+});
+
+export const permissionsTable = pgTable("permissions", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  name: varchar({ length: 255 }).notNull(),
+});
+
+export const usersPermissionsTable = pgTable("users_permissions", {
+  userId: integer()
+    .notNull()
+    .references(() => usersTable.id),
+  permissionId: integer()
+    .notNull()
+    .references(() => permissionsTable.id),
+});

@@ -27,6 +27,7 @@ describe("AuthenticationGuard", () => {
   } as unknown as ExecutionContext;
 
   beforeEach(async () => {
+    request.user = undefined;
     jest.resetAllMocks();
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -63,9 +64,6 @@ describe("AuthenticationGuard", () => {
     expect(request["user"]).toEqual({
       sub: 1,
     });
-
-    // INFO: Reset the request object for the next test
-    request.user = undefined;
 
     expect(canActivate).toBeTruthy();
   });
