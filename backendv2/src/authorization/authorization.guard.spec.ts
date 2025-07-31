@@ -15,6 +15,7 @@ describe("AuthorizationGuard", () => {
     },
     user: {
       sub: 1,
+      isSuperUser: false,
       permissions: [],
     },
   };
@@ -29,6 +30,7 @@ describe("AuthorizationGuard", () => {
   beforeEach(async () => {
     request.user = {
       sub: 1,
+      isSuperUser: false,
       permissions: [],
     };
 
@@ -93,4 +95,17 @@ describe("AuthorizationGuard", () => {
 
     expect(canActivate).toBeFalsy();
   });
+
+  it.each([{ isSuperUser: false }, { isSuperUser: true }])(
+    "should return $isSuperUser if isSuperUser is $isSuperUser",
+    async ({ isSuperUser }) => {
+      request.user.isSuperUser = isSuperUser;
+
+      reflector.get.mockReturnValueOnce(["superuser"]);
+
+      const canActivate = await guard.canActivate(mockExecutionContext);
+
+      expect(canActivate).toBe(isSuperUser);
+    },
+  );
 });
