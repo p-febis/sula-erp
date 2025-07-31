@@ -28,6 +28,7 @@ describe("AuthenticationService", () => {
 
   const sampleUser = {
     id: 1,
+    isSuperUser: true,
     username: "john",
     password: "$argon2id$v=19$m=16,t=2,p=1$c2xrZmpzYWY7$GzS30tw+ECXCE2+VatgR+g",
     email: "john@doeenterprises.com",
@@ -134,7 +135,8 @@ describe("AuthenticationService", () => {
       expect(mockJwtService.signAccessToken).toHaveBeenCalledTimes(1);
       expect(mockJwtService.signAccessToken).toHaveBeenCalledWith({
         sub: 1,
-	permissions: []
+        isSuperUser: true,
+        permissions: [],
       });
 
       expect(mockSessionService.createSession).toHaveBeenCalledTimes(1);
@@ -154,6 +156,7 @@ describe("AuthenticationService", () => {
       const MOCK_USER = {
         id: 1,
         username: "john",
+        isSuperUser: true,
         email: "john@doeenterprises.com",
         password:
           "$argon2id$v=19$m=16,t=2,p=1$c2xrZmpzYWY7$GzS30tw+ECXCE2+VatgR+g",

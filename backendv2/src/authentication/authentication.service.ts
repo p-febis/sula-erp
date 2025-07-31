@@ -39,7 +39,11 @@ export class AuthenticationService {
       return err("Invalid password");
     }
 
-    const accessToken = await this.jwtService.signAccessToken({ sub: userId, permissions: [] });
+    const accessToken = await this.jwtService.signAccessToken({
+      sub: userId,
+      isSuperUser: userResult.value.isSuperUser,
+      permissions: [],
+    });
 
     if (!accessToken.isOk()) {
       return err("Could not generate accessToken");

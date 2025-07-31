@@ -2,7 +2,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { err, ok } from "neverthrow";
 import * as schema from "../db/schema";
-import { eq } from "drizzle-orm";
+import { eq, count } from "drizzle-orm";
 
 @Injectable()
 export class UsersRepository {
@@ -50,6 +50,20 @@ export class UsersRepository {
       const user = users[0] ?? null;
 
       return ok(user);
+    } catch (e) {
+      return err("Failed to select");
+    }
+  }
+
+  async isFirstUser() {
+    try {
+      const [{ count: totalUsers }] = await this.drizzle
+        .select({
+          count: count(),
+        })
+        .from(schema.usersTable);
+
+      return ok(totalUsers === 0);
     } catch (e) {
       return err("Failed to select");
     }

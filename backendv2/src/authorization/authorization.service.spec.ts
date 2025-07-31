@@ -7,8 +7,16 @@ import { ok } from "neverthrow";
 describe("AuthorizationService", () => {
   let service: AuthorizationService;
 
+  const fullRole = {
+    id: 1,
+    name: "Marketing",
+    users: [],
+    permissions: [],
+  };
+
   const mockAuthorizationRepository = {
     createRole: jest.fn(),
+    createRoleAssociations: jest.fn(),
     findAllPermissionsForUser: jest.fn(),
   } as unknown as jest.Mocked<AuthorizationRepository>;
 
@@ -30,30 +38,61 @@ describe("AuthorizationService", () => {
     expect(service).toBeDefined();
   });
 
-  describe("Creation", () => {
+  describe("Roles > Creation", () => {
     it("should create a new role", async () => {
       const role = {
         name: "admin",
       };
 
-      mockAuthorizationRepository.createRole.mockResolvedValue(
-        ok({
-          id: 1,
-          name: "admin",
-        }),
-      );
+      mockAuthorizationRepository.createRole.mockResolvedValue(ok(fullRole));
 
       const createdRole = await service.createRole(role);
 
       expect(mockAuthorizationRepository.createRole).toHaveBeenCalledTimes(1);
       expect(mockAuthorizationRepository.createRole).toHaveBeenCalledWith(role);
 
-      expect(createdRole).toEqual(
-        ok({
-          id: 1,
-          name: "admin",
-        }),
+      expect(createdRole).toEqual(ok(fullRole));
+    });
+  });
+
+  describe("Roles > Associations", () => {
+    it("should create associations", async () => {
+      const sampleRole = {
+        ...fullRole,
+        users: [
+          {
+            id: 1,
+            username: "admin",
+          },
+        ],
+        permissions: [
+          {
+            id: 1,
+            name: "read:role",
+          },
+        ],
+      };
+
+      mockAuthorizationRepository.createRoleAssociations.mockResolvedValueOnce(
+        ok(sampleRole),
       );
+
+      const result = await service.createRoleAssociations(1, {
+        userIds: [1],
+        permissionIds: [1],
+      });
+
+      expect(
+        mockAuthorizationRepository.createRoleAssociations,
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockAuthorizationRepository.createRoleAssociations,
+      ).toHaveBeenCalledWith(1, {
+        userIds: [1],
+        permissionIds: [1],
+      });
+
+      expect(result).toEqual(ok(sampleRole));
     });
   });
 

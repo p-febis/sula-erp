@@ -25,6 +25,7 @@ describe("JwtService", () => {
     const FIFTEEN_MINUTES_SECONDS = 900;
     const accessTokenResult = await service.signAccessToken({
       sub: 1,
+      isSuperUser: true,
       permissions: ["create:something", "read:something"],
     });
 
@@ -36,6 +37,7 @@ describe("JwtService", () => {
 
     expect(decodedClaims).toEqual({
       sub: 1,
+      isSuperUser: true,
       iat: issuedAt,
       permissions: ["create:something", "read:something"],
       exp: issuedAt + FIFTEEN_MINUTES_SECONDS,
@@ -45,6 +47,7 @@ describe("JwtService", () => {
   it("should verify the access token", async () => {
     const accessTokenResult = await service.signAccessToken({
       sub: 1,
+      isSuperUser: true,
       permissions: ["create:something", "read:something"],
     });
 
@@ -52,7 +55,9 @@ describe("JwtService", () => {
       accessTokenResult._unsafeUnwrap(),
     );
 
-    expect(verified).toEqual(ok(expect.objectContaining({ sub: 1 })));
+    expect(verified).toEqual(
+      ok(expect.objectContaining({ sub: 1, isSuperUser: true })),
+    );
   });
 
   it("should fail to verify an invalid access token", async () => {

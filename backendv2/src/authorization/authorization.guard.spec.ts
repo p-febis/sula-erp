@@ -76,12 +76,8 @@ describe("AuthorizationGuard", () => {
     expect(canActivate).toBeTruthy();
   });
 
-
   it("should return false if the user is not authorized", async () => {
-    request.user.permissions = [
-      "create:something",
-      "read:something",
-    ];
+    request.user.permissions = ["create:something", "read:something"];
 
     reflector.get.mockReturnValueOnce([
       "create:something",

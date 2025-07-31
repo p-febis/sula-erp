@@ -1,9 +1,10 @@
-import { pgTable, integer, varchar, text } from "drizzle-orm/pg-core";
+import { pgTable, integer, varchar, text, boolean } from "drizzle-orm/pg-core";
 
 export const usersTable = pgTable("users", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   username: varchar({ length: 255 }).notNull(),
   password: text().notNull(),
+  isSuperUser: boolean().notNull(),
   email: varchar({ length: 255 }).notNull().unique(),
 });
 
@@ -34,10 +35,10 @@ export const permissionsTable = pgTable("permissions", {
   name: varchar({ length: 255 }).notNull(),
 });
 
-export const usersPermissionsTable = pgTable("users_permissions", {
-  userId: integer()
+export const permissionsRolesTable = pgTable("permissions_roles", {
+  roleId: integer()
     .notNull()
-    .references(() => usersTable.id),
+    .references(() => rolesTable.id),
   permissionId: integer()
     .notNull()
     .references(() => permissionsTable.id),

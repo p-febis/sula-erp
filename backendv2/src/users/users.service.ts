@@ -22,7 +22,14 @@ export class UsersService {
     // TODO: Maybe catch an error here?
     const passwordHash = await hash(password);
 
+    const isSuperUser = await this.usersRepository.isFirstUser();
+
+    if (isSuperUser.isErr()) {
+      return err("Failed to check if first user");
+    }
+
     const newUser = await this.usersRepository.create({
+      isSuperUser: isSuperUser.value,
       password: passwordHash,
       ...restCreationData,
     });

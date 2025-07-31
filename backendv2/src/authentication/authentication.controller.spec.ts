@@ -54,6 +54,7 @@ describe("AuthenticationController", () => {
       const sampleUser = {
         id: 1,
         username: "john",
+        isSuperUser: true,
         password:
           "$argon2id$v=19$m=16,t=2,p=1$c2xrZmpzYWY7$GzS30tw+ECXCE2+VatgR+g",
         email: "john@doeenterprises.com",
@@ -109,6 +110,7 @@ describe("AuthenticationController", () => {
       const sampleUser = {
         id: 1,
         username: "john",
+        isSuperUser: true,
         password:
           "$argon2id$v=19$m=16,t=2,p=1$c2xrZmpzYWY7$GzS30tw+ECXCE2+VatgR+g",
         email: "john@doeenterprises.com",
