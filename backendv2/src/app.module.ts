@@ -4,6 +4,7 @@ import { UsersModule } from "./users/users.module";
 import { DrizzlePostgresModule } from "@knaadh/nestjs-drizzle-postgres";
 import { JwtService } from "./jwt/jwt.service";
 import { SessionModule } from "./session/session.module";
+import { CustomersModule } from './customers/customers.module';
 
 @Module({
   providers: [JwtService],
@@ -18,6 +19,7 @@ import { SessionModule } from "./session/session.module";
     AuthenticationModule,
     UsersModule,
     SessionModule,
+    CustomersModule,
   ],
 })
 export class AppModule {}

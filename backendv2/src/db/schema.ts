@@ -43,3 +43,10 @@ export const permissionsRolesTable = pgTable("permissions_roles", {
     .notNull()
     .references(() => permissionsTable.id),
 });
+
+export const customersTable = pgTable("customers", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  name: varchar({ length: 255 }).notNull(),
+  email: varchar({ length: 255 }),
+  phone: varchar({ length: 255 }),
+});

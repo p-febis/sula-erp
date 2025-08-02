@@ -13,6 +13,7 @@
   "license": "ISC",
   "packageManager": "pnpm@10.11.0",
   "devDependencies": {
+    "@jest/globals": "^30.0.5",
     "@nestjs/cli": "^11.0.7",
     "@nestjs/schematics": "^11.0.5",
     "@swc/cli": "^0.7.8",
@@ -32,6 +33,7 @@
     "@knaadh/nestjs-drizzle-postgres": "^1.2.0",
     "@nestjs/common": "^11.1.5",
     "@nestjs/core": "^11.1.5",
+    "@nestjs/mapped-types": "*",
     "@nestjs/platform-fastify": "^11.1.5",
     "@nestjs/testing": "^11.1.5",
     "@node-rs/argon2": "^2.0.2",
