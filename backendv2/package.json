@@ -1,7 +1,6 @@
 {
   "name": "simple-auth-nest",
   "version": "1.0.0",
-  "type": "module",
   "description": "",
   "scripts": {
     "build": "tsup ./src/main.ts",
