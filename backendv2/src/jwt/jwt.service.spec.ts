@@ -1,6 +1,6 @@
+import { beforeEach, describe, expect, it } from "vitest";
 import { Test, TestingModule } from "@nestjs/testing";
 import { JwtService } from "./jwt.service";
-import { describe, beforeEach, it, expect } from "@jest/globals";
 import { verify } from "@node-rs/jsonwebtoken";
 import { ok, err } from "neverthrow";
 

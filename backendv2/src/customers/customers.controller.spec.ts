@@ -1,7 +1,7 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Test, TestingModule } from "@nestjs/testing";
 import { CustomersController } from "./customers.controller";
 import { CustomersService } from "./customers.service";
-import { describe, beforeEach, it, expect, jest } from "@jest/globals";
 import { ok, err } from "neverthrow";
 import { ApiResponse } from "../api-response";
 import { HttpException } from "@nestjs/common";
@@ -20,15 +20,15 @@ describe("CustomersController", () => {
   };
 
   const mockCustomersService = {
-    create: jest.fn(),
-    findAll: jest.fn(),
-    findOne: jest.fn(),
-    updateOne: jest.fn(),
-    deleteOne: jest.fn(),
-  } as unknown as jest.Mocked<CustomersService>;
+    create: vi.fn(),
+    findAll: vi.fn(),
+    findOne: vi.fn(),
+    updateOne: vi.fn(),
+    deleteOne: vi.fn(),
+  };
 
   beforeEach(async () => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     const module: TestingModule = await Test.createTestingModule({
       controllers: [CustomersController],
       providers: [
@@ -43,7 +43,7 @@ describe("CustomersController", () => {
         {
           provide: AuthenticationGuard,
           useValue: {
-            canActivate: jest.fn().mockReturnValue(true),
+            canActivate: vi.fn().mockReturnValue(true),
           } as unknown as jest.Mocked<AuthenticationGuard>,
         },
       ],

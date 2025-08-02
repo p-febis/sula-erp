@@ -1,6 +1,6 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Test, TestingModule } from "@nestjs/testing";
 import { AuthenticationService } from "./authentication.service";
-import { describe, beforeEach, it, expect, jest } from "@jest/globals";
 import { UsersService } from "../users/users.service";
 import { err, ok } from "neverthrow";
 import { UsersRepository } from "../users/users.repository";
@@ -11,20 +11,20 @@ describe("AuthenticationService", () => {
   let service: AuthenticationService;
 
   const mockUsersService = {
-    createUser: jest.fn(),
-  } as unknown as jest.Mocked<UsersService>;
+    createUser: vi.fn(),
+  };
 
   const mockUsersRepository = {
-    findByEmail: jest.fn(),
-    findById: jest.fn(),
-  } as unknown as jest.Mocked<UsersRepository>;
+    findByEmail: vi.fn(),
+    findById: vi.fn(),
+  };
 
   const mockJwtService = {
-    signAccessToken: jest.fn(),
-  } as unknown as jest.Mocked<JwtService>;
+    signAccessToken: vi.fn(),
+  };
   const mockSessionService = {
-    createSession: jest.fn(),
-  } as unknown as jest.Mocked<SessionService>;
+    createSession: vi.fn(),
+  };
 
   const sampleUser = {
     id: 1,
@@ -35,7 +35,7 @@ describe("AuthenticationService", () => {
   };
 
   beforeEach(async () => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthenticationService,

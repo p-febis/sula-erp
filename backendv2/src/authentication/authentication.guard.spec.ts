@@ -1,7 +1,7 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ExecutionContext, UnauthorizedException } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import { AuthenticationGuard } from "./authentication.guard";
-import { describe, beforeEach, it, expect, jest } from "@jest/globals";
 import { JwtService } from "../jwt/jwt.service";
 import { err, ok } from "neverthrow";
 
@@ -10,8 +10,8 @@ describe("AuthenticationGuard", () => {
   let jwtService: JwtService;
 
   const mockJwtService = {
-    verifyAccessToken: jest.fn(),
-  } as unknown as jest.Mocked<JwtService>;
+    verifyAccessToken: vi.fn(),
+  };
 
   const request = {
     headers: {
@@ -28,7 +28,7 @@ describe("AuthenticationGuard", () => {
 
   beforeEach(async () => {
     request.user = undefined;
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthenticationGuard,

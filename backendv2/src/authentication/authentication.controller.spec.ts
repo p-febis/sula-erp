@@ -1,6 +1,6 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Test, TestingModule } from "@nestjs/testing";
 import { AuthenticationController } from "./authentication.controller";
-import { describe, beforeEach, it, expect, jest } from "@jest/globals";
 import { err, ok } from "neverthrow";
 import { AuthenticationService } from "./authentication.service";
 import { ApiResponse } from "../api-response";
@@ -13,17 +13,17 @@ describe("AuthenticationController", () => {
   let controller: AuthenticationController;
 
   const mockAuthenticationService = {
-    register: jest.fn(),
-    login: jest.fn(),
-    profile: jest.fn(),
-  } as unknown as jest.Mocked<AuthenticationService>;
+    register: vi.fn(),
+    login: vi.fn(),
+    profile: vi.fn(),
+  };
 
   const mockFastifyReply = {
-    setCookie: jest.fn(),
-  } as unknown as jest.Mocked<FastifyReply>;
+    setCookie: vi.fn(),
+  };
 
   beforeEach(async () => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthenticationController],
       providers: [
@@ -125,10 +125,13 @@ describe("AuthenticationController", () => {
         }),
       );
 
-      const result = await controller.postLogin(mockFastifyReply, {
-        email: "john@doeenterprises.com",
-        password: "password",
-      });
+      const result = await controller.postLogin(
+        mockFastifyReply as unknown as FastifyReply,
+        {
+          email: "john@doeenterprises.com",
+          password: "password",
+        },
+      );
 
       expect(mockAuthenticationService.login).toHaveBeenCalledTimes(1);
       expect(mockAuthenticationService.login).toHaveBeenCalledWith({
@@ -161,7 +164,7 @@ describe("AuthenticationController", () => {
       );
 
       const error = await controller
-        .postLogin(mockFastifyReply, {
+        .postLogin(mockFastifyReply as unknown as FastifyReply, {
           email: "john@doeenterprises.com",
           password: "password",
         })

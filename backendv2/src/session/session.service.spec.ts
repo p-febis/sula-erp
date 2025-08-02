@@ -1,6 +1,6 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Test, TestingModule } from "@nestjs/testing";
 import { SessionService } from "./session.service";
-import { describe, beforeEach, it, expect, jest } from "@jest/globals";
 import { SessionRepository } from "./session.repository";
 import { err, ok } from "neverthrow";
 import * as schema from "../db/schema";
@@ -9,12 +9,12 @@ describe("SessionService", () => {
   let service: SessionService;
 
   const mockSessionRepository = {
-    create: jest.fn(),
-    findById: jest.fn(),
-  } as unknown as jest.Mocked<SessionRepository>;
+    create: vi.fn(),
+    findById: vi.fn(),
+  };
 
   beforeEach(async () => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         SessionService,

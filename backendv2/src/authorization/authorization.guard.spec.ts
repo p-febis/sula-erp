@@ -1,13 +1,15 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Test, TestingModule } from "@nestjs/testing";
 import { ExecutionContext } from "@nestjs/common";
 import { AuthorizationGuard } from "./authorization.guard";
-import { describe, beforeEach, it, expect, jest } from "@jest/globals";
 import { Reflector } from "@nestjs/core";
 import { Permission } from "./permisision.decorator";
 
 describe("AuthorizationGuard", () => {
   let guard: AuthorizationGuard;
-  let reflector: jest.Mocked<Reflector>;
+  const mockReflector = {
+    get: vi.fn(),
+  };
 
   const request = {
     headers: {
@@ -34,20 +36,17 @@ describe("AuthorizationGuard", () => {
       permissions: [],
     };
 
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthorizationGuard,
         {
           provide: Reflector,
-          useValue: {
-            get: jest.fn(),
-          },
+          useValue: mockReflector,
         },
       ],
     }).compile();
 
-    reflector = module.get<Reflector>(Reflector) as jest.Mocked<Reflector>;
     guard = module.get<AuthorizationGuard>(AuthorizationGuard);
   });
 
@@ -63,7 +62,7 @@ describe("AuthorizationGuard", () => {
       "delete:something",
     ];
 
-    reflector.get.mockReturnValueOnce([
+    mockReflector.get.mockReturnValueOnce([
       "create:something",
       "read:something",
       "update:something",
@@ -72,8 +71,8 @@ describe("AuthorizationGuard", () => {
 
     const canActivate = await guard.canActivate(mockExecutionContext);
 
-    expect(reflector.get).toHaveBeenCalledTimes(1);
-    expect(reflector.get).toHaveBeenCalledWith(Permission, null);
+    expect(mockReflector.get).toHaveBeenCalledTimes(1);
+    expect(mockReflector.get).toHaveBeenCalledWith(Permission, null);
 
     expect(canActivate).toBeTruthy();
   });
@@ -81,7 +80,7 @@ describe("AuthorizationGuard", () => {
   it("should return false if the user is not authorized", async () => {
     request.user.permissions = ["create:something", "read:something"];
 
-    reflector.get.mockReturnValueOnce([
+    mockReflector.get.mockReturnValueOnce([
       "create:something",
       "read:something",
       "update:something",
@@ -90,8 +89,8 @@ describe("AuthorizationGuard", () => {
 
     const canActivate = await guard.canActivate(mockExecutionContext);
 
-    expect(reflector.get).toHaveBeenCalledTimes(1);
-    expect(reflector.get).toHaveBeenCalledWith(Permission, null);
+    expect(mockReflector.get).toHaveBeenCalledTimes(1);
+    expect(mockReflector.get).toHaveBeenCalledWith(Permission, null);
 
     expect(canActivate).toBeFalsy();
   });
@@ -101,7 +100,7 @@ describe("AuthorizationGuard", () => {
     async ({ isSuperUser }) => {
       request.user.isSuperUser = isSuperUser;
 
-      reflector.get.mockReturnValueOnce(["superuser"]);
+      mockReflector.get.mockReturnValueOnce(["superuser"]);
 
       const canActivate = await guard.canActivate(mockExecutionContext);
 

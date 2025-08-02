@@ -1,6 +1,6 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Test, TestingModule } from "@nestjs/testing";
 import { AuthorizationService } from "./authorization.service";
-import { describe, beforeEach, it, expect, jest } from "@jest/globals";
 import { AuthorizationRepository } from "./authorization.repository";
 import { ok } from "neverthrow";
 
@@ -15,10 +15,10 @@ describe("AuthorizationService", () => {
   };
 
   const mockAuthorizationRepository = {
-    createRole: jest.fn(),
-    createRoleAssociations: jest.fn(),
-    findAllPermissionsForUser: jest.fn(),
-  } as unknown as jest.Mocked<AuthorizationRepository>;
+    createRole: vi.fn(),
+    createRoleAssociations: vi.fn(),
+    findAllPermissionsForUser: vi.fn(),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({

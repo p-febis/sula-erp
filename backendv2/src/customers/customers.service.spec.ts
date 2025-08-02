@@ -1,19 +1,19 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Test, TestingModule } from "@nestjs/testing";
 import { CustomersService } from "./customers.service";
 import { CustomersRepository } from "./customers.repository";
-import { describe, beforeEach, it, expect, jest } from "@jest/globals";
 import { ok } from "neverthrow";
 
 describe("CustomersService", () => {
   let service: CustomersService;
 
   const mockCustomersRepository = {
-    create: jest.fn(),
-    findAll: jest.fn(),
-    findOne: jest.fn(),
-    updateOne: jest.fn(),
-    deleteOne: jest.fn(),
-  } as unknown as jest.Mocked<CustomersRepository>;
+    create: vi.fn(),
+    findAll: vi.fn(),
+    findOne: vi.fn(),
+    updateOne: vi.fn(),
+    deleteOne: vi.fn(),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
