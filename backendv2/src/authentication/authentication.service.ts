@@ -7,6 +7,7 @@ import { LoginUserDto } from "./dto/login-user.dto";
 import { err, ok } from "neverthrow";
 import { verify } from "@node-rs/argon2";
 import { SessionService } from "../session/session.service";
+import { AuthorizationService } from "../authorization/authorization.service";
 
 @Injectable()
 export class AuthenticationService {
@@ -15,6 +16,7 @@ export class AuthenticationService {
     private readonly usersRepository: UsersRepository,
     private readonly jwtService: JwtService,
     private readonly sessionService: SessionService,
+    private readonly authorizationService: AuthorizationService,
   ) {}
 
   async register(registrationData: CreateUserDto) {
@@ -62,12 +64,19 @@ export class AuthenticationService {
   }
 
   async profile(userId: number) {
-    const userResult = await this.usersRepository.findById(userId);
+    const [userResult, authenticationResult] = await Promise.all([
+      this.usersRepository.findById(userId),
+      this.authorizationService.findUserPermissions(userId),
+    ]);
 
-    const userResultWithoutPassword = userResult.map(
-      ({ password, ...restUser }) => restUser,
-    );
+    if (userResult.isErr() || authenticationResult.isErr()) {
+      return err("Failed to get profile");
+    }
 
-    return userResultWithoutPassword;
+    const { password, ...userResultWithoutPassword } = userResult.value;
+    return ok({
+      ...userResultWithoutPassword,
+      permissions: authenticationResult.value,
+    });
   }
 }

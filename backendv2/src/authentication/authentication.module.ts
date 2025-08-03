@@ -4,9 +4,10 @@ import { AuthenticationService } from "./authentication.service";
 import { UsersModule } from "../users/users.module";
 import { SessionModule } from "../session/session.module";
 import { JwtService } from "../jwt/jwt.service";
+import { AuthorizationModule } from "../authorization/authorization.module";
 
 @Module({
-  imports: [UsersModule, SessionModule],
+  imports: [UsersModule, SessionModule, AuthorizationModule],
   controllers: [AuthenticationController],
   providers: [AuthenticationService, JwtService],
 })

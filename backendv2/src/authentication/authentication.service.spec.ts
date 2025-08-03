@@ -6,6 +6,7 @@ import { err, ok } from "neverthrow";
 import { UsersRepository } from "../users/users.repository";
 import { JwtService } from "../jwt/jwt.service";
 import { SessionService } from "../session/session.service";
+import { AuthorizationService } from "../authorization/authorization.service";
 
 describe("AuthenticationService", () => {
   let service: AuthenticationService;
@@ -22,8 +23,13 @@ describe("AuthenticationService", () => {
   const mockJwtService = {
     signAccessToken: vi.fn(),
   };
+
   const mockSessionService = {
     createSession: vi.fn(),
+  };
+
+  const mockAuthorizationService = {
+    findUserPermissions: vi.fn(),
   };
 
   const sampleUser = {
@@ -54,6 +60,10 @@ describe("AuthenticationService", () => {
         {
           provide: SessionService,
           useValue: mockSessionService,
+        },
+        {
+          provide: AuthorizationService,
+          useValue: mockAuthorizationService,
         },
       ],
     }).compile();
@@ -152,7 +162,7 @@ describe("AuthenticationService", () => {
   });
 
   describe("Profile", () => {
-    it("should return user profile", async () => {
+    it("should return user profile with permissions", async () => {
       const MOCK_USER = {
         id: 1,
         username: "john",
@@ -161,16 +171,25 @@ describe("AuthenticationService", () => {
         password:
           "$argon2id$v=19$m=16,t=2,p=1$c2xrZmpzYWY7$GzS30tw+ECXCE2+VatgR+g",
       };
+
       mockUsersRepository.findById.mockResolvedValueOnce(ok(MOCK_USER));
+      mockAuthorizationService.findUserPermissions.mockResolvedValueOnce(
+        ok(["read:something", "write:something"]),
+      );
 
       const profileResult = await service.profile(1);
 
-      expect(mockUsersRepository.findById).toHaveBeenCalledTimes(1);
-      expect(mockUsersRepository.findById).toHaveBeenCalledWith(1);
+      expect(mockUsersRepository.findById).toHaveBeenCalledExactlyOnceWith(1);
+      expect(
+        mockAuthorizationService.findUserPermissions,
+      ).toHaveBeenCalledExactlyOnceWith(1);
 
       const { password, ...rest } = MOCK_USER;
 
-      expect(profileResult).toEqual(ok(rest));
+      expect(profileResult).toEqual(ok({
+	...rest,
+	permissions: ["read:something", "write:something"],
+      }));
     });
   });
 });
