@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   createContext,
+  useContext,
   useEffect,
   useState,
   type Dispatch,
@@ -14,14 +15,25 @@ import { useIdentity } from "../hooks/use-identity";
 
 type TAuthenticationContext = {
   isLoggedIn: boolean;
-  userIdentity: { user: User; permissions: string[] } | null;
+  userIdentity: User & { permissions: string[] } | null;
   setIsLoggedIn: Dispatch<SetStateAction<boolean>> | null;
 };
-export const AuthenticationContext = createContext<TAuthenticationContext>({
+
+const AuthenticationContext = createContext<TAuthenticationContext>({
   isLoggedIn: false,
   setIsLoggedIn: null,
   userIdentity: null,
 });
+
+export const useAuthentication = () => {
+  const context = useContext(AuthenticationContext);
+
+  if (!context) {
+    throw new Error("useAuthentication must be used within a AuthenticationProvider");
+  }
+
+  return context;
+};
 
 export async function refreshAuth(): Promise<{ accessToken: string } | null> {
   const response = await fetch("/api/auth/refresh", {

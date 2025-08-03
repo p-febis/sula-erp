@@ -10,7 +10,7 @@ const loginOptions = (onSettled: SettledFunction) => {
   return mutationOptions({
     mutationKey: ["auth", "login"],
     mutationFn: async (body: { username: string; password: string }) => {
-      const response = await fetchWithAuth(`/api/auth/login`, {
+      const response = await fetchWithAuth(`/api/authentication/login`, {
         method: "POST",
         body: JSON.stringify(body),
       });

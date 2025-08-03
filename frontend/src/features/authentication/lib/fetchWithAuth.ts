@@ -14,7 +14,10 @@ export async function fetchWithAuth(
 
   const response = await fetch(input, {
     ...init,
-    headers: authHeaders,
+    headers: {
+      ...authHeaders,
+      ...(init.body ? { "Content-Type": "application/json" } : {}),
+    },
   });
 
   if (response.status === 401 && retry) {

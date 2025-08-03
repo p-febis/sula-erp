@@ -7,7 +7,7 @@ export const useIdentityOptions = () => {
     queryKey: ["users", "me"],
     staleTime: AUTHENTICATION_STALE_TIME,
     queryFn: async () => {
-      const response = await fetchWithAuth("/api/users/me");
+      const response = await fetchWithAuth("/api/authentication/profile");
       const json = await response.json();
 
       if (!response.ok) throw new Error(JSON.stringify(json));

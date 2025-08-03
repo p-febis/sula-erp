@@ -23,7 +23,7 @@ export const LoginPage = () => {
 
   const form = useForm({
     defaultValues: {
-      username: "",
+      email: "",
       password: "",
     },
     onSubmit: async ({ value }) => {
@@ -47,11 +47,12 @@ export const LoginPage = () => {
             }}
           >
             <form.Field
-              name="username"
+              name="email"
               children={(field) => (
                 <>
-                  <label htmlFor={field.name}>Username:</label>
+                  <label htmlFor={field.name}>Email:</label>
                   <Input
+                    type="email"
                     id={field.name}
                     name={field.name}
                     value={field.state.value}
