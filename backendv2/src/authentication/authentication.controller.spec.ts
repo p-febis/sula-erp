@@ -16,6 +16,7 @@ describe("AuthenticationController", () => {
     register: vi.fn(),
     login: vi.fn(),
     profile: vi.fn(),
+    refresh: vi.fn(),
   };
 
   const mockFastifyReply = {
@@ -107,14 +108,6 @@ describe("AuthenticationController", () => {
 
   describe("postLogin", () => {
     it("should call loginUser", async () => {
-      const sampleUser = {
-        id: 1,
-        username: "john",
-        isSuperUser: true,
-        password:
-          "$argon2id$v=19$m=16,t=2,p=1$c2xrZmpzYWY7$GzS30tw+ECXCE2+VatgR+g",
-        email: "john@doeenterprises.com",
-      };
       const MOCK_ACCESS_TOKEN = "ed962544-2f0c-4c74-8c71-75dc0f679756";
       const MOCK_SESSION_TOKEN = "f0e8b931-b7fd-4cb5-9912-c35f75fbc159";
 
@@ -231,6 +224,87 @@ describe("AuthenticationController", () => {
 
       expect(mockAuthenticationService.profile).toHaveBeenCalledTimes(1);
       expect(mockAuthenticationService.profile).toHaveBeenCalledWith(1);
+    });
+  });
+
+  describe("postRefresh", () => {
+    it("should call refreshUser", async () => {
+      const mockRequest = {
+        cookies: {
+          sessionToken: "79382d6f-a7b7-42e4-996a-b38e133b9c19",
+        },
+      };
+
+      const mockResponse = {
+        setCookie: vi.fn(),
+      };
+
+      mockAuthenticationService.refresh.mockResolvedValueOnce(
+        ok({
+          accessToken: "66516c23-82de-45f6-9eb6-33733e65de51",
+          sessionToken: "79382d6f-a7b7-42e4-996a-b38e133b9c19",
+        }),
+      );
+
+      const response = await controller.postRefresh(
+        mockRequest as unknown as FastifyRequest,
+        mockResponse as unknown as FastifyReply,
+      );
+
+      expect(mockAuthenticationService.refresh).toHaveBeenCalledExactlyOnceWith(
+        mockRequest.cookies.sessionToken,
+      );
+      expect(response).toBeInstanceOf(ApiResponse);
+      expect(response).toEqual(
+        expect.objectContaining({
+          statusCode: 200,
+          data: {
+            accessToken: "66516c23-82de-45f6-9eb6-33733e65de51",
+          },
+        }),
+      );
+
+      expect(mockResponse.setCookie).toHaveBeenCalledWith(
+        "sessionToken",
+        "79382d6f-a7b7-42e4-996a-b38e133b9c19",
+        expect.objectContaining({
+          httpOnly: true,
+          sameSite: "lax",
+          path: "/",
+        }),
+      );
+    });
+
+    it("should throw error on failure", async () => {
+      const mockRequest = {
+        cookies: {
+          sessionToken: "79382d6f-a7b7-42e4-996a-b38e133b9c19",
+        },
+      };
+
+      const mockResponse = {
+        setCookie: vi.fn(),
+      };
+
+      mockAuthenticationService.refresh.mockResolvedValueOnce(
+        err("Invalid session token"),
+      );
+
+      const error = await controller
+        .postRefresh(
+          mockRequest as unknown as FastifyRequest,
+          mockResponse as unknown as FastifyReply,
+        )
+        .catch((e) => e);
+
+      expect(error).toBeInstanceOf(HttpException);
+      expect(error.getStatus()).toBe(401);
+
+      expect(mockAuthenticationService.refresh).toHaveBeenCalledExactlyOnceWith(
+        mockRequest.cookies.sessionToken,
+      );
+
+      expect(mockResponse.setCookie).not.toHaveBeenCalled();
     });
   });
 });

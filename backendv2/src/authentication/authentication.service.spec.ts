@@ -7,6 +7,7 @@ import { UsersRepository } from "../users/users.repository";
 import { JwtService } from "../jwt/jwt.service";
 import { SessionService } from "../session/session.service";
 import { AuthorizationService } from "../authorization/authorization.service";
+import { desc } from "drizzle-orm";
 
 describe("AuthenticationService", () => {
   let service: AuthenticationService;
@@ -26,6 +27,7 @@ describe("AuthenticationService", () => {
 
   const mockSessionService = {
     createSession: vi.fn(),
+    verifySession: vi.fn(),
   };
 
   const mockAuthorizationService = {
@@ -186,10 +188,70 @@ describe("AuthenticationService", () => {
 
       const { password, ...rest } = MOCK_USER;
 
-      expect(profileResult).toEqual(ok({
-	...rest,
-	permissions: ["read:something", "write:something"],
-      }));
+      expect(profileResult).toEqual(
+        ok({
+          ...rest,
+          permissions: ["read:something", "write:something"],
+        }),
+      );
+    });
+  });
+
+  describe("Refresh", () => {
+    it("should return error if session not found", async () => {
+      mockSessionService.verifySession.mockResolvedValueOnce(
+        err("Invalid session token"),
+      );
+
+      const refreshResult = await service.refresh("invalid-session-token");
+
+      expect(mockSessionService.verifySession).toHaveBeenCalledExactlyOnceWith(
+        "invalid-session-token",
+      );
+
+      expect(refreshResult).toEqual(err("Invalid session token"));
+    });
+
+    it("should verify session and return a new accessToken", async () => {
+      const MOCK_ACCESS_TOKEN = "66516c23-82de-45f6-9eb6-33733e65de51";
+      const MOCK_SESSION = {
+        id: "aaaaa",
+        userId: 1,
+        secretHash: "bbbbb",
+        sessionToken: "aaaaa.bbbbb",
+      };
+
+      mockSessionService.verifySession.mockResolvedValueOnce(ok(MOCK_SESSION));
+      mockSessionService.createSession.mockResolvedValueOnce(ok(MOCK_SESSION));
+      mockJwtService.signAccessToken.mockResolvedValueOnce(
+        ok(MOCK_ACCESS_TOKEN),
+      );
+      mockUsersRepository.findById.mockResolvedValueOnce(ok(sampleUser));
+
+      const refreshResult = await service.refresh(
+        "79382d6f-a7b7-42e4-996a-b38e133b9c19",
+      );
+
+      expect(mockSessionService.verifySession).toHaveBeenCalledExactlyOnceWith(
+        "79382d6f-a7b7-42e4-996a-b38e133b9c19",
+      );
+
+      expect(mockUsersRepository.findById).toHaveBeenCalledExactlyOnceWith(1);
+      expect(mockSessionService.createSession).toHaveBeenCalledExactlyOnceWith(
+        1,
+      );
+      expect(mockJwtService.signAccessToken).toHaveBeenCalledExactlyOnceWith({
+        sub: 1,
+        isSuperUser: true,
+        permissions: [],
+      });
+
+      expect(refreshResult).toEqual(
+        ok({
+          accessToken: MOCK_ACCESS_TOKEN,
+          sessionToken: MOCK_SESSION.sessionToken,
+        }),
+      );
     });
   });
 });

@@ -69,4 +69,32 @@ export class AuthenticationController {
 
     return ApiResponse.success(user.value, 200);
   }
+
+  @Post("refresh")
+  async postRefresh(
+    @Res() request: FastifyRequest,
+    @Res({ passthrough: true }) response: FastifyReply,
+  ) {
+    const sessionToken = request.cookies.sessionToken;
+
+    const refreshResult =
+      await this.authenticationService.refresh(sessionToken);
+
+    if (refreshResult.isErr()) {
+      throw new HttpException(
+        ApiResponse.error("Failed to refresh user", 401),
+        401,
+      );
+    }
+
+    response.setCookie("sessionToken", refreshResult.value.sessionToken, {
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+    });
+
+    return ApiResponse.success({
+      accessToken: refreshResult.value.accessToken,
+    });
+  }
 }

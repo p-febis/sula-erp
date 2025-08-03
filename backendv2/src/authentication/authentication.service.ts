@@ -41,6 +41,7 @@ export class AuthenticationService {
       return err("Invalid password");
     }
 
+    // TODO: Permissions should be fetched from the database
     const accessToken = await this.jwtService.signAccessToken({
       sub: userId,
       isSuperUser: userResult.value.isSuperUser,
@@ -77,6 +78,37 @@ export class AuthenticationService {
     return ok({
       ...userResultWithoutPassword,
       permissions: authenticationResult.value,
+    });
+  }
+
+  async refresh(sessionToken: string) {
+    const sessionResult = await this.sessionService.verifySession(sessionToken);
+
+    if (sessionResult.isErr()) return sessionResult;
+
+    const userResult = await this.usersRepository.findById(
+      sessionResult.value.userId,
+    );
+
+    if (userResult.isErr()) return err("Failed to get user");
+
+    const session = await this.sessionService.createSession(
+      userResult.value.id,
+    );
+
+    // TODO: Permissions should be fetched from the database
+    const accessToken = await this.jwtService.signAccessToken({
+      sub: userResult.value.id,
+      isSuperUser: userResult.value.isSuperUser,
+      permissions: [],
+    });
+
+    if (!accessToken.isOk()) return err("Could not generate accessToken");
+    if (!session.isOk()) return err("Could not create session");
+
+    return ok({
+      accessToken: accessToken.value,
+      sessionToken: session.value.sessionToken,
     });
   }
 }
