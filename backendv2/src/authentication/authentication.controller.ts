@@ -72,7 +72,7 @@ export class AuthenticationController {
 
   @Post("refresh")
   async postRefresh(
-    @Res() request: FastifyRequest,
+    @Req() request: FastifyRequest,
     @Res({ passthrough: true }) response: FastifyReply,
   ) {
     const sessionToken = request.cookies.sessionToken;
