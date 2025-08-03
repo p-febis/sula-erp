@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { CreateRoleDto } from "./dto/create-role.dto";
 import { AuthorizationRepository } from "./authorization.repository";
-import { UpdateRoleAssociationsDto } from "./dto/update-role-associations.dto";
 
 @Injectable()
 export class AuthorizationService {
@@ -22,15 +21,4 @@ export class AuthorizationService {
     return permissions;
   }
 
-  async createRoleAssociations(
-    roleId: number,
-    updateRoleAssociationsData: UpdateRoleAssociationsDto,
-  ) {
-    const role = await this.authorizationRepository.createRoleAssociations(
-      roleId,
-      updateRoleAssociationsData,
-    );
-
-    return role;
-  }
 }

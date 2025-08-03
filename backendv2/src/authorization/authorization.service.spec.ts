@@ -55,47 +55,6 @@ describe("AuthorizationService", () => {
     });
   });
 
-  describe("Roles > Associations", () => {
-    it("should create associations", async () => {
-      const sampleRole = {
-        ...fullRole,
-        users: [
-          {
-            id: 1,
-            username: "admin",
-          },
-        ],
-        permissions: [
-          {
-            id: 1,
-            name: "read:role",
-          },
-        ],
-      };
-
-      mockAuthorizationRepository.createRoleAssociations.mockResolvedValueOnce(
-        ok(sampleRole),
-      );
-
-      const result = await service.createRoleAssociations(1, {
-        userIds: [1],
-        permissionIds: [1],
-      });
-
-      expect(
-        mockAuthorizationRepository.createRoleAssociations,
-      ).toHaveBeenCalledTimes(1);
-      expect(
-        mockAuthorizationRepository.createRoleAssociations,
-      ).toHaveBeenCalledWith(1, {
-        userIds: [1],
-        permissionIds: [1],
-      });
-
-      expect(result).toEqual(ok(sampleRole));
-    });
-  });
-
   describe("Permissions", () => {
     it("should return all permissions for a user", async () => {
       const mockResult = ok([
