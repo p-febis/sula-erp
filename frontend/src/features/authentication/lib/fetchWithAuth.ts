@@ -1,3 +1,5 @@
+import { refreshAuth } from "../components/AuthenticationProvider";
+
 export async function fetchWithAuth(
   input: RequestInfo,
   init: RequestInit = {},
@@ -34,17 +36,7 @@ export async function fetchWithAuth(
 }
 
 async function tryRefreshAccessToken(): Promise<boolean> {
-  const response = await fetch("/api/auth/refresh", {
-    method: "POST",
-    credentials: "same-origin",
-  });
-
-  if (!response.ok) {
-    sessionStorage.setItem("accessToken", "");
-    return false;
-  }
-
-  const { data } = await response.json();
+  const data = await refreshAuth();
 
   if (data?.accessToken) {
     sessionStorage.setItem("accessToken", data.accessToken);

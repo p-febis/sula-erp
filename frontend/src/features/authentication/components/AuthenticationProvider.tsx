@@ -36,7 +36,7 @@ export const useAuthentication = () => {
 };
 
 export async function refreshAuth(): Promise<{ accessToken: string } | null> {
-  const response = await fetch("/api/auth/refresh", {
+  const response = await fetch("/api/authentication/refresh", {
     method: "POST",
     credentials: "same-origin",
   });
