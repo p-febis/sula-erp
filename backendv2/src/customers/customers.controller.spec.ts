@@ -44,7 +44,7 @@ describe("CustomersController", () => {
           provide: AuthenticationGuard,
           useValue: {
             canActivate: vi.fn().mockReturnValue(true),
-          } as unknown as jest.Mocked<AuthenticationGuard>,
+          },
         },
       ],
     }).compile();
@@ -72,8 +72,7 @@ describe("CustomersController", () => {
         phone: "123456789",
       });
 
-      expect(mockCustomersService.create).toHaveBeenCalledTimes(1);
-      expect(mockCustomersService.create).toHaveBeenCalledWith(
+      expect(mockCustomersService.create).toHaveBeenCalledExactlyOnceWith(
         expect.objectContaining({
           name: "John Doe",
           email: "john@doeenterprises.com",
