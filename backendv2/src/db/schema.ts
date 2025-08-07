@@ -32,7 +32,7 @@ export const usersRolesTable = pgTable("users_roles", {
 
 export const permissionsTable = pgTable("permissions", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  name: varchar({ length: 255 }).notNull(),
+  name: varchar({ length: 255 }).notNull().unique(),
 });
 
 export const permissionsRolesTable = pgTable("permissions_roles", {

@@ -4,8 +4,9 @@
   "description": "",
   "scripts": {
     "build": "tsup ./src/main.ts",
-    "test": "pnpm vitest",
-    "start:dev": "tsx watch ./src/main.ts",
+    "test": "vitest",
+    "seed": "tsx --env-file=.env ./src/seeder/*.ts",
+    "start:dev": "nest start --watch",
     "format": "prettier --write src/**/*.ts"
   },
   "keywords": [],
