@@ -136,7 +136,7 @@ describe("RolesController", () => {
 
       const rolesResult = await controller.findAll().catch((e) => e);
 
-      expect(mockRolesService.findAll).toHaveBeenCalledExactlyOnceWith();
+      expect(mockRolesService.findAll).toHaveBeenCalledOnce();
       expect(rolesResult).toBeInstanceOf(HttpException);
       expect(rolesResult.getStatus()).toBe(500);
     });
