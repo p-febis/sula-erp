@@ -4,11 +4,23 @@ import { err, ok } from "neverthrow";
 import * as schema from "../db/schema";
 import { eq, count } from "drizzle-orm";
 
+export type TUser = typeof schema.usersTable.$inferSelect;
+
 @Injectable()
 export class UsersRepository {
   constructor(
     @Inject("DB") private drizzle: PostgresJsDatabase<typeof schema>,
   ) {}
+
+  async findAll() {
+    try {
+      const usersList = await this.drizzle.select().from(schema.usersTable);
+
+      return ok(usersList);
+    } catch (e) {
+      return err("Failed to select");
+    }
+  }
 
   async create(creationData: typeof schema.usersTable.$inferInsert) {
     try {

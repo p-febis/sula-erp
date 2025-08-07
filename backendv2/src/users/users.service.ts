@@ -1,12 +1,19 @@
 import { Injectable } from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
-import { UsersRepository } from "./users.repository";
+import { UsersRepository, type TUser } from "./users.repository";
 import { hash } from "@node-rs/argon2";
 import { err } from "neverthrow";
 
 @Injectable()
 export class UsersService {
   constructor(private readonly usersRepository: UsersRepository) {}
+
+  async findAll() {
+    const usersResult = await this.usersRepository.findAll();
+    return usersResult.map((users: TUser[]) =>
+      users.map(({ password, ...restUser }) => restUser),
+    );
+  }
 
   async createUser(creationData: CreateUserDto) {
     const userResult = await this.usersRepository.findByEmail(

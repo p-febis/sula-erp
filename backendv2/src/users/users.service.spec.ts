@@ -11,6 +11,7 @@ describe("UsersService", () => {
     findByEmail: vi.fn(),
     create: vi.fn(),
     isFirstUser: vi.fn(),
+    findAll: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -105,6 +106,50 @@ describe("UsersService", () => {
       );
       expect(userResult.isErr()).toBeTruthy();
       expect(mockUsersRepository.create).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("Finding", () => {
+    it("should return all users", async () => {
+      const sampleUsers = [
+        {
+          id: 1,
+          username: "john_doe",
+          email: "john_doe@example.com",
+          isSuperUser: true,
+          password: "734d59f9-cd1b-42a5-b519-f0cb11f2b8a5",
+        },
+        {
+          id: 2,
+          username: "jane_doe",
+          email: "jane_doe@example.com",
+          isSuperUser: false,
+          password: "e196809e-3ef2-4e87-bafa-eb72f5980361",
+        },
+      ];
+
+      mockUsersRepository.findAll.mockResolvedValueOnce(ok(sampleUsers));
+
+      const allUsers = await service.findAll();
+
+      expect(mockUsersRepository.findAll).toHaveBeenCalledOnce();
+
+      expect(allUsers).toEqual(
+        ok([
+          {
+            id: 1,
+            username: "john_doe",
+            email: "john_doe@example.com",
+            isSuperUser: true,
+          },
+          {
+            id: 2,
+            username: "jane_doe",
+            email: "jane_doe@example.com",
+            isSuperUser: false,
+          },
+        ]),
+      );
     });
   });
 });
