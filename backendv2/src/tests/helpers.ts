@@ -1,6 +1,6 @@
 import { GUARDS_METADATA } from "@nestjs/common/constants";
 import { Reflector } from "@nestjs/core";
-import { Permission } from "../authorization/permisision.decorator";
+import { Permission } from "../authorization/permission.decorator";
 import assert from "assert";
 import { AuthorizationGuard } from "../authorization/authorization.guard";
 import { AuthenticationGuard } from "../authentication/authentication.guard";

@@ -2,7 +2,7 @@ import { Controller, Get, UseGuards, HttpException } from "@nestjs/common";
 
 import { AuthenticationGuard } from "../authentication/authentication.guard";
 import { AuthorizationGuard } from "../authorization/authorization.guard";
-import { Permission } from "../authorization/permisision.decorator";
+import { Permission } from "../authorization/permission.decorator";
 import { UsersService } from "./users.service";
 import { ApiResponse } from "../api-response";
 

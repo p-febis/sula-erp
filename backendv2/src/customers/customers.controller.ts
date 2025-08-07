@@ -15,7 +15,7 @@ import { UpdateCustomerDto } from "./dto/update-customer.dto";
 import { ApiResponse } from "../api-response";
 import { AuthenticationGuard } from "../authentication/authentication.guard";
 import { AuthorizationGuard } from "../authorization/authorization.guard";
-import { Permission } from "../authorization/permisision.decorator";
+import { Permission } from "../authorization/permission.decorator";
 
 @Controller("customers")
 export class CustomersController {

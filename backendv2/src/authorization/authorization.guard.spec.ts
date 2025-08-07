@@ -3,7 +3,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { ExecutionContext } from "@nestjs/common";
 import { AuthorizationGuard } from "./authorization.guard";
 import { Reflector } from "@nestjs/core";
-import { Permission } from "./permisision.decorator";
+import { Permission } from "./permission.decorator";
 
 describe("AuthorizationGuard", () => {
   let guard: AuthorizationGuard;

@@ -15,7 +15,7 @@ import { CreateRoleDto } from "./dto/create-role.dto";
 import { UpdateRoleDto } from "./dto/update-role.dto";
 import { AuthenticationGuard } from "../authentication/authentication.guard";
 import { AuthorizationGuard } from "../authorization/authorization.guard";
-import { Permission } from "../authorization/permisision.decorator";
+import { Permission } from "../authorization/permission.decorator";
 import { ApiResponse } from "../api-response";
 
 @Controller("roles")

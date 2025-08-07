@@ -6,6 +6,7 @@ import { JwtService } from "./jwt/jwt.service";
 import { SessionModule } from "./session/session.module";
 import { CustomersModule } from './customers/customers.module';
 import { RolesModule } from './roles/roles.module';
+import { PermissionsModule } from './permissions/permissions.module';
 
 @Module({
   providers: [JwtService],
@@ -22,6 +23,7 @@ import { RolesModule } from './roles/roles.module';
     SessionModule,
     CustomersModule,
     RolesModule,
+    PermissionsModule,
   ],
 })
 export class AppModule {}
