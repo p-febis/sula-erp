@@ -26,7 +26,7 @@ export const RoleEdit = ({ roleId }: { roleId?: string }) => {
     },
   });
 
-  const [roles, users, permissions] = (data ?? []) as [
+  const [role, users, permissions] = (data ?? []) as [
     Role,
     User[],
     Permission[],
@@ -48,8 +48,8 @@ export const RoleEdit = ({ roleId }: { roleId?: string }) => {
 
   const form = useForm({
     defaultValues: {
-      userIds: roles?.users?.map(({ id }) => id) ?? [],
-      permissionIds: roles?.permissions?.map(({ id }) => id) ?? [],
+      userIds: role?.users?.map(({ id }) => id) ?? [],
+      permissionIds: role?.permissions?.map(({ id }) => id) ?? [],
     },
     onSubmit: async ({ value }) => {
 
@@ -57,7 +57,7 @@ export const RoleEdit = ({ roleId }: { roleId?: string }) => {
         toAssociate: toAssociateUserIds,
         toDisassociate: toDisassociateUserIds,
       } = calculateDifference(
-        roles.users.map(({ id }) => id),
+        role.users.map(({ id }) => id),
         value.userIds,
       );
 
@@ -65,7 +65,7 @@ export const RoleEdit = ({ roleId }: { roleId?: string }) => {
         toAssociate: toAssociatePermissionIds,
         toDisassociate: toDisassociatePermissionIds,
       } = calculateDifference(
-        roles.permissions.map(({ id }) => id),
+        role.permissions.map(({ id }) => id),
         value.permissionIds,
       );
 
@@ -98,7 +98,7 @@ export const RoleEdit = ({ roleId }: { roleId?: string }) => {
       <Card>
         <CardHeader>
           <CardTitle>
-            {canEdit ? "Edit" : "View"} role '{roles.name}'
+            {canEdit ? "Edit" : "View"} role '{role.name}'
           </CardTitle>
         </CardHeader>
         <CardContent>
