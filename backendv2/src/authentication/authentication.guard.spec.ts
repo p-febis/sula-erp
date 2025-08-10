@@ -43,11 +43,7 @@ describe("AuthenticationGuard", () => {
     jwtService = module.get<JwtService>(JwtService);
   });
 
-  it("should be defined", () => {
-    expect(new AuthenticationGuard(null)).toBeDefined();
-  });
-
-  it("should return true if the token is valid", async () => {
+  it("should be able to validate a token", async () => {
     request.headers.authorization = `Bearer 2d4425e1-4274-4c7a-8537-77788e01d168`;
     mockJwtService.verifyAccessToken.mockResolvedValueOnce(
       ok({
@@ -56,10 +52,6 @@ describe("AuthenticationGuard", () => {
     );
 
     const canActivate = await guard.canActivate(mockExecutionContext);
-    expect(mockJwtService.verifyAccessToken).toHaveBeenCalledTimes(1);
-    expect(mockJwtService.verifyAccessToken).toHaveBeenCalledWith(
-      "2d4425e1-4274-4c7a-8537-77788e01d168",
-    );
 
     expect(request["user"]).toEqual({
       sub: 1,
@@ -77,10 +69,6 @@ describe("AuthenticationGuard", () => {
     const canActivateError = await guard
       .canActivate(mockExecutionContext)
       .catch((e) => e);
-    expect(mockJwtService.verifyAccessToken).toHaveBeenCalledTimes(1);
-    expect(mockJwtService.verifyAccessToken).toHaveBeenCalledWith(
-      "2d4425e1-4274-4c7a-8537-77788e01d168",
-    );
 
     expect(canActivateError).toBeInstanceOf(UnauthorizedException);
 

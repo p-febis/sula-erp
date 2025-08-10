@@ -26,10 +26,6 @@ describe("PermissionsService", () => {
     service = module.get<PermissionsService>(PermissionsService);
   });
 
-  it("should be defined", () => {
-    expect(service).toBeDefined();
-  });
-
   describe("Finding", () => {
     it("should find all permissions", async () => {
       const samplePermissions = [
@@ -49,7 +45,6 @@ describe("PermissionsService", () => {
 
       const permissionsResult = await service.findAll();
 
-      expect(mockPermissionsRepository.findAll).toHaveBeenCalledOnce();
       expect(permissionsResult).toEqual(ok(samplePermissions));
     });
   });

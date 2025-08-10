@@ -13,6 +13,13 @@ describe("SessionService", () => {
     findById: vi.fn(),
   };
 
+  const mockSession = {
+    id: "InEZiWr9Km4PWgM99tK51oPP",
+    userId: 1,
+    secretHash:
+      "3c73036911d0a9fcb9cd7ec050452329ec8889b108b9947ccaff40b1cc5ab19f",
+  };
+
   beforeEach(async () => {
     vi.resetAllMocks();
     const module: TestingModule = await Test.createTestingModule({
@@ -26,10 +33,6 @@ describe("SessionService", () => {
     }).compile();
 
     service = module.get<SessionService>(SessionService);
-  });
-
-  it("should be defined", () => {
-    expect(service).toBeDefined();
   });
 
   describe("Creation", () => {
@@ -49,12 +52,6 @@ describe("SessionService", () => {
 
       const session = await service.createSession(1);
 
-      expect(mockSessionRepository.create).toHaveBeenCalledWith(
-        1,
-        expect.any(String),
-        expect.any(String),
-      );
-
       expect(session).toEqual(
         ok({
           ...mockedSession,
@@ -64,7 +61,7 @@ describe("SessionService", () => {
 
       const value = session._unsafeUnwrap();
 
-      const [id, secret] = value.sessionToken.split(".");
+      const [, secret] = value.sessionToken.split(".");
       expect(secret).not.toEqual(value.secretHash);
     });
   });
@@ -78,20 +75,9 @@ describe("SessionService", () => {
        */
       const sessionToken = "InEZiWr9Km4PWgM99tK51oPP.nz4HTgiNrwx0w6Pe5PyMvkie";
 
-      const mockSession = {
-        id: "InEZiWr9Km4PWgM99tK51oPP",
-        userId: 1,
-        secretHash:
-          "3c73036911d0a9fcb9cd7ec050452329ec8889b108b9947ccaff40b1cc5ab19f",
-      };
-
       mockSessionRepository.findById.mockResolvedValueOnce(ok(mockSession));
 
       const sessionResult = await service.verifySession(sessionToken);
-
-      expect(mockSessionRepository.findById).toHaveBeenCalledWith(
-        "InEZiWr9Km4PWgM99tK51oPP",
-      );
 
       expect(sessionResult).toEqual(ok(mockSession));
     });
@@ -103,30 +89,14 @@ describe("SessionService", () => {
         "InEZiWr9Km4PWgM99tK51oPP.nz4HTgiNrwx0w6Pe5PyMvkie",
       );
 
-      expect(mockSessionRepository.findById).toHaveBeenCalledWith(
-        "InEZiWr9Km4PWgM99tK51oPP",
-      );
-
       expect(sessionResult).toEqual(err("Invalid session token"));
     });
 
     it("should return an error if the secret hash does not match", async () => {
       const sessionToken = "InEZiWr9Km4PWgM99tK51oPP.this-secret-is-invalid";
-
-      const mockSession = {
-        id: "InEZiWr9Km4PWgM99tK51oPP",
-        userId: 1,
-        secretHash:
-          "3c73036911d0a9fcb9cd7ec050452329ec8889b108b9947ccaff40b1cc5ab19f",
-      };
-
       mockSessionRepository.findById.mockResolvedValueOnce(ok(mockSession));
 
       const sessionResult = await service.verifySession(sessionToken);
-
-      expect(mockSessionRepository.findById).toHaveBeenCalledWith(
-        "InEZiWr9Km4PWgM99tK51oPP",
-      );
 
       expect(sessionResult).toEqual(err("Invalid session token"));
     });

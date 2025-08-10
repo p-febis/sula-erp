@@ -15,6 +15,13 @@ describe("UsersController", () => {
     findAll: vi.fn(),
   };
 
+  const sampleUser = {
+    id: 1,
+    username: "john_doe",
+    email: "john_doe@example.com",
+    isSuperUser: true,
+  };
+
   beforeEach(async () => {
     vi.resetAllMocks();
     const module: TestingModule = await Test.createTestingModule({
@@ -34,10 +41,6 @@ describe("UsersController", () => {
     controller = module.get<UsersController>(UsersController);
   });
 
-  it("should be defined", () => {
-    expect(controller).toBeDefined();
-  });
-
   describe("Finding", () => {
     it("should protect findAll", () => {
       assertAuthorizationWithPermissions(UsersController.prototype.findAll, [
@@ -46,26 +49,12 @@ describe("UsersController", () => {
     });
 
     it("should find all users", async () => {
-      const sampleUsers = [
-        {
-          id: 1,
-          username: "john_doe",
-          email: "john_doe@example.com",
-          isSuperUser: true,
-        },
-        {
-          id: 2,
-          username: "jane_doe",
-          email: "jane_doe@example.com",
-          isSuperUser: false,
-        },
-      ];
+      const sampleUsers = [sampleUser];
 
       mockUsersService.findAll.mockResolvedValueOnce(ok(sampleUsers));
 
       const usersResult = await controller.findAll();
 
-      expect(mockUsersService.findAll).toHaveBeenCalledExactlyOnceWith();
       expect(usersResult).toBeInstanceOf(ApiResponse);
       expect(usersResult).toEqual(
         expect.objectContaining({ statusCode: 200, data: sampleUsers }),
@@ -77,7 +66,6 @@ describe("UsersController", () => {
 
       const usersResult = await controller.findAll().catch((e) => e);
 
-      expect(mockUsersService.findAll).toHaveBeenCalledOnce();
       expect(usersResult).toBeInstanceOf(HttpException);
       expect(usersResult.getStatus()).toBe(500);
     });

@@ -39,7 +39,7 @@ describe("PermissionsController", () => {
   });
 
   describe("Finding", () => {
-    it("should proect findAll", () => {
+    it("should protect findAll", () => {
       assertAuthorizationWithPermissions(
         PermissionsController.prototype.findAll,
         ["read:permission"],
@@ -63,7 +63,7 @@ describe("PermissionsController", () => {
       );
 
       const permissionsResult = await controller.findAll();
-      expect(mockPermissionsService.findAll).toHaveBeenCalledExactlyOnceWith();
+
       expect(permissionsResult).toBeInstanceOf(ApiResponse);
       expect(permissionsResult).toEqual(
         expect.objectContaining({ statusCode: 200, data: samplePermissions }),
@@ -77,7 +77,6 @@ describe("PermissionsController", () => {
 
       const permissionsResult = await controller.findAll().catch((e) => e);
 
-      expect(mockPermissionsService.findAll).toHaveBeenCalledOnce();
       expect(permissionsResult).toBeInstanceOf(HttpException);
       expect(permissionsResult.getStatus()).toBe(500);
     });

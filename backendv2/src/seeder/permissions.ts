@@ -12,10 +12,7 @@ async function main() {
     for (const action of ACTIONS) {
       const name = `${action}:${resource}`;
 
-      await db
-        .insert(schema.permissionsTable)
-        .values({ name })
-        .execute();
+      await db.insert(schema.permissionsTable).values({ name }).execute();
     }
   }
 }

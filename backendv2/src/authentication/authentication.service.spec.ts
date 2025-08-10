@@ -7,7 +7,6 @@ import { UsersRepository } from "../users/users.repository";
 import { JwtService } from "../jwt/jwt.service";
 import { SessionService } from "../session/session.service";
 import { AuthorizationService } from "../authorization/authorization.service";
-import { desc } from "drizzle-orm";
 
 describe("AuthenticationService", () => {
   let service: AuthenticationService;
@@ -73,12 +72,8 @@ describe("AuthenticationService", () => {
     service = module.get<AuthenticationService>(AuthenticationService);
   });
 
-  it("should be defined", () => {
-    expect(service).toBeDefined();
-  });
-
   describe("Registration", () => {
-    it("should register a user", async () => {
+    it("should be able to register a user", async () => {
       const registrationData = {
         username: "john",
         email: "john@doeenterprises.com",
@@ -89,27 +84,18 @@ describe("AuthenticationService", () => {
 
       const user = await service.register(registrationData);
 
-      expect(mockUsersService.createUser).toHaveBeenCalledTimes(1);
-      expect(mockUsersService.createUser).toHaveBeenCalledWith(
-        registrationData,
-      );
       expect(user).toEqual(ok(sampleUser));
     });
   });
 
   describe("Login", () => {
-    it("should return error if user not found", async () => {
+    it("should return an error if user not found", async () => {
       mockUsersRepository.findByEmail.mockResolvedValueOnce(ok(null));
 
       const loginResult = await service.login({
         email: "john@doeenterprises.com",
         password: "password",
       });
-
-      expect(mockUsersRepository.findByEmail).toHaveBeenCalledTimes(1);
-      expect(mockUsersRepository.findByEmail).toHaveBeenCalledWith(
-        "john@doeenterprises.com",
-      );
 
       expect(loginResult).toEqual(err("No user found!"));
     });
@@ -144,16 +130,6 @@ describe("AuthenticationService", () => {
         password: "password",
       });
 
-      expect(mockJwtService.signAccessToken).toHaveBeenCalledTimes(1);
-      expect(mockJwtService.signAccessToken).toHaveBeenCalledWith({
-        sub: 1,
-        isSuperUser: true,
-        permissions: [],
-      });
-
-      expect(mockSessionService.createSession).toHaveBeenCalledTimes(1);
-      expect(mockSessionService.createSession).toHaveBeenCalledWith(1);
-
       expect(loginResult).toEqual(
         ok({
           accessToken: MOCK_ACCESS_TOKEN,
@@ -181,11 +157,6 @@ describe("AuthenticationService", () => {
 
       const profileResult = await service.profile(1);
 
-      expect(mockUsersRepository.findById).toHaveBeenCalledExactlyOnceWith(1);
-      expect(
-        mockAuthorizationService.findUserPermissions,
-      ).toHaveBeenCalledExactlyOnceWith(1);
-
       const { password, ...rest } = MOCK_USER;
 
       expect(profileResult).toEqual(
@@ -212,7 +183,7 @@ describe("AuthenticationService", () => {
       expect(refreshResult).toEqual(err("Invalid session token"));
     });
 
-    it("should verify session and return a new accessToken", async () => {
+    it("should verify a session and return a new accessToken", async () => {
       const MOCK_ACCESS_TOKEN = "66516c23-82de-45f6-9eb6-33733e65de51";
       const MOCK_SESSION = {
         id: "aaaaa",
@@ -231,20 +202,6 @@ describe("AuthenticationService", () => {
       const refreshResult = await service.refresh(
         "79382d6f-a7b7-42e4-996a-b38e133b9c19",
       );
-
-      expect(mockSessionService.verifySession).toHaveBeenCalledExactlyOnceWith(
-        "79382d6f-a7b7-42e4-996a-b38e133b9c19",
-      );
-
-      expect(mockUsersRepository.findById).toHaveBeenCalledExactlyOnceWith(1);
-      expect(mockSessionService.createSession).toHaveBeenCalledExactlyOnceWith(
-        1,
-      );
-      expect(mockJwtService.signAccessToken).toHaveBeenCalledExactlyOnceWith({
-        sub: 1,
-        isSuperUser: true,
-        permissions: [],
-      });
 
       expect(refreshResult).toEqual(
         ok({

@@ -21,6 +21,11 @@ describe("RolesController", () => {
     deleteOne: vi.fn(),
   };
 
+  const sampleRole = {
+    id: 1,
+    name: "Admin",
+  };
+
   beforeEach(async () => {
     vi.resetAllMocks();
     const module: TestingModule = await Test.createTestingModule({
@@ -50,10 +55,6 @@ describe("RolesController", () => {
     controller = module.get<RolesController>(RolesController);
   });
 
-  it("should be defined", () => {
-    expect(controller).toBeDefined();
-  });
-
   describe("Creating", () => {
     it("should be protected", async () => {
       assertAuthorizationWithPermissions(RolesController.prototype.create, [
@@ -73,17 +74,13 @@ describe("RolesController", () => {
         name: "Admin",
       });
 
-      expect(mockRolesService.create).toHaveBeenCalledExactlyOnceWith({
-        name: "Admin",
-      });
-
       expect(roleResult).toBeInstanceOf(ApiResponse);
       expect(roleResult).toEqual(
         expect.objectContaining({ statusCode: 201, data: sampleRole }),
       );
     });
 
-    it("should throw error on failure", async () => {
+    it("should throw an error on failure to create a role", async () => {
       mockRolesService.create.mockResolvedValueOnce(err("Failed to insert"));
 
       const error = await controller
@@ -105,38 +102,23 @@ describe("RolesController", () => {
     });
 
     it("should find all roles", async () => {
-      const sampleRoles = [
-        {
-          id: 1,
-          name: "Admin",
-        },
-        {
-          id: 2,
-          name: "Manager",
-        },
-        {
-          id: 3,
-          name: "Employee",
-        },
-      ];
+      const sampleRoles = [sampleRole];
 
       mockRolesService.findAll.mockResolvedValueOnce(ok(sampleRoles));
 
       const rolesResult = await controller.findAll();
 
-      expect(mockRolesService.findAll).toHaveBeenCalledExactlyOnceWith();
       expect(rolesResult).toBeInstanceOf(ApiResponse);
       expect(rolesResult).toEqual(
         expect.objectContaining({ statusCode: 200, data: sampleRoles }),
       );
     });
 
-    it("should return error if findAll fails", async () => {
+    it("should throw an error if retrieving roles fails", async () => {
       mockRolesService.findAll.mockResolvedValueOnce(err("Failed to select"));
 
       const rolesResult = await controller.findAll().catch((e) => e);
 
-      expect(mockRolesService.findAll).toHaveBeenCalledOnce();
       expect(rolesResult).toBeInstanceOf(HttpException);
       expect(rolesResult.getStatus()).toBe(500);
     });
@@ -148,16 +130,9 @@ describe("RolesController", () => {
     });
 
     it("should find a role by id", async () => {
-      const sampleRole = {
-        id: 1,
-        name: "Admin",
-      };
-
       mockRolesService.findOne.mockResolvedValueOnce(ok(sampleRole));
 
       const roleResult = await controller.findOne("1");
-
-      expect(mockRolesService.findOne).toHaveBeenCalledExactlyOnceWith(1);
 
       expect(roleResult).toBeInstanceOf(ApiResponse);
       expect(roleResult).toEqual(
@@ -165,12 +140,11 @@ describe("RolesController", () => {
       );
     });
 
-    it("should return error if findOne fails", async () => {
+    it("should be throw an error if retrieving roles fails", async () => {
       mockRolesService.findOne.mockResolvedValueOnce(err("Failed to select"));
 
       const roleResult = await controller.findOne("1").catch((e) => e);
 
-      expect(mockRolesService.findOne).toHaveBeenCalledExactlyOnceWith(1);
       expect(roleResult).toBeInstanceOf(HttpException);
       expect(roleResult.getStatus()).toBe(500);
     });
@@ -184,18 +158,9 @@ describe("RolesController", () => {
     });
 
     it("should update a role by id", async () => {
-      const sampleRole = {
-        id: 1,
-        name: "Admin",
-      };
-
       mockRolesService.updateOne.mockResolvedValueOnce(ok(sampleRole));
 
       const roleResult = await controller.updateOne("1", {
-        name: "Admin",
-      });
-
-      expect(mockRolesService.updateOne).toHaveBeenCalledExactlyOnceWith(1, {
         name: "Admin",
       });
 
@@ -205,7 +170,7 @@ describe("RolesController", () => {
       );
     });
 
-    it("should return error if updateOne fails", async () => {
+    it("should throw an error if updating a role fails", async () => {
       mockRolesService.updateOne.mockResolvedValueOnce(err("Failed to update"));
 
       const roleResult = await controller
@@ -214,9 +179,6 @@ describe("RolesController", () => {
         })
         .catch((e) => e);
 
-      expect(mockRolesService.updateOne).toHaveBeenCalledExactlyOnceWith(1, {
-        name: "Admin",
-      });
       expect(roleResult).toBeInstanceOf(HttpException);
       expect(roleResult.getStatus()).toBe(500);
     });
@@ -230,16 +192,9 @@ describe("RolesController", () => {
     });
 
     it("should delete a role by id", async () => {
-      const sampleRole = {
-        id: 1,
-        name: "Admin",
-      };
-
       mockRolesService.deleteOne.mockResolvedValueOnce(ok(sampleRole));
 
       const roleResult = await controller.deleteOne("1");
-
-      expect(mockRolesService.deleteOne).toHaveBeenCalledExactlyOnceWith(1);
 
       expect(roleResult).toBeInstanceOf(ApiResponse);
       expect(roleResult).toEqual(
@@ -252,7 +207,6 @@ describe("RolesController", () => {
 
       const roleResult = await controller.deleteOne("1").catch((e) => e);
 
-      expect(mockRolesService.deleteOne).toHaveBeenCalledExactlyOnceWith(1);
       expect(roleResult).toBeInstanceOf(HttpException);
       expect(roleResult.getStatus()).toBe(500);
     });

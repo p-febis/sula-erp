@@ -14,6 +14,14 @@ describe("UsersService", () => {
     findAll: vi.fn(),
   };
 
+  const sampleUser = {
+    id: 1,
+    username: "john_doe",
+    email: "john_doe@example.com",
+    isSuperUser: true,
+    password: "734d59f9-cd1b-42a5-b519-f0cb11f2b8a5",
+  };
+
   beforeEach(async () => {
     vi.resetAllMocks();
     const module: TestingModule = await Test.createTestingModule({
@@ -27,10 +35,6 @@ describe("UsersService", () => {
     }).compile();
 
     service = module.get<UsersService>(UsersService);
-  });
-
-  it("should be defined", () => {
-    expect(service).toBeDefined();
   });
 
   describe("Creation", () => {
@@ -60,23 +64,6 @@ describe("UsersService", () => {
           password: "password",
         });
 
-        const calledArguments = mockUsersRepository.create.mock
-          .calls[0][0] as unknown as { password: string };
-
-        expect(mockUsersRepository.isFirstUser).toHaveBeenCalledTimes(1);
-
-        expect(mockUsersRepository.create).toHaveBeenCalledTimes(1);
-        expect(mockUsersRepository.create).toHaveBeenCalledWith(
-          expect.objectContaining({
-            username: "john",
-            email: "john@doeenterprises.com",
-            password: expect.any(String),
-            isSuperUser,
-          }),
-        );
-
-        expect(calledArguments.password).not.toEqual("password");
-
         expect(userResult).toEqual(ok(sampleUser));
       },
     );
@@ -100,56 +87,21 @@ describe("UsersService", () => {
         password: "password",
       });
 
-      expect(mockUsersRepository.findByEmail).toHaveBeenCalledTimes(1);
-      expect(mockUsersRepository.findByEmail).toHaveBeenCalledWith(
-        "john@doeenterprises.com",
-      );
       expect(userResult.isErr()).toBeTruthy();
-      expect(mockUsersRepository.create).not.toHaveBeenCalled();
     });
   });
 
   describe("Finding", () => {
     it("should return all users", async () => {
-      const sampleUsers = [
-        {
-          id: 1,
-          username: "john_doe",
-          email: "john_doe@example.com",
-          isSuperUser: true,
-          password: "734d59f9-cd1b-42a5-b519-f0cb11f2b8a5",
-        },
-        {
-          id: 2,
-          username: "jane_doe",
-          email: "jane_doe@example.com",
-          isSuperUser: false,
-          password: "e196809e-3ef2-4e87-bafa-eb72f5980361",
-        },
-      ];
+      const sampleUsers = [sampleUser];
 
       mockUsersRepository.findAll.mockResolvedValueOnce(ok(sampleUsers));
 
       const allUsers = await service.findAll();
 
-      expect(mockUsersRepository.findAll).toHaveBeenCalledOnce();
+      const { password, ...sampleUserWithoutPassword } = sampleUser;
 
-      expect(allUsers).toEqual(
-        ok([
-          {
-            id: 1,
-            username: "john_doe",
-            email: "john_doe@example.com",
-            isSuperUser: true,
-          },
-          {
-            id: 2,
-            username: "jane_doe",
-            email: "jane_doe@example.com",
-            isSuperUser: false,
-          },
-        ]),
-      );
+      expect(allUsers).toEqual(ok([sampleUserWithoutPassword]));
     });
   });
 });

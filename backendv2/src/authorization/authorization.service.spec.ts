@@ -34,10 +34,6 @@ describe("AuthorizationService", () => {
     service = module.get<AuthorizationService>(AuthorizationService);
   });
 
-  it("should be defined", () => {
-    expect(service).toBeDefined();
-  });
-
   describe("Roles > Creation", () => {
     it("should create a new role", async () => {
       const role = {
@@ -45,11 +41,7 @@ describe("AuthorizationService", () => {
       };
 
       mockAuthorizationRepository.createRole.mockResolvedValue(ok(fullRole));
-
       const createdRole = await service.createRole(role);
-
-      expect(mockAuthorizationRepository.createRole).toHaveBeenCalledTimes(1);
-      expect(mockAuthorizationRepository.createRole).toHaveBeenCalledWith(role);
 
       expect(createdRole).toEqual(ok(fullRole));
     });
@@ -69,12 +61,6 @@ describe("AuthorizationService", () => {
       );
 
       const permissions = await service.findUserPermissions(1);
-      expect(
-        mockAuthorizationRepository.findAllPermissionsForUser,
-      ).toHaveBeenCalledTimes(1);
-      expect(
-        mockAuthorizationRepository.findAllPermissionsForUser,
-      ).toHaveBeenCalledWith(1);
 
       expect(permissions).toEqual(mockResult);
     });

@@ -50,10 +50,6 @@ describe("AuthorizationGuard", () => {
     guard = module.get<AuthorizationGuard>(AuthorizationGuard);
   });
 
-  it("should be defined", () => {
-    expect(guard).toBeDefined();
-  });
-
   it("should return true if the user is authorized", async () => {
     request.user.permissions = [
       "create:something",
@@ -71,8 +67,7 @@ describe("AuthorizationGuard", () => {
 
     const canActivate = await guard.canActivate(mockExecutionContext);
 
-    expect(mockReflector.get).toHaveBeenCalledTimes(1);
-    expect(mockReflector.get).toHaveBeenCalledWith(Permission, null);
+    expect(mockReflector.get).toHaveBeenCalledExactlyOnceWith(Permission, null);
 
     expect(canActivate).toBeTruthy();
   });
@@ -89,8 +84,7 @@ describe("AuthorizationGuard", () => {
 
     const canActivate = await guard.canActivate(mockExecutionContext);
 
-    expect(mockReflector.get).toHaveBeenCalledTimes(1);
-    expect(mockReflector.get).toHaveBeenCalledWith(Permission, null);
+    expect(mockReflector.get).toHaveBeenCalledExactlyOnceWith(Permission, null);
 
     expect(canActivate).toBeFalsy();
   });

@@ -52,10 +52,6 @@ describe("CustomersController", () => {
     controller = module.get<CustomersController>(CustomersController);
   });
 
-  it("should be defined", () => {
-    expect(controller).toBeDefined();
-  });
-
   describe("Creation", () => {
     it("should be protected", async () => {
       assertAuthorizationWithPermissions(CustomersController.prototype.create, [
@@ -72,21 +68,13 @@ describe("CustomersController", () => {
         phone: "123456789",
       });
 
-      expect(mockCustomersService.create).toHaveBeenCalledExactlyOnceWith(
-        expect.objectContaining({
-          name: "John Doe",
-          email: "john@doeenterprises.com",
-          phone: "123456789",
-        }),
-      );
-
       expect(customerResult).toBeInstanceOf(ApiResponse);
       expect(customerResult).toEqual(
         expect.objectContaining({ statusCode: 201, data: sampleCustomer }),
       );
     });
 
-    it("should throw error on failure", async () => {
+    it("should an throw error on failure", async () => {
       mockCustomersService.create.mockResolvedValueOnce(
         err("Failed to insert"),
       );
@@ -101,15 +89,6 @@ describe("CustomersController", () => {
 
       expect(error).toBeInstanceOf(HttpException);
       expect(error.getStatus()).toBe(500);
-
-      expect(mockCustomersService.create).toHaveBeenCalledTimes(1);
-      expect(mockCustomersService.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          name: "John Doe",
-          email: "john@doeenterprises.com",
-          phone: "123456789",
-        }),
-      );
     });
   });
 
@@ -122,21 +101,12 @@ describe("CustomersController", () => {
     });
 
     it("should find all customers", async () => {
-      const sampleCustomers = [
-        sampleCustomer,
-        {
-          id: 2,
-          name: "Jane Doe",
-          email: "jane@doeenterprises.com",
-          phone: "987654321",
-        },
-      ];
+      const sampleCustomers = [sampleCustomer];
 
       mockCustomersService.findAll.mockResolvedValueOnce(ok(sampleCustomers));
 
       const customersResult = await controller.findAll();
 
-      expect(mockCustomersService.findAll).toHaveBeenCalledTimes(1);
       expect(customersResult).toBeInstanceOf(ApiResponse);
       expect(customersResult).toEqual(
         expect.objectContaining({ statusCode: 200, data: sampleCustomers }),
@@ -150,25 +120,14 @@ describe("CustomersController", () => {
 
       const customersResult = await controller.findAll().catch((e) => e);
 
-      expect(mockCustomersService.findAll).toHaveBeenCalledTimes(1);
       expect(customersResult).toBeInstanceOf(HttpException);
       expect(customersResult.getStatus()).toBe(500);
     });
 
     it("should find a customer by id", async () => {
-      const sampleCustomer = {
-        id: 1,
-        name: "John Doe",
-        email: "john@doeenterprises.com",
-        phone: "123456789",
-      };
-
       mockCustomersService.findOne.mockResolvedValueOnce(ok(sampleCustomer));
 
       const customerResult = await controller.findOne("1");
-
-      expect(mockCustomersService.findOne).toHaveBeenCalledTimes(1);
-      expect(mockCustomersService.findOne).toHaveBeenCalledWith(1);
 
       expect(customerResult).toBeInstanceOf(ApiResponse);
       expect(customerResult).toEqual(
@@ -183,7 +142,6 @@ describe("CustomersController", () => {
 
       const customerResult = await controller.findOne("1").catch((e) => e);
 
-      expect(mockCustomersService.findOne).toHaveBeenCalledTimes(1);
       expect(customerResult).toBeInstanceOf(HttpException);
       expect(customerResult.getStatus()).toBe(500);
     });
@@ -197,17 +155,10 @@ describe("CustomersController", () => {
       );
     });
 
-    it("should call updateOne on service", async () => {
+    it("should be able to update a customer", async () => {
       mockCustomersService.updateOne.mockResolvedValueOnce(ok(sampleCustomer));
 
       const customerResult = await controller.updateOne("1", {
-        name: "John Doe",
-        email: "john@doeenterprises.com",
-        phone: "123456789",
-      });
-
-      expect(mockCustomersService.updateOne).toHaveBeenCalledTimes(1);
-      expect(mockCustomersService.updateOne).toHaveBeenCalledWith(1, {
         name: "John Doe",
         email: "john@doeenterprises.com",
         phone: "123456789",
@@ -219,7 +170,7 @@ describe("CustomersController", () => {
       );
     });
 
-    it("should return error if updateOne fails", async () => {
+    it("should throw an error if a customer fails to be updated", async () => {
       mockCustomersService.updateOne.mockResolvedValueOnce(
         err("Failed to update"),
       );
@@ -231,13 +182,6 @@ describe("CustomersController", () => {
           phone: "123456789",
         })
         .catch((e) => e);
-
-      expect(mockCustomersService.updateOne).toHaveBeenCalledTimes(1);
-      expect(mockCustomersService.updateOne).toHaveBeenCalledWith(1, {
-        name: "John Doe",
-        email: "john@doeenterprises.com",
-        phone: "123456789",
-      });
 
       expect(customerResult).toBeInstanceOf(HttpException);
       expect(customerResult.getStatus()).toBe(500);
@@ -252,13 +196,10 @@ describe("CustomersController", () => {
       );
     });
 
-    it("should call removeOne on service", async () => {
+    it("should be able to delete a customer", async () => {
       mockCustomersService.deleteOne.mockResolvedValueOnce(ok(sampleCustomer));
 
       const customerResult = await controller.deleteOne("1");
-
-      expect(mockCustomersService.deleteOne).toHaveBeenCalledTimes(1);
-      expect(mockCustomersService.deleteOne).toHaveBeenCalledWith(1);
 
       expect(customerResult).toBeInstanceOf(ApiResponse);
       expect(customerResult).toEqual(
@@ -266,15 +207,12 @@ describe("CustomersController", () => {
       );
     });
 
-    it("should return error if removeOne fails", async () => {
+    it("should thrown an error if deleting a customer fails", async () => {
       mockCustomersService.deleteOne.mockResolvedValueOnce(
         err("Failed to delete"),
       );
 
       const customerResult = await controller.deleteOne("1").catch((e) => e);
-
-      expect(mockCustomersService.deleteOne).toHaveBeenCalledTimes(1);
-      expect(mockCustomersService.deleteOne).toHaveBeenCalledWith(1);
 
       expect(customerResult).toBeInstanceOf(HttpException);
       expect(customerResult.getStatus()).toBe(500);

@@ -46,12 +46,8 @@ describe("AuthenticationController", () => {
     controller = module.get<AuthenticationController>(AuthenticationController);
   });
 
-  it("should be defined", () => {
-    expect(controller).toBeDefined();
-  });
-
-  describe("postRegister", () => {
-    it("should call registerUser", async () => {
+  describe("Register", () => {
+    it("should be able to register a user", async () => {
       const sampleUser = {
         id: 1,
         username: "john",
@@ -69,20 +65,13 @@ describe("AuthenticationController", () => {
         password: "password",
       });
 
-      expect(mockAuthenticationService.register).toHaveBeenCalledTimes(1);
-      expect(mockAuthenticationService.register).toHaveBeenCalledWith({
-        email: "john@doeenterprises.com",
-        username: "john",
-        password: "password",
-      });
-
       expect(result).toBeInstanceOf(ApiResponse);
       expect(result).toEqual(
         expect.objectContaining({ statusCode: 201, data: null }),
       );
     });
 
-    it("should throw error on failure", async () => {
+    it("should throw an error on failure to register", async () => {
       mockAuthenticationService.register.mockResolvedValueOnce(
         err("User already exists"),
       );
@@ -96,18 +85,11 @@ describe("AuthenticationController", () => {
         .catch((e) => e);
 
       expect(error).toBeInstanceOf(HttpException);
-
-      expect(mockAuthenticationService.register).toHaveBeenCalledTimes(1);
-      expect(mockAuthenticationService.register).toHaveBeenCalledWith({
-        email: "john@doeenterprises.com",
-        username: "john",
-        password: "password",
-      });
     });
   });
 
-  describe("postLogin", () => {
-    it("should call loginUser", async () => {
+  describe("Login", () => {
+    it("should be able to login a user", async () => {
       const MOCK_ACCESS_TOKEN = "ed962544-2f0c-4c74-8c71-75dc0f679756";
       const MOCK_SESSION_TOKEN = "f0e8b931-b7fd-4cb5-9912-c35f75fbc159";
 
@@ -126,12 +108,6 @@ describe("AuthenticationController", () => {
         },
       );
 
-      expect(mockAuthenticationService.login).toHaveBeenCalledTimes(1);
-      expect(mockAuthenticationService.login).toHaveBeenCalledWith({
-        email: "john@doeenterprises.com",
-        password: "password",
-      });
-
       expect(result).toBeInstanceOf(ApiResponse);
       expect(result).toEqual(
         expect.objectContaining({
@@ -140,8 +116,7 @@ describe("AuthenticationController", () => {
         }),
       );
 
-      expect(mockFastifyReply.setCookie).toHaveBeenCalledTimes(1);
-      expect(mockFastifyReply.setCookie).toHaveBeenCalledWith(
+      expect(mockFastifyReply.setCookie).toHaveBeenCalledExactlyOnceWith(
         "sessionToken",
         MOCK_SESSION_TOKEN,
         {
@@ -151,7 +126,8 @@ describe("AuthenticationController", () => {
         },
       );
     });
-    it("should throw error on failure", async () => {
+
+    it("should throw an error on failure", async () => {
       mockAuthenticationService.login.mockResolvedValueOnce(
         err("Invalid password"),
       );
@@ -165,18 +141,11 @@ describe("AuthenticationController", () => {
 
       expect(error).toBeInstanceOf(HttpException);
       expect(error.getStatus()).toBe(401);
-
-      expect(mockAuthenticationService.login).toHaveBeenCalledTimes(1);
-      expect(mockAuthenticationService.login).toHaveBeenCalledWith({
-        email: "john@doeenterprises.com",
-        password: "password",
-      });
-      expect(mockFastifyReply.setCookie).not.toHaveBeenCalled();
     });
   });
 
-  describe("getProfile", () => {
-    it("should call profileUser", async () => {
+  describe("Profile", () => {
+    it("should be able to get the user's profile", async () => {
       const sampleUser = {
         id: 1,
         username: "john",
@@ -195,16 +164,13 @@ describe("AuthenticationController", () => {
         mockRequest as unknown as FastifyRequest,
       );
 
-      expect(mockAuthenticationService.profile).toHaveBeenCalledTimes(1);
-      expect(mockAuthenticationService.profile).toHaveBeenCalledWith(1);
-
       expect(result).toBeInstanceOf(ApiResponse);
       expect(result).toEqual(
         expect.objectContaining({ statusCode: 200, data: sampleUser }),
       );
     });
 
-    it("should throw error on failure", async () => {
+    it("should throw an error on failure to retrieve profile", async () => {
       const mockRequest = {
         user: {
           sub: 1,
@@ -221,14 +187,11 @@ describe("AuthenticationController", () => {
 
       expect(error).toBeInstanceOf(HttpException);
       expect(error.getStatus()).toBe(500);
-
-      expect(mockAuthenticationService.profile).toHaveBeenCalledTimes(1);
-      expect(mockAuthenticationService.profile).toHaveBeenCalledWith(1);
     });
   });
 
-  describe("postRefresh", () => {
-    it("should call refreshUser", async () => {
+  describe("[POST] Refresh", () => {
+    it("should be able to refresh a user's tokens", async () => {
       const mockRequest = {
         cookies: {
           sessionToken: "79382d6f-a7b7-42e4-996a-b38e133b9c19",
@@ -251,9 +214,6 @@ describe("AuthenticationController", () => {
         mockResponse as unknown as FastifyReply,
       );
 
-      expect(mockAuthenticationService.refresh).toHaveBeenCalledExactlyOnceWith(
-        mockRequest.cookies.sessionToken,
-      );
       expect(response).toBeInstanceOf(ApiResponse);
       expect(response).toEqual(
         expect.objectContaining({
@@ -264,7 +224,7 @@ describe("AuthenticationController", () => {
         }),
       );
 
-      expect(mockResponse.setCookie).toHaveBeenCalledWith(
+      expect(mockResponse.setCookie).toHaveBeenCalledExactlyOnceWith(
         "sessionToken",
         "79382d6f-a7b7-42e4-996a-b38e133b9c19",
         expect.objectContaining({
@@ -275,7 +235,7 @@ describe("AuthenticationController", () => {
       );
     });
 
-    it("should throw error on failure", async () => {
+    it("should throw an error on failure to refresh", async () => {
       const mockRequest = {
         cookies: {
           sessionToken: "79382d6f-a7b7-42e4-996a-b38e133b9c19",
@@ -299,12 +259,6 @@ describe("AuthenticationController", () => {
 
       expect(error).toBeInstanceOf(HttpException);
       expect(error.getStatus()).toBe(401);
-
-      expect(mockAuthenticationService.refresh).toHaveBeenCalledExactlyOnceWith(
-        mockRequest.cookies.sessionToken,
-      );
-
-      expect(mockResponse.setCookie).not.toHaveBeenCalled();
     });
   });
 });

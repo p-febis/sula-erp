@@ -17,10 +17,6 @@ describe("JwtService", () => {
     service = module.get<JwtService>(JwtService);
   });
 
-  it("should be defined", () => {
-    expect(service).toBeDefined();
-  });
-
   it("should sign the access token", async () => {
     const FIFTEEN_MINUTES_SECONDS = 900;
     const accessTokenResult = await service.signAccessToken({
