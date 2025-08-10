@@ -24,6 +24,13 @@ describe("RolesController", () => {
   const sampleRole = {
     id: 1,
     name: "Admin",
+    users: [
+      {
+        id: 1,
+        username: "Admin",
+      },
+    ],
+    permissions: ["create:something"],
   };
 
   beforeEach(async () => {
@@ -102,7 +109,7 @@ describe("RolesController", () => {
     });
 
     it("should find all roles", async () => {
-      const sampleRoles = [sampleRole];
+      const sampleRoles = [{ id: 1, name: "Administrator"}];
 
       mockRolesService.findAll.mockResolvedValueOnce(ok(sampleRoles));
 
@@ -126,6 +133,8 @@ describe("RolesController", () => {
     it("should protect findOne", async () => {
       assertAuthorizationWithPermissions(RolesController.prototype.findOne, [
         "read:role",
+        "read:user",
+        "read:permission",
       ]);
     });
 

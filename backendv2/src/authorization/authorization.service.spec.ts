@@ -7,15 +7,7 @@ import { ok } from "neverthrow";
 describe("AuthorizationService", () => {
   let service: AuthorizationService;
 
-  const fullRole = {
-    id: 1,
-    name: "Marketing",
-    users: [],
-    permissions: [],
-  };
-
   const mockAuthorizationRepository = {
-    createRole: vi.fn(),
     createRoleAssociations: vi.fn(),
     findAllPermissionsForUser: vi.fn(),
   };
@@ -32,19 +24,6 @@ describe("AuthorizationService", () => {
     }).compile();
 
     service = module.get<AuthorizationService>(AuthorizationService);
-  });
-
-  describe("Roles > Creation", () => {
-    it("should create a new role", async () => {
-      const role = {
-        name: "admin",
-      };
-
-      mockAuthorizationRepository.createRole.mockResolvedValue(ok(fullRole));
-      const createdRole = await service.createRole(role);
-
-      expect(createdRole).toEqual(ok(fullRole));
-    });
   });
 
   describe("Permissions", () => {

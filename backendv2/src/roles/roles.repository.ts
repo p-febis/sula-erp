@@ -35,15 +35,45 @@ export class RolesRepository {
 
   async findOne(id: number) {
     try {
-      const rolesList = await this.drizzle
+      const usersPromise = this.drizzle
+        .select()
+        .from(schema.usersTable)
+        .innerJoin(
+          schema.usersRolesTable,
+          eq(schema.usersRolesTable.userId, schema.usersTable.id),
+        );
+
+      const permissionsPromise = this.drizzle
+        .select()
+        .from(schema.permissionsTable)
+        .innerJoin(
+          schema.permissionsRolesTable,
+          eq(
+            schema.permissionsRolesTable.permissionId,
+            schema.permissionsTable.id,
+          ),
+        );
+
+      const rolePromise = this.drizzle
         .select()
         .from(schema.rolesTable)
         .where(eq(schema.rolesTable.id, id));
 
-      const [role] = rolesList;
+      const [roles, users, permissions] = await Promise.all([
+        rolePromise,
+        usersPromise,
+        permissionsPromise,
+      ]);
 
-      return ok(role ?? null);
+      const [role] = roles;
+
+      return ok({
+        ...role,
+        users,
+        permissions,
+      });
     } catch (e) {
+      console.log(e);
       return err("Failed to select");
     }
   }

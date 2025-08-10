@@ -32,6 +32,13 @@ describe("RolesService", () => {
   const sampleRole = {
     id: 1,
     name: "Admin",
+    users: [
+      {
+        id: 1,
+        username: "Admin",
+      },
+    ],
+    permissions: ["create:something"],
   };
 
   describe("Creating", () => {
@@ -48,7 +55,12 @@ describe("RolesService", () => {
 
   describe("Finding", () => {
     it("should return an array of roles", async () => {
-      const sampleRoles = [sampleRole];
+      const sampleRoles = [
+        {
+          id: 1,
+          name: "Administrator",
+        },
+      ];
       mockRolesRepository.findAll.mockResolvedValueOnce(ok(sampleRoles));
 
       const rolesResult = await service.findAll();

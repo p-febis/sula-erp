@@ -50,7 +50,7 @@ export class RolesController {
 
   @Get(":id")
   @UseGuards(AuthenticationGuard, AuthorizationGuard)
-  @Permission(["read:role"])
+  @Permission(["read:role", "read:user", "read:permission"])
   async findOne(@Param("id") id: string) {
     const roleResult = await this.rolesService.findOne(+id);
 
