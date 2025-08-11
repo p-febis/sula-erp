@@ -45,7 +45,10 @@ export class RolesRepository {
         .from(schema.usersTable)
         .innerJoin(
           schema.usersRolesTable,
-          eq(schema.usersRolesTable.userId, schema.usersTable.id),
+          and(
+            eq(schema.usersRolesTable.roleId, id),
+            eq(schema.usersRolesTable.userId, schema.usersTable.id),
+          ),
         );
 
       const permissionsPromise = this.drizzle
@@ -56,9 +59,13 @@ export class RolesRepository {
         .from(schema.permissionsTable)
         .innerJoin(
           schema.permissionsRolesTable,
-          eq(
-            schema.permissionsRolesTable.permissionId,
-            schema.permissionsTable.id,
+
+          and(
+            eq(schema.permissionsRolesTable.roleId, id),
+            eq(
+              schema.permissionsRolesTable.permissionId,
+              schema.permissionsTable.id,
+            ),
           ),
         );
 
