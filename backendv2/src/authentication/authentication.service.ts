@@ -41,11 +41,17 @@ export class AuthenticationService {
       return err("Invalid password");
     }
 
-    // TODO: Permissions should be fetched from the database
+    const userPermissions =
+      await this.authorizationService.findUserPermissions(userId);
+
+    if (userPermissions.isErr()) {
+      return err();
+    }
+
     const accessToken = await this.jwtService.signAccessToken({
       sub: userId,
       isSuperUser: userResult.value.isSuperUser,
-      permissions: [],
+      permissions: userPermissions.value,
     });
 
     if (!accessToken.isOk()) {
@@ -96,11 +102,18 @@ export class AuthenticationService {
       userResult.value.id,
     );
 
-    // TODO: Permissions should be fetched from the database
+    const userPermissions = await this.authorizationService.findUserPermissions(
+      sessionResult.value.userId,
+    );
+
+    if (userPermissions.isErr()) {
+      return err();
+    }
+
     const accessToken = await this.jwtService.signAccessToken({
       sub: userResult.value.id,
       isSuperUser: userResult.value.isSuperUser,
-      permissions: [],
+      permissions: userPermissions.value,
     });
 
     if (!accessToken.isOk()) return err("Could not generate accessToken");
