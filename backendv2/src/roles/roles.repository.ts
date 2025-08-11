@@ -80,8 +80,7 @@ export class RolesRepository {
         users,
         permissions,
       });
-    } catch (e) {
-      console.log(e);
+    } catch {
       return err("Failed to select");
     }
   }
@@ -110,6 +109,32 @@ export class RolesRepository {
       return ok(role);
     } catch (e) {
       return err("Failed to delete");
+    }
+  }
+
+  async createAssociations(
+    roleId: number,
+    { userIds, permissionIds }: { userIds: number[]; permissionIds: number[] },
+  ) {
+    try {
+      await this.drizzle.transaction(async (tx) => {
+        if (permissionIds.length > 0) {
+          await tx
+            .insert(schema.permissionsRolesTable)
+            .values(
+              permissionIds.map((permissionId) => ({ roleId, permissionId })),
+            );
+        }
+
+        if (userIds.length > 0) {
+          await tx
+            .insert(schema.usersRolesTable)
+            .values(userIds.map((userId) => ({ roleId, userId })));
+        }
+      });
+      return ok();
+    } catch (e) {
+      return err("Failed to insert");
     }
   }
 }

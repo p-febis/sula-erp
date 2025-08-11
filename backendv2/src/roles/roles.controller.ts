@@ -17,6 +17,7 @@ import { AuthenticationGuard } from "../authentication/authentication.guard";
 import { AuthorizationGuard } from "../authorization/authorization.guard";
 import { Permission } from "../authorization/permission.decorator";
 import { ApiResponse } from "../api-response";
+import { UpdateAssociationsDto } from "./dto/update-associations.dto";
 
 @Controller("roles")
 export class RolesController {
@@ -88,5 +89,24 @@ export class RolesController {
     }
 
     return ApiResponse.success(roleResult.value);
+  }
+
+  @Patch(":id/associations")
+  @UseGuards(AuthenticationGuard, AuthorizationGuard)
+  @Permission(["update:role", "read:user", "read:permission"])
+  async patchAssociations(
+    @Param("id") id: string,
+    @Body() updateAssociationsDto: UpdateAssociationsDto,
+  ) {
+    const associationResult = await this.rolesService.createAssociations(
+      +id,
+      updateAssociationsDto,
+    );
+
+    if (associationResult.isErr()) {
+      throw new HttpException(ApiResponse.error(associationResult.error), 500);
+    }
+
+    return ApiResponse.success(null);
   }
 }

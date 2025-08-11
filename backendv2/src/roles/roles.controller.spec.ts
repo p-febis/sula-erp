@@ -19,6 +19,7 @@ describe("RolesController", () => {
     findOne: vi.fn(),
     updateOne: vi.fn(),
     deleteOne: vi.fn(),
+    createAssociations: vi.fn(),
   };
 
   const sampleRole = {
@@ -218,6 +219,39 @@ describe("RolesController", () => {
 
       expect(roleResult).toBeInstanceOf(HttpException);
       expect(roleResult.getStatus()).toBe(500);
+    });
+  });
+
+  describe("Associations", () => {
+    it("should be protected", async () => {
+      assertAuthorizationWithPermissions(
+        RolesController.prototype.patchAssociations,
+        ["update:role", "read:user", "read:permission"],
+      );
+    });
+
+    it("should be able to create the associations", async () => {
+      mockRolesService.createAssociations.mockResolvedValueOnce(ok());
+
+      const result = await controller.patchAssociations("1", {
+        userIds: [1],
+        permissionIds: [2],
+      });
+
+      expect(result).toBeInstanceOf(ApiResponse);
+    });
+
+    it("should throw an error if unable to create the associations", async () => {
+      mockRolesService.createAssociations.mockResolvedValueOnce(
+        err("Failed to insert"),
+      );
+
+      const result = await controller
+        .patchAssociations("1", { userIds: [1], permissionIds: [2] })
+        .catch((e) => e);
+
+      expect(result).toBeInstanceOf(HttpException);
+      expect(result.getStatus()).toBe(500);
     });
   });
 });

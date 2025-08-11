@@ -13,6 +13,7 @@ describe("RolesService", () => {
     findOne: vi.fn(),
     updateOne: vi.fn(),
     deleteOne: vi.fn(),
+    createAssociations: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -97,5 +98,20 @@ describe("RolesService", () => {
 
       expect(role).toEqual(ok(sampleRole));
     });
+  });
+
+  describe("Associations", () => {
+    it("should be able to associate users & permissions", async () => {
+      mockRolesRepository.createAssociations.mockResolvedValueOnce(ok());
+
+      await expect(
+        service.createAssociations(1, {
+          userIds: [1],
+          permissionIds: [2],
+        }),
+      ).resolves.toEqual(ok());
+    });
+
+    it.todo("should be able to disassociate users & permissions");
   });
 });

@@ -32,4 +32,11 @@ export class RolesService {
     const role = this.rolesRepository.deleteOne(id);
     return role;
   }
+
+  async createAssociations(
+    roleId: number,
+    parameters: { userIds: number[]; permissionIds: number[] },
+  ) {
+    return await this.rolesRepository.createAssociations(roleId, parameters);
+  }
 }

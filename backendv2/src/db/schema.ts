@@ -1,4 +1,11 @@
-import { pgTable, integer, varchar, text, boolean } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  integer,
+  varchar,
+  text,
+  boolean,
+  primaryKey,
+} from "drizzle-orm/pg-core";
 
 export const usersTable = pgTable("users", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -21,28 +28,36 @@ export const rolesTable = pgTable("roles", {
   name: varchar({ length: 255 }).notNull(),
 });
 
-export const usersRolesTable = pgTable("users_roles", {
-  userId: integer()
-    .notNull()
-    .references(() => usersTable.id),
-  roleId: integer()
-    .notNull()
-    .references(() => rolesTable.id),
-});
+export const usersRolesTable = pgTable(
+  "users_roles",
+  {
+    userId: integer()
+      .notNull()
+      .references(() => usersTable.id),
+    roleId: integer()
+      .notNull()
+      .references(() => rolesTable.id),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.roleId] })],
+);
 
 export const permissionsTable = pgTable("permissions", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }).notNull().unique(),
 });
 
-export const permissionsRolesTable = pgTable("permissions_roles", {
-  roleId: integer()
-    .notNull()
-    .references(() => rolesTable.id),
-  permissionId: integer()
-    .notNull()
-    .references(() => permissionsTable.id),
-});
+export const permissionsRolesTable = pgTable(
+  "permissions_roles",
+  {
+    roleId: integer()
+      .notNull()
+      .references(() => rolesTable.id),
+    permissionId: integer()
+      .notNull()
+      .references(() => permissionsTable.id),
+  },
+  (table) => [primaryKey({ columns: [table.roleId, table.permissionId] })],
+);
 
 export const customersTable = pgTable("customers", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
