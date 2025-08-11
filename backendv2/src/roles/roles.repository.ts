@@ -49,7 +49,10 @@ export class RolesRepository {
         );
 
       const permissionsPromise = this.drizzle
-        .select()
+        .select({
+          id: schema.permissionsTable.id,
+          name: schema.permissionsTable.name,
+        })
         .from(schema.permissionsTable)
         .innerJoin(
           schema.permissionsRolesTable,
