@@ -42,5 +42,4 @@ export class AuthorizationRepository {
       return err("Failed to find roles for user");
     }
   }
-
 }

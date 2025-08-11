@@ -36,7 +36,12 @@ export class RolesRepository {
   async findOne(id: number) {
     try {
       const usersPromise = this.drizzle
-        .select()
+        .select({
+          id: schema.usersTable.id,
+          username: schema.usersTable.username,
+          email: schema.usersTable.email,
+          isSuperUser: schema.usersTable.isSuperUser,
+        })
         .from(schema.usersTable)
         .innerJoin(
           schema.usersRolesTable,

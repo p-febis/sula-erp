@@ -109,7 +109,7 @@ describe("RolesController", () => {
     });
 
     it("should find all roles", async () => {
-      const sampleRoles = [{ id: 1, name: "Administrator"}];
+      const sampleRoles = [{ id: 1, name: "Administrator" }];
 
       mockRolesService.findAll.mockResolvedValueOnce(ok(sampleRoles));
 
