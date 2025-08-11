@@ -20,6 +20,7 @@ describe("RolesController", () => {
     updateOne: vi.fn(),
     deleteOne: vi.fn(),
     createAssociations: vi.fn(),
+    deleteAssociations: vi.fn(),
   };
 
   const sampleRole = {
@@ -223,7 +224,7 @@ describe("RolesController", () => {
   });
 
   describe("Associations", () => {
-    it("should be protected", async () => {
+    it("should protected the patch route", async () => {
       assertAuthorizationWithPermissions(
         RolesController.prototype.patchAssociations,
         ["update:role", "read:user", "read:permission"],
@@ -248,6 +249,37 @@ describe("RolesController", () => {
 
       const result = await controller
         .patchAssociations("1", { userIds: [1], permissionIds: [2] })
+        .catch((e) => e);
+
+      expect(result).toBeInstanceOf(HttpException);
+      expect(result.getStatus()).toBe(500);
+    });
+
+    it("should protected the delete route", async () => {
+      assertAuthorizationWithPermissions(
+        RolesController.prototype.deleteAssociations,
+        ["delete:role"],
+      );
+    });
+
+    it("should be able to delete the associations", async () => {
+      mockRolesService.deleteAssociations.mockResolvedValueOnce(ok());
+
+      const result = await controller.deleteAssociations("1", {
+        userIds: [1],
+        permissionIds: [2],
+      });
+
+      expect(result).toBeInstanceOf(ApiResponse);
+    });
+
+    it("should throw an error if delete the associations", async () => {
+      mockRolesService.deleteAssociations.mockResolvedValueOnce(
+        err("Failed to insert"),
+      );
+
+      const result = await controller
+        .deleteAssociations("1", { userIds: [1], permissionIds: [2] })
         .catch((e) => e);
 
       expect(result).toBeInstanceOf(HttpException);

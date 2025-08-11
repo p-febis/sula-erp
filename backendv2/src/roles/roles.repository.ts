@@ -2,7 +2,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { err, ok } from "neverthrow";
 import * as schema from "../db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { CreateRoleDto } from "./dto/create-role.dto";
 import { UpdateRoleDto } from "./dto/update-role.dto";
 @Injectable()
@@ -135,6 +135,43 @@ export class RolesRepository {
       return ok();
     } catch (e) {
       return err("Failed to insert");
+    }
+  }
+
+  async deleteAssociations(
+    roleId: number,
+    { userIds, permissionIds }: { userIds: number[]; permissionIds: number[] },
+  ) {
+    try {
+      await this.drizzle.transaction(async (tx) => {
+        if (permissionIds.length > 0) {
+          await tx
+            .delete(schema.permissionsRolesTable)
+            .where(
+              and(
+                inArray(
+                  schema.permissionsRolesTable.permissionId,
+                  permissionIds,
+                ),
+                eq(schema.permissionsRolesTable.roleId, roleId),
+              ),
+            );
+        }
+
+        if (userIds.length > 0) {
+          await tx
+            .delete(schema.usersRolesTable)
+            .where(
+              and(
+                inArray(schema.usersRolesTable.userId, userIds),
+                eq(schema.usersRolesTable.roleId, roleId),
+              ),
+            );
+        }
+      });
+      return ok();
+    } catch (e) {
+      return err("Failed to delete");
     }
   }
 }

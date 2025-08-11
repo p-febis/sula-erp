@@ -14,6 +14,7 @@ describe("RolesService", () => {
     updateOne: vi.fn(),
     deleteOne: vi.fn(),
     createAssociations: vi.fn(),
+    deleteAssociations: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -112,6 +113,15 @@ describe("RolesService", () => {
       ).resolves.toEqual(ok());
     });
 
-    it.todo("should be able to disassociate users & permissions");
+    it("should be able to disassociate users & permissions", async () => {
+      mockRolesRepository.deleteAssociations.mockResolvedValueOnce(ok());
+
+      await expect(
+        service.deleteAssociations(1, {
+          userIds: [1],
+          permissionIds: [2],
+        }),
+      ).resolves.toEqual(ok());
+    });
   });
 });

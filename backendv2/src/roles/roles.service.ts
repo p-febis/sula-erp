@@ -39,4 +39,12 @@ export class RolesService {
   ) {
     return await this.rolesRepository.createAssociations(roleId, parameters);
   }
+
+  async deleteAssociations(
+    roleId: number,
+    parameters: { userIds: number[]; permissionIds: number[] },
+  ) {
+
+    return await this.rolesRepository.deleteAssociations(roleId, parameters);
+  }
 }
