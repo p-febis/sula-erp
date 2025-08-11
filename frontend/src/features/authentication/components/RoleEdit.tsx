@@ -52,7 +52,6 @@ export const RoleEdit = ({ roleId }: { roleId?: string }) => {
       permissionIds: role?.permissions?.map(({ id }) => id) ?? [],
     },
     onSubmit: async ({ value }) => {
-
       const {
         toAssociate: toAssociateUserIds,
         toDisassociate: toDisassociateUserIds,
@@ -69,21 +68,28 @@ export const RoleEdit = ({ roleId }: { roleId?: string }) => {
         value.permissionIds,
       );
 
-      updateRoleAssociations({
-        action: "associate",
-        body: {
-          userIds: Array.from(toAssociateUserIds),
-          permissionIds: Array.from(toAssociatePermissionIds),
-        },
-      });
+      if (toAssociateUserIds.size > 0 || toAssociatePermissionIds.size > 0) {
+        updateRoleAssociations({
+          action: "associate",
+          body: {
+            userIds: Array.from(toAssociateUserIds),
+            permissionIds: Array.from(toAssociatePermissionIds),
+          },
+        });
+      }
 
-      updateRoleAssociations({
-        action: "disassociate",
-        body: {
-          userIds: Array.from(toDisassociateUserIds),
-          permissionIds: Array.from(toDisassociatePermissionIds),
-        },
-      });
+      if (
+        toDisassociateUserIds.size > 0 ||
+        toDisassociatePermissionIds.size > 0
+      ) {
+        updateRoleAssociations({
+          action: "disassociate",
+          body: {
+            userIds: Array.from(toDisassociateUserIds),
+            permissionIds: Array.from(toDisassociatePermissionIds),
+          },
+        });
+      }
     },
   });
 
