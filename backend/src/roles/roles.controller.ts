@@ -123,7 +123,10 @@ export class RolesController {
     );
 
     if (disassociationResult.isErr()) {
-      throw new HttpException(ApiResponse.error(disassociationResult.error), 500);
+      throw new HttpException(
+        ApiResponse.error(disassociationResult.error),
+        500,
+      );
     }
 
     return ApiResponse.success(null);

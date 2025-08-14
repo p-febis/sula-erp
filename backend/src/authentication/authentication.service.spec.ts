@@ -91,7 +91,9 @@ describe("AuthenticationService", () => {
   describe("Login", () => {
     it("should return an error if user not found", async () => {
       mockUsersRepository.findByEmail.mockResolvedValueOnce(ok(null));
-      mockAuthorizationService.findUserPermissions.mockResolvedValueOnce(ok([]));
+      mockAuthorizationService.findUserPermissions.mockResolvedValueOnce(
+        ok([]),
+      );
 
       const loginResult = await service.login({
         email: "john@doeenterprises.com",
@@ -103,7 +105,9 @@ describe("AuthenticationService", () => {
 
     it("should return an error if password is invalid", async () => {
       mockUsersRepository.findByEmail.mockResolvedValueOnce(ok(sampleUser));
-      mockAuthorizationService.findUserPermissions.mockResolvedValueOnce(ok([]));
+      mockAuthorizationService.findUserPermissions.mockResolvedValueOnce(
+        ok([]),
+      );
 
       const loginResult = await service.login({
         email: "john@doeenterprises.com",
@@ -122,7 +126,9 @@ describe("AuthenticationService", () => {
         sessionToken: "aaaaa.bbbbb",
       };
       mockUsersRepository.findByEmail.mockResolvedValueOnce(ok(sampleUser));
-      mockAuthorizationService.findUserPermissions.mockResolvedValueOnce(ok([]));
+      mockAuthorizationService.findUserPermissions.mockResolvedValueOnce(
+        ok([]),
+      );
       mockJwtService.signAccessToken.mockResolvedValueOnce(
         ok(MOCK_ACCESS_TOKEN),
       );
@@ -197,7 +203,9 @@ describe("AuthenticationService", () => {
 
       mockSessionService.verifySession.mockResolvedValueOnce(ok(MOCK_SESSION));
       mockSessionService.createSession.mockResolvedValueOnce(ok(MOCK_SESSION));
-      mockAuthorizationService.findUserPermissions.mockResolvedValueOnce(ok([]));
+      mockAuthorizationService.findUserPermissions.mockResolvedValueOnce(
+        ok([]),
+      );
       mockJwtService.signAccessToken.mockResolvedValueOnce(
         ok(MOCK_ACCESS_TOKEN),
       );

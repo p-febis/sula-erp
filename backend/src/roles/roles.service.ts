@@ -44,7 +44,6 @@ export class RolesService {
     roleId: number,
     parameters: { userIds: number[]; permissionIds: number[] },
   ) {
-
     return await this.rolesRepository.deleteAssociations(roleId, parameters);
   }
 }
